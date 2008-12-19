@@ -13,7 +13,7 @@ expressions
     ...     my_name_is = sys.argv[0]
     ... def example2():
     ...     import sys
-    ...     my_whereabouts_are = os.getcwd()
+    ...     my_whereabouts_are = os.path.abspath(os.getcwd())
     ... ''')
 
     >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
