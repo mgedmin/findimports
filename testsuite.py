@@ -42,8 +42,9 @@ def tearDown(test):
 
 
 def additional_tests(): # hook for setuptools
-    sample_tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                               'tests', 'sample-tree'))
+    # paths relative to __file__ don't work if you run 'figleaf testsuite.py'
+    # so we have to use paths relative to os.getcwd()
+    sample_tree = os.path.abspath(os.path.join('tests', 'sample-tree'))
     globs = dict(sample_tree=sample_tree)
     return unittest.TestSuite(
             doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
