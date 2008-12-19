@@ -503,7 +503,7 @@ class ModuleGraph(object):
     def printImports(self):
         """Produce a report of dependencies."""
         for module in self.listModules():
-            print "%s:" % module.modname
+            print "%s:" % module.label
             if self.external_dependencies:
                 imports = list(module.imports)
             else:
