@@ -34,12 +34,6 @@ Elaboration:
 
     findimports.py -u -a will ignore comments and print these statements also.
 
-Shortcomings:
-
-    FindImports does not process doctest sections in docstrings.  This may
-    cause some imports to be falsely flagged as unused, and may miss other
-    imports.
-
 Caching:
 
     If you want to produce several different reports from the same dataset,
