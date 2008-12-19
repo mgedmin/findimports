@@ -43,7 +43,7 @@ Caching:
         findimports.py foo.importcache -d -T > graph1.dot
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
-Copyright (c) 2003--2005 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2006 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
