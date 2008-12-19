@@ -6,8 +6,8 @@ Parsing a large source tree can take a while
     >>> from findimports import ModuleGraph
     >>> graph = ModuleGraph()
     >>> graph.parsePathname(sample_tree)
-    >>> sorted(graph.modules)
-    ['apple', 'orange']
+    >>> 'box.cat' in graph.modules
+    True
 
 we can save a cache of all the information
 
@@ -16,7 +16,19 @@ we can save a cache of all the information
 and load it later
 
     >>> newgraph = ModuleGraph()
+    >>> 'box.cat' in newgraph.modules
+    False
     >>> newgraph.readCache('sample.importcache')
-    >>> sorted(newgraph.modules)
-    ['apple', 'orange']
+    >>> 'box.cat' in newgraph.modules
+    True
+
+If you pass a filename that ends in '.importcache' on the command line,
+it'll get loaded
+
+    >>> newgraph = ModuleGraph()
+    >>> 'box.cat' in newgraph.modules
+    False
+    >>> newgraph.parsePathname('sample.importcache')
+    >>> 'box.cat' in newgraph.modules
+    True
 
