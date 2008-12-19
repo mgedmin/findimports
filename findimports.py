@@ -416,7 +416,7 @@ class ModuleGraph(object):
 
     def packageOf(self, dotted_name, packagelevel=None):
         """Determine the package that contains ``dotted_name``."""
-        if '.' not in dotted_name:
+        if '.' not in dotted_name or self.isPackage(dotted_name):
             return dotted_name
         return '.'.join(dotted_name.split('.')[:-1][:packagelevel])
 
