@@ -248,7 +248,9 @@ class ModuleGraph(object):
         self.modules = {}
         self.path = sys.path
         self._module_cache = {}
-        self._warned_about = sets.Set()
+        # some builtin modules cannot be found using normal means, but we don't
+        # want to report warnings about them
+        self._warned_about = sets.Set(['gc'])
 
     def parsePathname(self, pathname):
         """Parse one or more source files.
