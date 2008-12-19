@@ -1,0 +1,40 @@
+Listing unused imports
+======================
+
+Let's copy the sample tree to the temporary directory used for the tests,
+so we can see short relative pathnames.
+
+    >>> import shutil
+    >>> shutil.copytree(sample_tree, 'sample-tree')
+
+Passing '-u' to findimports will give a list of unused import statements,
+formatted in the traditional Unix compiler style
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '-u', 'sample-tree'])
+    sample-tree/box/cat.py:1: gc not used
+
+    >>> exitcode
+    0
+
+
+Getting rid of warnings
+-----------------------
+
+Sometimes you want to explicitly disable a warning (e.g. when the name is
+imported solely for the purpose of being re-exported).  Simply place a
+comment on that line of code to suppress the warning:
+
+    >>> open('sample-tree/unused.py', 'w').write('''
+    ... import re # unused, but this comment makes findimports ignore that
+    ... ''')
+
+    >>> exitcode = main(['findimports', '-u', 'sample-tree'])
+    sample-tree/box/cat.py:1: gc not used
+
+If you want to see that warning, pass '-a' in addition to '-u'
+
+    >>> exitcode = main(['findimports', '-u', '-a', 'sample-tree'])
+    sample-tree/box/cat.py:1: gc not used
+    sample-tree/unused.py:2: re not used
+
