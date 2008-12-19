@@ -22,6 +22,8 @@ Options:
   -l N, --level N   Collapse subpackages deeper than the Nth level.
 
   -c, --collapse    Collapse dependency cycles
+  -T, --tests       Collapse packages named 'tests' and 'ftests' with parent
+                    packages
 
 Elaboration:
 
@@ -349,6 +351,17 @@ class ModuleGraph(object):
             return dotted_name
         return '.'.join(dotted_name.split('.')[:-1][:packagelevel])
 
+    def removeTestPackage(self, dotted_name, pkgnames=['tests', 'ftests']):
+        """Remove tests subpackages from dotted_name."""
+        result = []
+        for name in dotted_name.split('.'):
+            if name in pkgnames:
+                break
+            result.append(name)
+        if not result: # empty names are baad
+            return dotted_name
+        return '.'.join(result)
+
     def listModules(self):
         """Return an alphabetical list of all modules."""
         modules = list(self.modules.items())
@@ -366,6 +379,24 @@ class ModuleGraph(object):
             package = packages[package_name]
             for name in module.imports:
                 package_name = self.packageOf(name)
+                if package_name != package.modname: # no loops
+                    package.imports.add(package_name)
+        graph = ModuleGraph()
+        graph.modules = packages
+        return graph
+
+    def collapseTests(self, pkgnames=['tests', 'ftests']):
+        """Collapse test packages with parent packages."""
+        packages = {}
+        for module in self.listModules():
+            package_name = self.removeTestPackage(module.modname, pkgnames)
+            if package_name == module.modname:
+                packages[package_name] = Module(package_name, module.filename)
+        for module in self.listModules():
+            package_name = self.removeTestPackage(module.modname, pkgnames)
+            package = packages[package_name]
+            for name in module.imports:
+                package_name = self.removeTestPackage(name, pkgnames)
                 if package_name != package.modname: # no loops
                     package.imports.add(package_name)
         graph = ModuleGraph()
@@ -514,13 +545,14 @@ def main(argv=sys.argv):
     action = 'printImports'
     condense_to_packages = False
     collapse_cycles = False
+    collapse_tests = False
     packagelevel = None
     noext = False
     try:
-        opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:cN',
+        opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:cNT',
                                    ['dot', 'unused', 'all', 'names', 'imports',
                                     'packages', 'level=', 'help', 'collapse',
-                                    'noext'])
+                                    'noext', 'tests'])
     except getopt.error, e:
         print >> sys.stderr, "%s: %s" % (progname, e)
         print >> sys.stderr, "Try %s --help." % progname
@@ -544,6 +576,8 @@ def main(argv=sys.argv):
             collapse_cycles = True
         elif k in ('-N', '--noext'):
             noext = True
+        elif k in ('-T', '--tests'):
+            collapse_tests = True
         elif k in ('-h', '--help'):
             print helptext
             return 0
@@ -554,6 +588,8 @@ def main(argv=sys.argv):
         g.parsePathname(fn)
     if condense_to_packages:
         g = g.packageGraph(packagelevel)
+    if collapse_tests:
+        g = g.collapseTests()
     if collapse_cycles:
         g = g.collapseCycles()
     g.external_dependencies = not noext
