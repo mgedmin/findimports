@@ -166,9 +166,10 @@ class ModuleGraph(object):
     def parsePathname(self, pathname):
         if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
-                for filename in files:
-                    if filename.endswith('.py'):
-                        self.parseFile(os.path.join(root, filename))
+                for fn in files:
+                    # ignore emacsish junk
+                    if fn.endswith('.py') and not fn.startswith('.#'):
+                        self.parseFile(os.path.join(root, fn))
         else:
             self.parseFile(pathname)
 
