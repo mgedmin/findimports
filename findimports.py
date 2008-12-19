@@ -491,7 +491,7 @@ def main(argv=sys.argv):
     collapse_cycles = False
     packagelevel = None
     try:
-        opts, args = getopt.getopt(argv[1:], 'duniahpl:c',
+        opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:c',
                                    ['dot', 'unused', 'all', 'names', 'imports',
                                     'packages', 'level=', 'help', 'collapse'])
     except getopt.error, e:
