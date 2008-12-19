@@ -439,7 +439,7 @@ class ModuleGraph(object):
         for u in self.modules:
             imports[u] = sets.Set()
             for v in self.modules[u].imports:
-                if v in self.modules:
+                if v in self.modules: # skip external dependencies
                     imports[u].add(v)
         # Phase 1: order the vertices
         visited = {}
@@ -474,7 +474,7 @@ class ModuleGraph(object):
             for v in revimports[u]:
                 if not visited[v]:
                     visit2(v)
-        for u in self.modules:
+        for u in order:
             if not visited[u]:
                 component = []
                 visit2(u)
