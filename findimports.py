@@ -425,7 +425,6 @@ class ModuleGraph(object):
                 break
         modname.reverse()
         modname = ".".join(modname)
-        print filename, '->', modname
         return modname
 
     def findModuleOfName(self, dotted_name, filename, extrapath=None):
