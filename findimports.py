@@ -83,6 +83,9 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
+__version__ = '1.0'
+
+
 class ImportFinder(ASTVisitor):
     """AST visitor that collects all imported names in its imports attribute.
 
@@ -146,12 +149,27 @@ class ImportFinder(ASTVisitor):
                 self.lineno_offset -= lineno
 
 
+def adjust_lineno(filename, lineno, name):
+    """Adjust the line number of an import.
+
+    Needed because import statements can span multiple lines, and our lineno
+    is always the first line number.
+    """
+    line = linecache.getline(filename, lineno)
+    # Hack warning: might be fooled by substrings or comments
+    while name not in line and line:
+        lineno += 1
+        line = linecache.getline(filename, lineno)
+    return lineno
+
+
 class ImportInfo(object):
     """A record of a name and the location of the import statement."""
 
-    def __init__(self, name, lineno):
+    def __init__(self, name, filename, lineno):
         self.name = name
-        self.lineno = lineno
+        self.filename = filename
+        self.lineno = adjust_lineno(filename, lineno, name)
 
 
 class ImportFinderAndNameTracker(ImportFinder):
@@ -177,6 +195,7 @@ class ImportFinderAndNameTracker(ImportFinder):
                                       % (self.filename, where))
             else:
                 self.unused_names[imported_as] = ImportInfo(imported_as,
+                                                            self.filename,
                                                             lineno)
 
     def visitName(self, node):
