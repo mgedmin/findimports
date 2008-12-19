@@ -2,7 +2,7 @@
 """
 FindImports is a script that processes Python module dependencies.  Currently
 it can be used for finding unused imports and graphing module dependencies
-(with graphviz).  FindImports requires Python 2.3 or later.
+(with graphviz).  FindImports requires Python 2.4 or later.
 
 Syntax: findimports.py [options] [filename|dirname ...]
 
@@ -79,11 +79,12 @@ import doctest
 import compiler
 import linecache
 import pickle
+from operator import attrgetter
 from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
 
 class ImportFinder(ASTVisitor):
@@ -214,20 +215,21 @@ class ImportFinderAndNameTracker(ImportFinder):
         ImportFinder.__init__(self, filename)
         self.scope = self.top_level = Scope(name=filename)
         self.scope_stack = []
-        self.unused_names = {}
+        self.unused_names = []
 
     def newScope(self, parent, name=None):
         self.scope_stack.append(self.scope)
         self.scope = Scope(parent, name)
 
     def leaveScope(self):
-        self.unused_names.update(self.scope.unused_names)
+        self.unused_names += self.scope.unused_names.values()
         self.scope = self.scope_stack.pop()
 
     def leaveAllScopes(self):
         while self.scope_stack:
             self.leaveScope()
-        self.unused_names.update(self.scope.unused_names)
+        self.unused_names += self.scope.unused_names.values()
+        self.unused_names.sort(key=attrgetter('lineno'))
 
     def processDocstring(self, docstring, lineno):
         self.newScope(self.top_level, 'docstring')
@@ -621,7 +623,7 @@ class ModuleGraph(object):
         """Produce a report of unused imports."""
         for module in self.listModules():
             names = [(unused.lineno, unused.name)
-                     for unused in module.unused_names.itervalues()]
+                     for unused in module.unused_names]
             names.sort()
             for lineno, name in names:
                 if not self.all_unused:
