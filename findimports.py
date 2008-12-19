@@ -43,6 +43,11 @@ Caching:
         findimports.py foo.importcache -d -T > graph1.dot
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
+Bugs:
+
+    findimports doesn't know about scoping rules and may emit false
+    warnings.
+
 Copyright (c) 2003--2007 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -152,8 +157,15 @@ class ImportFinderAndNameTracker(ImportFinder):
         if not imported_as:
             imported_as = name
         if imported_as != "*":
-            self.unused_names[imported_as] = ImportInfo(imported_as,
-                                                        node.lineno)
+            if imported_as in self.unused_names:
+                where = self.unused_names[imported_as].lineno
+                print >> sys.stderr, ("%s:%s: %s imported again"
+                                      " (first imported on line %s)"
+                                      % (self.filename, node.lineno,
+                                         imported_as, where))
+            else:
+                self.unused_names[imported_as] = ImportInfo(imported_as,
+                                                            node.lineno)
 
     def visitName(self, node):
         if node.name in self.unused_names:
