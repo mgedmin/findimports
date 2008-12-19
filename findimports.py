@@ -132,8 +132,8 @@ class ImportFinder(ASTVisitor):
                 compiler.walk(ast, self)
 
 
-class UnusedName(object):
-    """Instance of an unused import."""
+class ImportInfo(object):
+    """A record of a name and the location of the import statement."""
 
     def __init__(self, name, lineno):
         self.name = name
@@ -152,7 +152,7 @@ class ImportFinderAndNameTracker(ImportFinder):
         if not imported_as:
             imported_as = name
         if imported_as != "*":
-            self.unused_names[imported_as] = UnusedName(imported_as,
+            self.unused_names[imported_as] = ImportInfo(imported_as,
                                                         node.lineno)
 
     def visitName(self, node):
@@ -190,7 +190,7 @@ def find_imports_and_track_names(filename):
 
     Returns ``(imports, unused)`` where ``imports`` is a list of
     fully-qualified names that are imported, and ``unused`` is a list of
-    UnusedName objects.
+    ImportInfo objects.
     """
     ast = compiler.parseFile(filename)
     visitor = ImportFinderAndNameTracker(filename)
