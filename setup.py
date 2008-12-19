@@ -14,7 +14,7 @@ setup(
     url='https://launchpad.net/findimports',
     download_url='http://pypi.python.org/pypi/findimports',
     description='Python module import analysis tool',
-    long_description=readme,
+    long_description=open(readme).read(),
     license='GPL',
 
     py_modules=['findimports'],
