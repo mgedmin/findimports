@@ -77,7 +77,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.0'
+__version__ = '1.2.1'
 
 
 class ImportFinder(ASTVisitor):
@@ -130,6 +130,9 @@ class ImportFinder(ASTVisitor):
     def processDocstring(self, docstring, lineno):
         if not docstring:
             return
+        if lineno is None:
+            # Module nodes have a lineno of None.
+            lineno = 0
         dtparser = doctest.DocTestParser()
         for example in dtparser.get_examples(docstring):
             try:
