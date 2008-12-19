@@ -40,6 +40,15 @@ Shortcomings:
     cause some imports to be falsely flagged as unused, and may miss other
     imports.
 
+Caching:
+
+    If you want to produce several different reports from the same dataset,
+    you can do it as follows:
+
+        findimports.py --write-cache foo.importcache dirname
+        findimports.py foo.importcache -d -T > graph1.dot
+        findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
+
 Copyright (c) 2003--2005 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
@@ -63,6 +72,7 @@ import getopt
 import doctest
 import compiler
 import linecache
+import pickle
 from compiler import ast
 from compiler.visitor import ASTVisitor
 
@@ -251,8 +261,22 @@ class ModuleGraph(object):
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
                         self.parseFile(os.path.join(root, fn))
+        elif pathname.endswith('.importcache'):
+            self.readCache(pathname)
         else:
             self.parseFile(pathname)
+
+    def writeCache(self, filename):
+        """Write the graph to a cache file."""
+        f = file(filename, 'wb')
+        pickle.dump(self.modules, f)
+        f.close()
+
+    def readCache(self, filename):
+        """Load the graph from a cache file."""
+        f = file(filename, 'rb')
+        self.modules = pickle.load(f)
+        f.close()
 
     def parseFile(self, filename):
         """Parse a single file."""
@@ -548,11 +572,12 @@ def main(argv=sys.argv):
     collapse_tests = False
     packagelevel = None
     noext = False
+    write_cache = None
     try:
         opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:cNT',
                                    ['dot', 'unused', 'all', 'names', 'imports',
                                     'packages', 'level=', 'help', 'collapse',
-                                    'noext', 'tests'])
+                                    'noext', 'tests', 'write-cache='])
     except getopt.error, e:
         print >> sys.stderr, "%s: %s" % (progname, e)
         print >> sys.stderr, "Try %s --help." % progname
@@ -578,6 +603,8 @@ def main(argv=sys.argv):
             noext = True
         elif k in ('-T', '--tests'):
             collapse_tests = True
+        elif k == '--write-cache':
+            write_cache = v
         elif k in ('-h', '--help'):
             print helptext
             return 0
@@ -586,6 +613,8 @@ def main(argv=sys.argv):
         args = ['.']
     for fn in args:
         g.parsePathname(fn)
+    if write_cache:
+        g.writeCache(write_cache)
     if condense_to_packages:
         g = g.packageGraph(packagelevel)
     if collapse_tests:
