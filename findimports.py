@@ -31,10 +31,11 @@ You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 675 Mass
 Ave, Cambridge, MA 02139, USA.
 """
+
 import os
 import sys
+import sets
 import getopt
-import logging
 import compiler
 import linecache
 from sets import Set
@@ -144,14 +145,14 @@ def find_imports_and_track_names(filename):
     return visitor.imports, visitor.unused_names
 
 
-class Module:
+class Module(object):
 
     def __init__(self, modname, filename):
         self.modname = modname
         self.filename = filename
 
 
-class ModuleGraph:
+class ModuleGraph(object):
 
     trackUnusedNames = False
     all_unused = False
@@ -160,12 +161,13 @@ class ModuleGraph:
         self.modules = {}
         self.path = sys.path
         self._module_cache = {}
+        self._warned_about = sets.Set()
 
     def parsePathname(self, pathname):
         if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
                 for filename in files:
-                    if filename[-3:] == '.py':
+                    if filename.endswith('.py'):
                         self.parseFile(os.path.join(root, filename))
         else:
             self.parseFile(pathname)
@@ -181,7 +183,7 @@ class ModuleGraph:
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        module.imports = Set([self.findModuleOfName(name, dir)
+        module.imports = Set([self.findModuleOfName(name, filename, dir)
                               for name in module.imported_names])
 
     def filenameToModname(self, filename):
@@ -189,7 +191,7 @@ class ModuleGraph:
             if filename.endswith(ext):
                 break
         else:
-            raise ValueError('filename has unknown extension', filename)
+            print >> sys.stderr, "%s: unknown file name extension" % filename
         longest_prefix_len = 0
         filename = os.path.abspath(filename)
         for prefix in self.path:
@@ -203,7 +205,7 @@ class ModuleGraph:
         modname = ".".join(filename.split(os.path.sep))
         return modname
 
-    def findModuleOfName(self, dotted_name, extrapath=None):
+    def findModuleOfName(self, dotted_name, filename, extrapath=None):
         if dotted_name.endswith('.*'):
             return dotted_name[:-2]
         name = dotted_name
@@ -215,7 +217,10 @@ class ModuleGraph:
             if candidate:
                 return candidate
             name = name[:name.rfind('.')]
-        logging.warn('could not find out name for %s' % dotted_name)
+        if dotted_name not in self._warned_about:
+            print >> sys.stderr, ("%s: could not find %s"
+                                  % (filename, dotted_name))
+            self._warned_about.add(dotted_name)
         return dotted_name
 
     def isModule(self, dotted_name, extrapath=None):
