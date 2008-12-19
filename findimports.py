@@ -504,7 +504,7 @@ def quote(s):
 
     This function is probably incomplete.
     """
-    return s.replace("\\", "\\\\").replace('"', '\\"').replace('\n', '\\n\\')
+    return s.replace("\\", "\\\\").replace('"', '\\"').replace('\n', '\\n')
 
 
 def main(argv=sys.argv):
