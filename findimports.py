@@ -58,6 +58,7 @@ import os
 import sys
 import sets
 import getopt
+import doctest
 import compiler
 import linecache
 from compiler import ast
@@ -94,6 +95,23 @@ class ImportFinder(ASTVisitor):
     def visitFrom(self, node):
         for name, imported_as in node.names:
             self.imports.append('%s.%s' % (node.modname, name))
+
+    def visitSomethingWithADocstring(self, node):
+        self.processDocstring(node.doc)
+        for c in node.getChildNodes():
+            self.visit(c)
+
+    visitModule = visitSomethingWithADocstring
+    visitClass = visitSomethingWithADocstring
+    visitFunction = visitSomethingWithADocstring
+
+    def processDocstring(self, docstring):
+        if not docstring:
+            return
+        dtparser = doctest.DocTestParser()
+        for example in dtparser.get_examples(docstring):
+            ast = compiler.parse(example.source)
+            compiler.walk(ast, self)
 
 
 class UnusedName(object):
