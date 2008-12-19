@@ -11,12 +11,17 @@ Imports in doctest sections inside docstrings are also handled
     ...     """
     ...         >>> import sys
     ...     """
+    ... class Example():
+    ...     """
+    ...         >>> import gc
+    ...     """
     ... ''')
 
     >>> for imp in find_imports('marmalade.py'):
     ...     print imp
     ImportInfo('doctest', 'marmalade.py', 2)
     ImportInfo('sys', 'marmalade.py', 5)
+    ImportInfo('gc', 'marmalade.py', 9)
 
 Note that we carefully adjust line numbers to make sure they match reality.
 
