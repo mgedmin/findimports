@@ -435,7 +435,7 @@ class ModuleGraph(object):
             if self.external_dependencies:
                 imports = list(module.imports)
             else:
-                imports = [modname for modname in module.impors
+                imports = [modname for modname in module.imports
                            if modname in self.modules]
             imports.sort()
             print "  %s" % "\n  ".join(imports)
@@ -532,7 +532,6 @@ def main(argv=sys.argv):
             print helptext
             return 0
     g.trackUnusedNames = (action == 'printUnusedImports')
-    g.external_dependencies = not noext
     if not args:
         args = ['.']
     for fn in args:
@@ -541,6 +540,7 @@ def main(argv=sys.argv):
         g = g.packageGraph(packagelevel)
     if collapse_cycles:
         g = g.collapseCycles()
+    g.external_dependencies = not noext
     getattr(g, action)()
     return 0
 
