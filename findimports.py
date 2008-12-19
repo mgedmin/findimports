@@ -15,6 +15,9 @@ Options:
 
   -u, --unused      Print unused imports.
   -a, --all         Print unused imports even if there's a comment.
+  --duplicate       Print duplicate imports (experimental).
+                      May print false warnings because FindImports ignores
+                      Python scoping rules.
 
   -N, --noext       Omit external dependencies.
 
@@ -47,6 +50,8 @@ Bugs:
 
     findimports doesn't know about scoping rules and may emit false
     warnings.
+
+    line numbers inside doctests are a little off.
 
 Copyright (c) 2003--2007 Marius Gedminas <marius@pov.lt>
 
@@ -98,6 +103,8 @@ class ImportFinder(ASTVisitor):
        woof.*
     """
 
+    lineno_offset = 0       # needed when recursively parsing docstrings
+
     def __init__(self, filename):
         self.imports = []
         self.filename = filename
@@ -134,7 +141,9 @@ class ImportFinder(ASTVisitor):
                 print >> sys.stderr, ("%s:%s: syntax error in doctest"
                                       % (self.filename, lineno))
             else:
+                self.lineno_offset += lineno
                 compiler.walk(ast, self)
+                self.lineno_offset -= lineno
 
 
 class ImportInfo(object):
@@ -148,6 +157,8 @@ class ImportInfo(object):
 class ImportFinderAndNameTracker(ImportFinder):
     """ImportFinder that also keeps track on used names."""
 
+    warn_about_duplicates = False
+
     def __init__(self, filename):
         ImportFinder.__init__(self, filename)
         self.unused_names = {}
@@ -157,15 +168,16 @@ class ImportFinderAndNameTracker(ImportFinder):
         if not imported_as:
             imported_as = name
         if imported_as != "*":
-            if imported_as in self.unused_names:
+            lineno = self.lineno_offset + node.lineno
+            if imported_as in self.unused_names and self.warn_about_duplicates:
                 where = self.unused_names[imported_as].lineno
                 print >> sys.stderr, ("%s:%s: %s imported again"
-                                      " (first imported on line %s)"
-                                      % (self.filename, node.lineno,
-                                         imported_as, where))
+                                      % (self.filename, lineno, imported_as))
+                print >> sys.stderr, ("%s:%s:   (location of previous import)"
+                                      % (self.filename, where))
             else:
                 self.unused_names[imported_as] = ImportInfo(imported_as,
-                                                            node.lineno)
+                                                            lineno)
 
     def visitName(self, node):
         if node.name in self.unused_names:
@@ -197,7 +209,8 @@ def find_imports(filename):
     compiler.walk(ast, visitor)
     return visitor.imports
 
-def find_imports_and_track_names(filename):
+
+def find_imports_and_track_names(filename, warn_about_duplicates=False):
     """Find all imported names in a given file.
 
     Returns ``(imports, unused)`` where ``imports`` is a list of
@@ -206,6 +219,7 @@ def find_imports_and_track_names(filename):
     """
     ast = compiler.parseFile(filename)
     visitor = ImportFinderAndNameTracker(filename)
+    visitor.warn_about_duplicates = warn_about_duplicates
     compiler.walk(ast, visitor)
     return visitor.imports, visitor.unused_names
 
@@ -250,6 +264,7 @@ class ModuleGraph(object):
 
     trackUnusedNames = False
     all_unused = False
+    warn_about_duplicates = False
     external_dependencies = True
 
     def __init__(self):
@@ -295,7 +310,8 @@ class ModuleGraph(object):
         self.modules[modname] = module
         if self.trackUnusedNames:
             module.imported_names, module.unused_names = \
-                    find_imports_and_track_names(filename)
+                    find_imports_and_track_names(filename,
+                                                 self.warn_about_duplicates)
         else:
             module.imported_names = find_imports(filename)
             module.unused_names = None
@@ -587,7 +603,8 @@ def main(argv=sys.argv):
         opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:cNT',
                                    ['dot', 'unused', 'all', 'names', 'imports',
                                     'packages', 'level=', 'help', 'collapse',
-                                    'noext', 'tests', 'write-cache='])
+                                    'noext', 'tests', 'write-cache=',
+                                    'duplicate'])
     except getopt.error, e:
         print >> sys.stderr, "%s: %s" % (progname, e)
         print >> sys.stderr, "Try %s --help." % progname
@@ -599,6 +616,8 @@ def main(argv=sys.argv):
             action = 'printUnusedImports'
         elif k in ('-a', '--all'):
             g.all_unused = True
+        elif k == '--duplicate':
+            g.warn_about_duplicates = True
         elif k in ('-n', '--names'):
             action = 'printImportedNames'
         elif k in ('-i', '--imports'):
