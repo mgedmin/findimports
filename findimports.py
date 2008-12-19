@@ -416,9 +416,13 @@ class ModuleGraph(object):
 
     def packageOf(self, dotted_name, packagelevel=None):
         """Determine the package that contains ``dotted_name``."""
-        if '.' not in dotted_name or self.isPackage(dotted_name):
+        if '.' not in dotted_name:
             return dotted_name
-        return '.'.join(dotted_name.split('.')[:-1][:packagelevel])
+        if not self.isPackage(dotted_name):
+            dotted_name = '.'.join(dotted_name.split('.')[:-1])
+        if packagelevel:
+            dotted_name = '.'.join(dotted_name.split('.')[:packagelevel])
+        return dotted_name
 
     def removeTestPackage(self, dotted_name, pkgnames=['tests', 'ftests']):
         """Remove tests subpackages from dotted_name."""
@@ -447,7 +451,7 @@ class ModuleGraph(object):
                 packages[package_name] = Module(package_name, dirname)
             package = packages[package_name]
             for name in module.imports:
-                package_name = self.packageOf(name)
+                package_name = self.packageOf(name, packagelevel)
                 if package_name != package.modname: # no loops
                     package.imports.add(package_name)
         graph = ModuleGraph()
