@@ -46,7 +46,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2007 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2006 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -77,7 +77,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.3'
+__version__ = '1.2.4'
 
 
 class ImportFinder(ASTVisitor):
@@ -410,20 +410,22 @@ class ModuleGraph(object):
         """Convert a filename to a module name."""
         for ext in ('.py', '.so', '.dll'):
             if filename.endswith(ext):
+                filename = filename[:-len(ext)]
                 break
         else:
             print >> sys.stderr, "%s: unknown file name extension" % filename
         longest_prefix_len = 0
         filename = os.path.abspath(filename)
-        for prefix in self.path:
-            prefix = os.path.abspath(prefix)
-            if (filename.startswith(prefix)
-                and len(prefix) > longest_prefix_len):
-                longest_prefix_len = len(prefix)
-        filename = filename[longest_prefix_len:-len('.py')]
-        if filename.startswith(os.path.sep):
-            filename = filename[len(os.path.sep):]
-        modname = ".".join(filename.split(os.path.sep))
+        elements = filename.split(os.path.sep)
+        modname = []
+        while elements:
+            modname.append(elements[-1])
+            del elements[-1]
+            if not os.path.exists(os.path.sep.join(elements + ['__init__.py'])):
+                break
+        modname.reverse()
+        modname = ".".join(modname)
+        print filename, '->', modname
         return modname
 
     def findModuleOfName(self, dotted_name, filename, extrapath=None):
