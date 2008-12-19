@@ -6,6 +6,7 @@ import os
 import tempfile
 import shutil
 import glob
+import linecache
 
 
 def setUp(test):
@@ -17,6 +18,7 @@ def setUp(test):
 def tearDown(test):
     os.chdir(test.old_cwd)
     shutil.rmtree(test.tempdir)
+    linecache.clearcache()
 
 
 
