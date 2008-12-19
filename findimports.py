@@ -16,6 +16,8 @@ Options:
   -u, --unused      Print unused imports.
   -a, --all         Print unused imports even if there's a comment.
 
+  -N, --noext       Omit external dependencies.
+
   -p, --packages    Convert the module graph to a package graph.
   -l N, --level N   Collapse subpackages deeper than the Nth level.
 
@@ -211,6 +213,7 @@ class ModuleGraph(object):
 
     trackUnusedNames = False
     all_unused = False
+    external_dependencies = True
 
     def __init__(self):
         self.modules = {}
@@ -429,7 +432,11 @@ class ModuleGraph(object):
         """Produce a report of dependencies."""
         for module in self.listModules():
             print "%s:" % module.modname
-            imports = list(module.imports)
+            if self.external_dependencies:
+                imports = list(module.imports)
+            else:
+                imports = [modname for modname in module.impors
+                           if modname in self.modules]
             imports.sort()
             print "  %s" % "\n  ".join(imports)
 
@@ -462,15 +469,17 @@ class ModuleGraph(object):
                 if name not in self.modules:
                     allNames.add(name)
         print "  node[style=dotted];"
-        names = list(allNames)
-        names.sort()
-        for n, name in enumerate(names):
-            nameDict[name] = id = "extmod%d" % n
-            print "  %s[label=\"%s\"];" % (id, name)
+        if self.external_dependencies:
+            names = list(allNames)
+            names.sort()
+            for n, name in enumerate(names):
+                nameDict[name] = id = "extmod%d" % n
+                print "  %s[label=\"%s\"];" % (id, name)
         for module in self.modules.values():
             for other in module.imports:
-                print "  %s -> %s;" % (nameDict[module.modname],
-                                       nameDict[other]);
+                if other in nameDict:
+                    print "  %s -> %s;" % (nameDict[module.modname],
+                                        nameDict[other]);
         print "}"
 
 
@@ -490,10 +499,12 @@ def main(argv=sys.argv):
     condense_to_packages = False
     collapse_cycles = False
     packagelevel = None
+    noext = False
     try:
-        opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:c',
+        opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:cN',
                                    ['dot', 'unused', 'all', 'names', 'imports',
-                                    'packages', 'level=', 'help', 'collapse'])
+                                    'packages', 'level=', 'help', 'collapse',
+                                    'noext'])
     except getopt.error, e:
         print >> sys.stderr, "%s: %s" % (progname, e)
         print >> sys.stderr, "Try %s --help." % progname
@@ -515,10 +526,13 @@ def main(argv=sys.argv):
             packagelevel = int(v)
         elif k in ('-c', '--collapse'):
             collapse_cycles = True
+        elif k in ('-N', '--noext'):
+            noext = True
         elif k in ('-h', '--help'):
             print helptext
             return 0
     g.trackUnusedNames = (action == 'printUnusedImports')
+    g.external_dependencies = not noext
     if not args:
         args = ['.']
     for fn in args:
