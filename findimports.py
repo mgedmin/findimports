@@ -77,7 +77,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.1'
+__version__ = '1.2.2'
 
 
 class ImportFinder(ASTVisitor):
@@ -134,7 +134,13 @@ class ImportFinder(ASTVisitor):
             # Module nodes have a lineno of None.
             lineno = 0
         dtparser = doctest.DocTestParser()
-        for example in dtparser.get_examples(docstring):
+        try:
+            examples = dtparser.get_examples(docstring)
+        except Exception:
+            print >> sys.stderr, ("%s:%s: error while parsing doctest"
+                                  % (self.filename, lineno))
+            raise
+        for example in examples:
             try:
                 ast = compiler.parse(example.source)
             except SyntaxError:
