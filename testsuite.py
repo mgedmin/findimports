@@ -43,7 +43,8 @@ def tearDown(test):
 
 def additional_tests(): # hook for setuptools
     return unittest.TestSuite(
-            doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown)
+            doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
+                                 module_relative=False)
             for filename in sorted(glob.glob('tests/*.txt')))
 
 
