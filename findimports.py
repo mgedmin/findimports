@@ -1,4 +1,36 @@
 #!/usr/bin/python
+"""
+FindImports is a script that processes Python module dependencies.  Currently
+it can be used for finding unused imports and graphing module dependencies
+(with graphviz).  FindImports requires Python 2.3.
+
+Syntax: findimports.py [options] [filename|dirname ...]
+
+Options:
+  -h, --help        This help message
+
+  -i, --imports     Print dependency graph (default action).
+  -d, --dot         Print dependency graph in dot format.
+  -n, --names       Print dependency graph with all imported names.
+
+  -u, --unused      Print unused imports.
+  -a, --all         Print all unused imports (use together with -u).
+
+Copyright (c) 2003, 2004 Marius Gedminas <marius@pov.lt>
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to the Free Software Foundation, Inc., 675 Mass
+Ave, Cambridge, MA 02139, USA.
+"""
 import os
 import sys
 import getopt
@@ -128,6 +160,15 @@ class ModuleGraph:
         self.modules = {}
         self.path = sys.path
         self._module_cache = {}
+
+    def parsePathname(self, pathname):
+        if os.path.isdir(pathname):
+            for root, dirs, files in os.walk(pathname):
+                for filename in files:
+                    if filename[-3:] == '.py':
+                        self.parseFile(os.path.join(root, filename))
+        else:
+            self.parseFile(pathname)
 
     def parseFile(self, filename):
         modname = self.filenameToModname(filename)
@@ -267,12 +308,19 @@ class ModuleGraph:
         print "}"
 
 
-def main():
-    import sys
+def main(argv=sys.argv):
+    progname = os.path.basename(argv[0])
+    helptext = __doc__.strip().replace('findimports.py', progname)
     g = ModuleGraph()
     action = g.printImports
-    opts, args = getopt.getopt(sys.argv[1:], 'dunia',
-                               ['dot', 'unused', 'all', 'names', 'imports'])
+    try:
+        opts, args = getopt.getopt(argv[1:], 'duniah',
+                                   ['dot', 'unused', 'all', 'names', 'imports',
+                                    'help'])
+    except getopt.error, e:
+        print >> sys.stderr, "%s: %s" % (progname, e)
+        print >> sys.stderr, "Try %s --help." % progname
+        return 1
     for k, v in opts:
         if k in ('-d', '--dot'):
             action = g.printDot
@@ -284,11 +332,17 @@ def main():
             action = g.printImportedNames
         elif k in ('-i', '--imports'):
             action = g.printImports
+        elif k in ('-h', '--help'):
+            print helptext
+            return 0
     g.trackUnusedNames = (action == g.printUnusedImports)
+    if not args:
+        args = ['.']
     for fn in args:
-        g.parseFile(fn)
+        g.parsePathname(fn)
     action()
+    return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
 
