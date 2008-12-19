@@ -10,13 +10,31 @@ Options:
   -h, --help        This help message
 
   -i, --imports     Print dependency graph (default action).
-  -d, --dot         Print dependency graph in dot format.
+  -d, --dot         Print dependency graph in dot (graphviz) format.
   -n, --names       Print dependency graph with all imported names.
 
   -u, --unused      Print unused imports.
-  -a, --all         Print all unused imports (use together with -u).
+  -a, --all         Print unused imports even if there's a comment.
 
-Copyright (c) 2003, 2004 Marius Gedminas <marius@pov.lt>
+  -p, --packages    Convert the module graph to a package graph.
+  -l N, --level N   Collapse subpackages deeper than the Nth level.
+
+Elaboration:
+
+    findimports.py -u will not complain about import statements that have
+    a comment on the same line, e.g.:
+
+        from somewhereelse import somename # reexport
+
+    findimports.py -u -a will ignore comments and print these statements also.
+
+Shortcomings:
+
+    FindImports does not process doctest sections in docstrings.  This may
+    cause some imports to be falsely flagged as unused, and may miss other
+    imports.
+
+Copyright (c) 2003--2005 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -52,7 +70,7 @@ class ImportFinder(ASTVisitor):
        from q.w.e import x, y as foo, z
        from woof import *
 
-    will cause imports to contain
+    will cause ``imports`` to contain
 
        a
        b.c
@@ -76,13 +94,14 @@ class ImportFinder(ASTVisitor):
 
 
 class UnusedName(object):
+    """Instance of an unused import."""
 
     def __init__(self, name, lineno):
         self.name = name
         self.lineno = lineno
 
 
-class ImportFinderAndNametracker(ImportFinder):
+class ImportFinderAndNameTracker(ImportFinder):
     """ImportFinder that also keeps track on used names."""
 
     def __init__(self):
@@ -138,14 +157,30 @@ def find_imports(filename):
     return visitor.imports
 
 def find_imports_and_track_names(filename):
-    """Find all imported names in a given file."""
+    """Find all imported names in a given file.
+
+    Returns ``(imports, unused)`` where ``imports`` is a list of
+    fully-qualified names that are imported, and ``unused`` is a list of
+    UnusedName objects.
+    """
     ast = compiler.parseFile(filename)
-    visitor = ImportFinderAndNametracker()
+    visitor = ImportFinderAndNameTracker()
     compiler.walk(ast, visitor)
     return visitor.imports, visitor.unused_names
 
 
 class Module(object):
+    """Node in a module dependency graph.
+
+    Packages may also be represented as Module objects.
+
+    ``imports`` is a set of module names this module depends on.
+
+    ``imported_names`` is a list of all names that were imported from other
+    modules.
+
+    ``unused_names`` is a list of names that were imported, but are not used.
+    """
 
     def __init__(self, modname, filename):
         self.modname = modname
@@ -156,6 +191,7 @@ class Module(object):
 
 
 class ModuleGraph(object):
+    """Module graph."""
 
     trackUnusedNames = False
     all_unused = False
@@ -167,6 +203,10 @@ class ModuleGraph(object):
         self._warned_about = sets.Set()
 
     def parsePathname(self, pathname):
+        """Parse one or more source files.
+
+        ``pathname`` may be a file name or a directory name.
+        """
         if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
                 for fn in files:
@@ -177,6 +217,7 @@ class ModuleGraph(object):
             self.parseFile(pathname)
 
     def parseFile(self, filename):
+        """Parse a single file."""
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
         self.modules[modname] = module
@@ -191,6 +232,7 @@ class ModuleGraph(object):
                               for name in module.imported_names])
 
     def filenameToModname(self, filename):
+        """Convert a filename to a module name."""
         for ext in ('.py', '.so', '.dll'):
             if filename.endswith(ext):
                 break
@@ -210,6 +252,7 @@ class ModuleGraph(object):
         return modname
 
     def findModuleOfName(self, dotted_name, filename, extrapath=None):
+        """Given a fully qualified name, find what module contains it."""
         if dotted_name.endswith('.*'):
             return dotted_name[:-2]
         name = dotted_name
@@ -228,6 +271,7 @@ class ModuleGraph(object):
         return dotted_name
 
     def isModule(self, dotted_name, extrapath=None):
+        """Is ``dotted_name`` the name of a module?"""
         try:
             return self._module_cache[(dotted_name, extrapath)]
         except KeyError:
@@ -257,22 +301,26 @@ class ModuleGraph(object):
         return None
 
     def isPackage(self, dotted_name, extrapath=None):
+        """Is ``dotted_name`` the name of a package?"""
         candidate = self.isModule(dotted_name + '.__init__', extrapath)
         if candidate:
             candidate = candidate[:-len(".__init__")]
         return candidate
 
     def packageOf(self, dotted_name, packagelevel=None):
+        """Determine the package that contains ``dotted_name``."""
         if '.' not in dotted_name:
             return dotted_name
         return '.'.join(dotted_name.split('.')[:-1][:packagelevel])
 
     def listModules(self):
+        """Return an alphabetical list of all modules."""
         modules = list(self.modules.items())
         modules.sort()
         return [module for name, module in modules]
 
     def packageGraph(self, packagelevel=None):
+        """Convert a module graph to a package graph."""
         packages = {}
         for module in self.listModules():
             package_name = self.packageOf(module.modname, packagelevel)
@@ -289,11 +337,13 @@ class ModuleGraph(object):
         return graph
 
     def printImportedNames(self):
+        """Produce a report of imported names."""
         for module in self.listModules():
             print "%s:" % module.modname
             print "  %s" % "\n  ".join(module.imported_names)
 
     def printImports(self):
+        """Produce a report of dependencies."""
         for module in self.listModules():
             print "%s:" % module.modname
             imports = list(module.imports)
@@ -301,6 +351,7 @@ class ModuleGraph(object):
             print "  %s" % "\n  ".join(imports)
 
     def printUnusedImports(self):
+        """Produce a report of unused imports."""
         for module in self.listModules():
             names = [(unused.lineno, unused.name)
                      for unused in module.unused_names.itervalues()]
@@ -314,6 +365,7 @@ class ModuleGraph(object):
                 print "%s:%s: %s not used" % (module.filename, lineno, name)
 
     def printDot(self):
+        """Produce a dependency graph in dot format."""
         print "digraph ModuleDependencies {"
         print "  node[shape=box];"
         allNames = Set()
