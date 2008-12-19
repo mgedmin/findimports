@@ -77,7 +77,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.2'
+__version__ = '1.2.3'
 
 
 class ImportFinder(ASTVisitor):
@@ -366,6 +366,8 @@ class ModuleGraph(object):
         """
         if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
+                dirs.sort()
+                files.sort()
                 for fn in files:
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
