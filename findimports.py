@@ -95,15 +95,20 @@ class ImportFinder(ASTVisitor):
 
     def __init__(self, filename):
         self.imports = []
+        self.imported_names = sets.Set()
         self.filename = filename
+
+    def processImport(self, name, imported_as, full_name, node):
+        self.imports.append(full_name)
 
     def visitImport(self, node):
         for name, imported_as in node.names:
-            self.imports.append(name)
+            self.processImport(name, imported_as, name, node)
 
     def visitFrom(self, node):
         for name, imported_as in node.names:
-            self.imports.append('%s.%s' % (node.modname, name))
+            self.processImport(name, imported_as,
+                               '%s.%s' % (node.modname, name), node)
 
     def visitSomethingWithADocstring(self, node):
         self.processDocstring(node.doc, node.lineno)
@@ -143,23 +148,13 @@ class ImportFinderAndNameTracker(ImportFinder):
         ImportFinder.__init__(self, filename)
         self.unused_names = {}
 
-    def visitImport(self, node):
-        ImportFinder.visitImport(self, node)
-        for name, imported_as in node.names:
-            if not imported_as:
-                imported_as = name
-            if imported_as != "*":
-                self.unused_names[imported_as] = UnusedName(imported_as,
-                                                            node.lineno)
-
-    def visitFrom(self, node):
-        ImportFinder.visitFrom(self, node)
-        for name, imported_as in node.names:
-            if not imported_as:
-                imported_as = name
-            if imported_as != "*":
-                self.unused_names[imported_as] = UnusedName(imported_as,
-                                                            node.lineno)
+    def processImport(self, name, imported_as, full_name, node):
+        ImportFinder.processImport(self, name, imported_as, full_name, node)
+        if not imported_as:
+            imported_as = name
+        if imported_as != "*":
+            self.unused_names[imported_as] = UnusedName(imported_as,
+                                                        node.lineno)
 
     def visitName(self, node):
         if node.name in self.unused_names:
