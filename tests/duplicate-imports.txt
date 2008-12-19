@@ -18,3 +18,13 @@ Our advanced AST walker can report duplicate imports
     marmalade.py:4: os imported again
     marmalade.py:6: os imported again
 
+It's useful to indicate where the first import is
+
+    >>> imports, unused_names = find_imports_and_track_names('marmalade.py',
+    ...                                 warn_about_duplicates=True,
+    ...                                 verbose=True)
+    marmalade.py:4: os imported again
+    marmalade.py:2:   (location of previous import)
+    marmalade.py:6: os imported again
+    marmalade.py:2:   (location of previous import)
+
