@@ -1,2 +1,4 @@
 import gc
-gc.collect()
+
+def eat():
+    gc.collect()
