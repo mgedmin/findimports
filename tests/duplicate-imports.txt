@@ -1,0 +1,20 @@
+Duplicate imports
+=================
+
+Our advanced AST walker can report duplicate imports
+
+    >>> from findimports import find_imports_and_track_names
+
+    >>> open('marmalade.py', 'w').write('''
+    ... import os
+    ... def example1():
+    ...     import os
+    ...     os.getcwd()
+    ... import os
+    ... ''')
+
+    >>> imports, unused_names = find_imports_and_track_names('marmalade.py',
+    ...                                 warn_about_duplicates=True)
+    marmalade.py:4: os imported again
+    marmalade.py:6: os imported again
+
