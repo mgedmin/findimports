@@ -1,0 +1,32 @@
+Import processing
+=================
+
+All kinds of import statements are handled
+
+    >>> from findimports import find_imports
+
+    >>> open('marmalade.py', 'w').write('''
+    ... import sys
+    ... import os.path
+    ... import email.Message as EM
+    ... from cStringIO import StringIO
+    ... from cPickle import dumps as D
+    ... from sys import (argv,
+    ...                  exc_info as EI,
+    ...                  exit)
+    ... ''')
+
+    >>> for imp in find_imports('marmalade.py'):
+    ...     print imp
+    ImportInfo('sys', 'marmalade.py', 2)
+    ImportInfo('os.path', 'marmalade.py', 3)
+    ImportInfo('email.Message', 'marmalade.py', 4)
+    ImportInfo('StringIO', 'marmalade.py', 5)
+    ImportInfo('dumps', 'marmalade.py', 6)
+    ImportInfo('argv', 'marmalade.py', 7)
+    ImportInfo('exc_info', 'marmalade.py', 8)
+    ImportInfo('exit', 'marmalade.py', 9)
+
+Note how we carefully try to make sure the line numbers are correct (e.g.
+'exit' is shown as imported on line 9, even though the AST node says the
+import statement began on line 7).

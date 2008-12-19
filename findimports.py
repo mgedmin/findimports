@@ -102,6 +102,10 @@ class ImportInfo(object):
         self.filename = filename
         self.lineno = adjust_lineno(filename, lineno, name)
 
+    def __repr__(self):
+        return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name,
+                                   self.filename, self.lineno)
+
 
 class ImportFinder(ASTVisitor):
     """AST visitor that collects all imported names in its imports attribute.

@@ -18,6 +18,7 @@ setup(
     license='GPL',
 
     py_modules=['findimports'],
+    test_suite='testsuite',
     zip_safe=False,
     entry_points="""
     [console_scripts]
