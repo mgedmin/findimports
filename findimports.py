@@ -19,6 +19,8 @@ Options:
   -p, --packages    Convert the module graph to a package graph.
   -l N, --level N   Collapse subpackages deeper than the Nth level.
 
+  -c, --collapse    Collapse dependency cycles
+
 Elaboration:
 
     findimports.py -u will not complain about import statements that have
@@ -184,10 +186,24 @@ class Module(object):
 
     def __init__(self, modname, filename):
         self.modname = modname
+        self.label = modname
         self.filename = filename
         self.imports = sets.Set()
         self.imported_names = ()
         self.unused_names = ()
+
+
+class ModuleCycle(object):
+    """Node in a condenced module dependency graph.
+
+    A strongly-connected component of one or more modules/packages.
+    """
+
+    def __init__(self, modnames):
+        self.modnames = modnames
+        self.modname = modnames[0]
+        self.label = "\n".join(modnames)
+        self.imports = sets.Set()
 
 
 class ModuleGraph(object):
@@ -336,6 +352,73 @@ class ModuleGraph(object):
         graph.modules = packages
         return graph
 
+    def collapseCycles(self):
+        """Create a graph with cycles collapsed.
+
+        Collapse modules participating in a cycle to a single node.
+        """
+        # This algorithm determines Strongly Connected Components.  Look it up.
+        # It is adapted to suit our data structures.
+        # Phase 0: prepare the graph
+        imports = {}
+        for u in self.modules:
+            imports[u] = sets.Set()
+            for v in self.modules[u].imports:
+                if v in self.modules:
+                    imports[u].add(v)
+        # Phase 1: order the vertices
+        visited = {}
+        for u in self.modules:
+            visited[u] = False
+        order = []
+        def visit1(u):
+            visited[u] = True
+            for v in imports[u]:
+                if not visited[v]:
+                    visit1(v)
+            order.append(u)
+        for u in self.modules:
+            if not visited[u]:
+                visit1(u)
+        order.reverse()
+        # Phase 2: compute the inverse graph
+        revimports = {}
+        for u in self.modules:
+            revimports[u] = sets.Set()
+        for u in self.modules:
+            for v in imports[u]:
+                revimports[v].add(u)
+        # Phase 3: determine the strongly connected components
+        components = {}
+        component_of = {}
+        for u in self.modules:
+            visited[u] = False
+        def visit2(u):
+            visited[u] = True
+            component.append(u)
+            for v in revimports[u]:
+                if not visited[v]:
+                    visit2(v)
+        for u in self.modules:
+            if not visited[u]:
+                component = []
+                visit2(u)
+                component.sort()
+                node = ModuleCycle(component)
+                components[node.modname] = node
+                for modname in component:
+                    component_of[modname] = node
+        # Phase 4: construct the condensed graph
+        for node in components.values():
+            for modname in node.modnames:
+                for impname in imports[modname]:
+                    other = component_of[impname].modname
+                    if other != node.modname:
+                        node.imports.add(other)
+        graph = ModuleGraph()
+        graph.modules = components
+        return graph
+
     def printImportedNames(self):
         """Produce a report of imported names."""
         for module in self.listModules():
@@ -373,7 +456,8 @@ class ModuleGraph(object):
         for n, module in enumerate(self.listModules()):
             module._dot_name = "mod%d" % n
             nameDict[module.modname] = module._dot_name
-            print "  %s[label=\"%s\"];" % (module._dot_name, module.modname)
+            print "  %s[label=\"%s\"];" % (module._dot_name,
+                                           quote(module.label))
             for name in module.imports:
                 if name not in self.modules:
                     allNames.add(name)
@@ -390,17 +474,26 @@ class ModuleGraph(object):
         print "}"
 
 
+def quote(s):
+    """Quote a string for graphviz.
+
+    This function is probably incomplete.
+    """
+    return s.replace("\\", "\\\\").replace('"', '\\"').replace('\n', '\\n\\')
+
+
 def main(argv=sys.argv):
     progname = os.path.basename(argv[0])
     helptext = __doc__.strip().replace('findimports.py', progname)
     g = ModuleGraph()
     action = 'printImports'
     condense_to_packages = False
+    collapse_cycles = False
     packagelevel = None
     try:
-        opts, args = getopt.getopt(argv[1:], 'duniahpl:',
+        opts, args = getopt.getopt(argv[1:], 'duniahpl:c',
                                    ['dot', 'unused', 'all', 'names', 'imports',
-                                    'packages', 'level=', 'help'])
+                                    'packages', 'level=', 'help', 'collapse'])
     except getopt.error, e:
         print >> sys.stderr, "%s: %s" % (progname, e)
         print >> sys.stderr, "Try %s --help." % progname
@@ -420,6 +513,8 @@ def main(argv=sys.argv):
             condense_to_packages = True
         elif k in ('-l', '--level'):
             packagelevel = int(v)
+        elif k in ('-c', '--collapse'):
+            collapse_cycles = True
         elif k in ('-h', '--help'):
             print helptext
             return 0
@@ -430,6 +525,8 @@ def main(argv=sys.argv):
         g.parsePathname(fn)
     if condense_to_packages:
         g = g.packageGraph(packagelevel)
+    if collapse_cycles:
+        g = g.collapseCycles()
     getattr(g, action)()
     return 0
 
