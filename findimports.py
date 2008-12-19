@@ -60,7 +60,6 @@ import sets
 import getopt
 import compiler
 import linecache
-from sets import Set
 from compiler import ast
 from compiler.visitor import ASTVisitor
 
@@ -247,8 +246,8 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        module.imports = Set([self.findModuleOfName(name, filename, dir)
-                              for name in module.imported_names])
+        module.imports = sets.Set([self.findModuleOfName(name, filename, dir)
+                                   for name in module.imported_names])
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
@@ -458,21 +457,20 @@ class ModuleGraph(object):
         """Produce a dependency graph in dot format."""
         print "digraph ModuleDependencies {"
         print "  node[shape=box];"
-        allNames = Set()
+        allNames = sets.Set()
         nameDict = {}
         for n, module in enumerate(self.listModules()):
             module._dot_name = "mod%d" % n
             nameDict[module.modname] = module._dot_name
             print "  %s[label=\"%s\"];" % (module._dot_name,
                                            quote(module.label))
-            for name in module.imports:
-                if name not in self.modules:
-                    allNames.add(name)
+            allNames |= module.imports
         print "  node[style=dotted];"
         if self.external_dependencies:
-            names = list(allNames)
-            names.sort()
-            for n, name in enumerate(names):
+            myNames = sets.Set(self.modules)
+            extNames = list(allNames - myNames)
+            extNames.sort()
+            for n, name in enumerate(extNames):
                 nameDict[name] = id = "extmod%d" % n
                 print "  %s[label=\"%s\"];" % (id, name)
         for module in self.modules.values():
