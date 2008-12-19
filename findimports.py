@@ -83,7 +83,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.0.1'
+__version__ = '1.1.0'
 
 
 class ImportFinder(ASTVisitor):
@@ -172,6 +172,39 @@ class ImportInfo(object):
         self.lineno = adjust_lineno(filename, lineno, name)
 
 
+class Scope(object):
+    """A namespace."""
+
+    def __init__(self, parent=None, name=None):
+        self.parent = parent
+        self.name = name
+        self.imports = {}
+        self.unused_names = {}
+
+    def haveImport(self, name):
+        if name in self.imports:
+            return True
+        if self.parent:
+            return self.parent.haveImport(name)
+        return False
+
+    def whereImported(self, name):
+        if name in self.imports:
+            return self.imports[name]
+        return self.parent.whereImported(name)
+
+    def addImport(self, name, filename, lineno):
+        self.unused_names[name] = self.imports[name] = ImportInfo(name,
+                                                                  filename,
+                                                                  lineno)
+
+    def useName(self, name):
+        if name in self.unused_names:
+            del self.unused_names[name]
+        if self.parent:
+            self.parent.useName(name)
+
+
 class ImportFinderAndNameTracker(ImportFinder):
     """ImportFinder that also keeps track on used names."""
 
@@ -179,7 +212,32 @@ class ImportFinderAndNameTracker(ImportFinder):
 
     def __init__(self, filename):
         ImportFinder.__init__(self, filename)
+        self.scope = self.top_level = Scope(name=filename)
+        self.scope_stack = []
         self.unused_names = {}
+
+    def newScope(self, parent, name=None):
+        self.scope_stack.append(self.scope)
+        self.scope = Scope(parent, name)
+
+    def leaveScope(self):
+        self.unused_names.update(self.scope.unused_names)
+        self.scope = self.scope_stack.pop()
+
+    def leaveAllScopes(self):
+        while self.scope_stack:
+            self.leaveScope()
+        self.unused_names.update(self.scope.unused_names)
+
+    def processDocstring(self, docstring, lineno):
+        self.newScope(self.top_level, 'docstring')
+        ImportFinder.processDocstring(self, docstring, lineno)
+        self.leaveScope()
+
+    def visitFunction(self, node):
+        self.newScope(self.scope, 'function %s' % node.name)
+        ImportFinder.visitFunction(self, node)
+        self.leaveScope()
 
     def processImport(self, name, imported_as, full_name, node):
         ImportFinder.processImport(self, name, imported_as, full_name, node)
@@ -187,20 +245,18 @@ class ImportFinderAndNameTracker(ImportFinder):
             imported_as = name
         if imported_as != "*":
             lineno = self.lineno_offset + node.lineno
-            if imported_as in self.unused_names and self.warn_about_duplicates:
-                where = self.unused_names[imported_as].lineno
+            if (self.warn_about_duplicates and
+                self.scope.haveImport(imported_as)):
+                where = self.scope.whereImported(imported_as).lineno
                 print >> sys.stderr, ("%s:%s: %s imported again"
                                       % (self.filename, lineno, imported_as))
                 print >> sys.stderr, ("%s:%s:   (location of previous import)"
                                       % (self.filename, where))
             else:
-                self.unused_names[imported_as] = ImportInfo(imported_as,
-                                                            self.filename,
-                                                            lineno)
+                self.scope.addImport(imported_as, self.filename, lineno)
 
     def visitName(self, node):
-        if node.name in self.unused_names:
-            del self.unused_names[node.name]
+        self.scope.useName(node.name)
 
     def visitGetattr(self, node):
         full_name = [node.attrname]
@@ -215,8 +271,7 @@ class ImportFinderAndNameTracker(ImportFinder):
             for part in full_name:
                 if name: name = '%s.%s' % (name, part)
                 else: name += part
-                if name in self.unused_names:
-                    del self.unused_names[name]
+                self.scope.useName(name)
         for c in node.getChildNodes():
             self.visit(c)
 
@@ -240,6 +295,7 @@ def find_imports_and_track_names(filename, warn_about_duplicates=False):
     visitor = ImportFinderAndNameTracker(filename)
     visitor.warn_about_duplicates = warn_about_duplicates
     compiler.walk(ast, visitor)
+    visitor.leaveAllScopes()
     return visitor.imports, visitor.unused_names
 
 
