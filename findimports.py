@@ -77,7 +77,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.6'
+__version__ = '1.2.7dev'
 
 
 def adjust_lineno(filename, lineno, name):
