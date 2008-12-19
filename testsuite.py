@@ -48,7 +48,8 @@ def additional_tests(): # hook for setuptools
     globs = dict(sample_tree=sample_tree)
     return unittest.TestSuite(
             doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
-                                 module_relative=False, globs=globs)
+                                 module_relative=False, globs=globs,
+                                 optionflags=doctest.REPORT_NDIFF)
             for filename in sorted(glob.glob('tests/*.txt')))
 
 

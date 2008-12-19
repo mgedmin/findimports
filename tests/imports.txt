@@ -22,12 +22,12 @@ All kinds of import statements are handled
     ImportInfo('sys', 'marmalade.py', 2)
     ImportInfo('os.path', 'marmalade.py', 3)
     ImportInfo('email.Message', 'marmalade.py', 4)
-    ImportInfo('StringIO', 'marmalade.py', 5)
-    ImportInfo('dumps', 'marmalade.py', 6)
-    ImportInfo('argv', 'marmalade.py', 7)
-    ImportInfo('exc_info', 'marmalade.py', 8)
-    ImportInfo('exit', 'marmalade.py', 9)
-    ImportInfo('*', 'marmalade.py', 10)
+    ImportInfo('cStringIO.StringIO', 'marmalade.py', 5)
+    ImportInfo('cPickle.dumps', 'marmalade.py', 6)
+    ImportInfo('sys.argv', 'marmalade.py', 7)
+    ImportInfo('sys.exc_info', 'marmalade.py', 8)
+    ImportInfo('sys.exit', 'marmalade.py', 9)
+    ImportInfo('email.*', 'marmalade.py', 10)
 
 Note how we carefully try to make sure the line numbers are correct (e.g.
 'exit' is shown as imported on line 9, even though the AST node says the

@@ -100,7 +100,7 @@ class ImportInfo(object):
     def __init__(self, name, filename, lineno):
         self.name = name
         self.filename = filename
-        self.lineno = adjust_lineno(filename, lineno, name)
+        self.lineno = lineno
 
     def __repr__(self):
         return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name,
@@ -134,8 +134,10 @@ class ImportFinder(ASTVisitor):
         self.filename = filename
 
     def processImport(self, name, imported_as, full_name, node):
-        lineno = self.lineno_offset + node.lineno
-        info = ImportInfo(name, self.filename, lineno)
+        lineno = adjust_lineno(self.filename,
+                               self.lineno_offset + node.lineno,
+                               name)
+        info = ImportInfo(full_name, self.filename, lineno)
         self.imports.append(info)
 
     def visitImport(self, node):
