@@ -1,0 +1,39 @@
+Doctest processing
+==================
+
+Imports in doctest sections inside docstrings are also handled
+
+    >>> from findimports import find_imports
+
+    >>> open('marmalade.py', 'w').write('''
+    ... import doctest
+    ... def example():
+    ...     """
+    ...         >>> import sys
+    ...     """
+    ... ''')
+
+    >>> for imp in find_imports('marmalade.py'):
+    ...     print imp
+    ImportInfo('doctest', 'marmalade.py', 2)
+    ImportInfo('sys', 'marmalade.py', 5)
+
+Note that we carefully adjust line numbers to make sure they match reality.
+
+
+Module docstrings
+-----------------
+
+Module docstrings are special in that the corresponding module AST node has
+no line number.  We don't crash:
+
+    >>> open('jam.py', 'w').write('''
+    ... """
+    ...         >>> import sys
+    ... """
+    ... ''')
+
+    >>> for imp in find_imports('jam.py'):
+    ...     print imp
+    ImportInfo('sys', 'jam.py', 3)
+
