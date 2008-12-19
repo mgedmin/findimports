@@ -27,7 +27,9 @@ Options:
   -T, --tests       Collapse packages named 'tests' and 'ftests' with parent
                     packages.
 
-Elaboration:
+Notes:
+
+    findimports processes doctest blocks inside docstrings.
 
     findimports.py -u will not complain about import statements that have
     a comment on the same line, e.g.:
@@ -46,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2006 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2008 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -60,8 +62,6 @@ PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along with
 this program; if not, write to the Free Software Foundation, Inc., 675 Mass
 Ave, Cambridge, MA 02139, USA.
-
-$Id$
 """
 
 import os
@@ -77,7 +77,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.5'
+__version__ = '1.2.6'
 
 
 def adjust_lineno(filename, lineno, name):
