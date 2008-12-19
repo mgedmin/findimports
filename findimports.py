@@ -91,8 +91,9 @@ class ImportFinder(ASTVisitor):
        woof.*
     """
 
-    def __init__(self):
+    def __init__(self, filename):
         self.imports = []
+        self.filename = filename
 
     def visitImport(self, node):
         for name, imported_as in node.names:
@@ -103,7 +104,7 @@ class ImportFinder(ASTVisitor):
             self.imports.append('%s.%s' % (node.modname, name))
 
     def visitSomethingWithADocstring(self, node):
-        self.processDocstring(node.doc)
+        self.processDocstring(node.doc, node.lineno)
         for c in node.getChildNodes():
             self.visit(c)
 
@@ -111,13 +112,18 @@ class ImportFinder(ASTVisitor):
     visitClass = visitSomethingWithADocstring
     visitFunction = visitSomethingWithADocstring
 
-    def processDocstring(self, docstring):
+    def processDocstring(self, docstring, lineno):
         if not docstring:
             return
         dtparser = doctest.DocTestParser()
         for example in dtparser.get_examples(docstring):
-            ast = compiler.parse(example.source)
-            compiler.walk(ast, self)
+            try:
+                ast = compiler.parse(example.source)
+            except SyntaxError:
+                print >> sys.stderr, ("%s:%s: syntax error in doctest"
+                                      % (self.filename, lineno))
+            else:
+                compiler.walk(ast, self)
 
 
 class UnusedName(object):
@@ -131,8 +137,8 @@ class UnusedName(object):
 class ImportFinderAndNameTracker(ImportFinder):
     """ImportFinder that also keeps track on used names."""
 
-    def __init__(self):
-        ImportFinder.__init__(self)
+    def __init__(self, filename):
+        ImportFinder.__init__(self, filename)
         self.unused_names = {}
 
     def visitImport(self, node):
@@ -179,7 +185,7 @@ class ImportFinderAndNameTracker(ImportFinder):
 def find_imports(filename):
     """Find all imported names in a given file."""
     ast = compiler.parseFile(filename)
-    visitor = ImportFinder()
+    visitor = ImportFinder(filename)
     compiler.walk(ast, visitor)
     return visitor.imports
 
@@ -191,7 +197,7 @@ def find_imports_and_track_names(filename):
     UnusedName objects.
     """
     ast = compiler.parseFile(filename)
-    visitor = ImportFinderAndNameTracker()
+    visitor = ImportFinderAndNameTracker(filename)
     compiler.walk(ast, visitor)
     return visitor.imports, visitor.unused_names
 
