@@ -87,3 +87,20 @@ is
     ImportInfo('sys', 'jelly.py', 5)
     ImportInfo('os', 'jelly.py', 9)
 
+
+Nested docstrings
+-----------------
+
+This is probably overkill, but we handle them recursively:
+
+    >>> open('sandwitch.py', 'w').write('''
+    ... def example():
+    ...     """
+    ...         >>> class Example():
+    ...         ...    '>>> import sys'
+    ...     """
+    ... ''')
+    >>> for imp in find_imports('sandwitch.py'):
+    ...     print imp
+    ImportInfo('sys', 'sandwitch.py', 5)
+
