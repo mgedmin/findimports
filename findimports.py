@@ -77,7 +77,30 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.4'
+__version__ = '1.2.5'
+
+
+def adjust_lineno(filename, lineno, name):
+    """Adjust the line number of an import.
+
+    Needed because import statements can span multiple lines, and our lineno
+    is always the first line number.
+    """
+    line = linecache.getline(filename, lineno)
+    # Hack warning: might be fooled by substrings or comments
+    while name not in line and line:
+        lineno += 1
+        line = linecache.getline(filename, lineno)
+    return lineno
+
+
+class ImportInfo(object):
+    """A record of a name and the location of the import statement."""
+
+    def __init__(self, name, filename, lineno):
+        self.name = name
+        self.filename = filename
+        self.lineno = adjust_lineno(filename, lineno, name)
 
 
 class ImportFinder(ASTVisitor):
@@ -107,7 +130,9 @@ class ImportFinder(ASTVisitor):
         self.filename = filename
 
     def processImport(self, name, imported_as, full_name, node):
-        self.imports.append(full_name)
+        lineno = self.lineno_offset + node.lineno
+        info = ImportInfo(name, self.filename, lineno)
+        self.imports.append(info)
 
     def visitImport(self, node):
         for name, imported_as in node.names:
@@ -150,29 +175,6 @@ class ImportFinder(ASTVisitor):
                 self.lineno_offset += lineno + example.lineno
                 compiler.walk(ast, self)
                 self.lineno_offset -= lineno + example.lineno
-
-
-def adjust_lineno(filename, lineno, name):
-    """Adjust the line number of an import.
-
-    Needed because import statements can span multiple lines, and our lineno
-    is always the first line number.
-    """
-    line = linecache.getline(filename, lineno)
-    # Hack warning: might be fooled by substrings or comments
-    while name not in line and line:
-        lineno += 1
-        line = linecache.getline(filename, lineno)
-    return lineno
-
-
-class ImportInfo(object):
-    """A record of a name and the location of the import statement."""
-
-    def __init__(self, name, filename, lineno):
-        self.name = name
-        self.filename = filename
-        self.lineno = adjust_lineno(filename, lineno, name)
 
 
 class Scope(object):
@@ -283,7 +285,10 @@ class ImportFinderAndNameTracker(ImportFinder):
 
 
 def find_imports(filename):
-    """Find all imported names in a given file."""
+    """Find all imported names in a given file.
+
+    Returns a list of ImportInfo objects.
+    """
     ast = compiler.parseFile(filename)
     visitor = ImportFinder(filename)
     compiler.walk(ast, visitor)
@@ -294,9 +299,7 @@ def find_imports_and_track_names(filename, warn_about_duplicates=False,
                                  verbose=False):
     """Find all imported names in a given file.
 
-    Returns ``(imports, unused)`` where ``imports`` is a list of
-    fully-qualified names that are imported, and ``unused`` is a list of
-    ImportInfo objects.
+    Returns ``(imports, unused)``.  Both are lists of ImportInfo objects.
     """
     ast = compiler.parseFile(filename)
     visitor = ImportFinderAndNameTracker(filename)
@@ -315,9 +318,10 @@ class Module(object):
     ``imports`` is a set of module names this module depends on.
 
     ``imported_names`` is a list of all names that were imported from other
-    modules.
+    modules (actually, ImportInfo objects).
 
-    ``unused_names`` is a list of names that were imported, but are not used.
+    ``unused_names`` is a list of names that were imported, but are not used
+    (actually, ImportInfo objects).
     """
 
     def __init__(self, modname, filename):
@@ -403,8 +407,9 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        module.imports = sets.Set([self.findModuleOfName(name, filename, dir)
-                                   for name in module.imported_names])
+        module.imports = sets.Set(
+            [self.findModuleOfName(imp.name, filename, dir)
+             for imp in module.imported_names])
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
@@ -616,7 +621,7 @@ class ModuleGraph(object):
         """Produce a report of imported names."""
         for module in self.listModules():
             print "%s:" % module.modname
-            print "  %s" % "\n  ".join(module.imported_names)
+            print "  %s" % "\n  ".join(imp.name for imp in module.imported_names)
 
     def printImports(self):
         """Produce a report of dependencies."""
