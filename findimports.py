@@ -4,6 +4,7 @@ import sys
 import getopt
 import logging
 import compiler
+import linecache
 from sets import Set
 from compiler import ast
 from compiler.visitor import ASTVisitor
@@ -121,10 +122,12 @@ class Module:
 class ModuleGraph:
 
     trackUnusedNames = False
+    all_unused = False
 
     def __init__(self):
         self.modules = {}
         self.path = sys.path
+        self._module_cache = {}
 
     def parseFile(self, filename):
         modname = self.filenameToModname(filename)
@@ -175,17 +178,32 @@ class ModuleGraph:
         return dotted_name
 
     def isModule(self, dotted_name, extrapath=None):
+        try:
+            return self._module_cache[(dotted_name, extrapath)]
+        except KeyError:
+            pass
         if dotted_name in sys.modules:
             return dotted_name
-        filename = os.path.sep.join(dotted_name.split('.'))
-        path = self.path
+        filename = dotted_name.replace('.', os.path.sep)
         if extrapath:
-            path = [extrapath] + path
-        for dir in path:
+            for ext in ('.py', '.so', '.dll'):
+                candidate = os.path.join(extrapath, filename) + ext
+                if os.path.exists(candidate):
+                    modname = self.filenameToModname(candidate)
+                    self._module_cache[(dotted_name, extrapath)] = modname
+                    return modname
+        try:
+            return self._module_cache[(dotted_name, None)]
+        except KeyError:
+            pass
+        for dir in self.path:
             for ext in ('.py', '.so', '.dll'):
                 candidate = os.path.join(dir, filename) + ext
                 if os.path.exists(candidate):
-                    return self.filenameToModname(candidate)
+                    modname = self.filenameToModname(candidate)
+                    self._module_cache[(dotted_name, extrapath)] = modname
+                    self._module_cache[(dotted_name, None)] = modname
+                    return modname
         return None
 
     def isPackage(self, dotted_name, extrapath=None):
@@ -217,6 +235,11 @@ class ModuleGraph:
                      for unused in module.unused_names.itervalues()]
             names.sort()
             for lineno, name in names:
+                if not self.all_unused:
+                    line = linecache.getline(module.filename, lineno)
+                    if '#' in line:
+                        continue # assume there's a comment explaining why it
+                                 # is not used
                 print "%s:%s: %s not used" % (module.filename, lineno, name)
 
     def printDot(self):
@@ -248,13 +271,15 @@ def main():
     import sys
     g = ModuleGraph()
     action = g.printImports
-    opts, args = getopt.getopt(sys.argv[1:], 'duni',
-                               ['dot', 'unused', 'names', 'imports'])
+    opts, args = getopt.getopt(sys.argv[1:], 'dunia',
+                               ['dot', 'unused', 'all', 'names', 'imports'])
     for k, v in opts:
         if k in ('-d', '--dot'):
             action = g.printDot
         elif k in ('-u', '--unused'):
             action = g.printUnusedImports
+        elif k in ('-a', '--all'):
+            g.all_unused = True
         elif k in ('-n', '--names'):
             action = g.printImportedNames
         elif k in ('-i', '--imports'):
