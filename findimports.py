@@ -83,7 +83,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.0'
+__version__ = '1.0.1'
 
 
 class ImportFinder(ASTVisitor):
