@@ -83,7 +83,7 @@ from compiler import ast
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 
 class ImportFinder(ASTVisitor):
@@ -144,9 +144,9 @@ class ImportFinder(ASTVisitor):
                 print >> sys.stderr, ("%s:%s: syntax error in doctest"
                                       % (self.filename, lineno))
             else:
-                self.lineno_offset += lineno
+                self.lineno_offset += lineno + example.lineno
                 compiler.walk(ast, self)
-                self.lineno_offset -= lineno
+                self.lineno_offset -= lineno + example.lineno
 
 
 def adjust_lineno(filename, lineno, name):
