@@ -150,6 +150,9 @@ class Module(object):
     def __init__(self, modname, filename):
         self.modname = modname
         self.filename = filename
+        self.imports = sets.Set()
+        self.imported_names = ()
+        self.unused_names = ()
 
 
 class ModuleGraph(object):
@@ -259,10 +262,31 @@ class ModuleGraph(object):
             candidate = candidate[:-len(".__init__")]
         return candidate
 
+    def packageOf(self, dotted_name, packagelevel=None):
+        if '.' not in dotted_name:
+            return dotted_name
+        return '.'.join(dotted_name.split('.')[:-1][:packagelevel])
+
     def listModules(self):
         modules = list(self.modules.items())
         modules.sort()
         return [module for name, module in modules]
+
+    def packageGraph(self, packagelevel=None):
+        packages = {}
+        for module in self.listModules():
+            package_name = self.packageOf(module.modname, packagelevel)
+            if package_name not in packages:
+                dirname = os.path.dirname(module.filename)
+                packages[package_name] = Module(package_name, dirname)
+            package = packages[package_name]
+            for name in module.imports:
+                package_name = self.packageOf(name)
+                if package_name != package.modname: # no loops
+                    package.imports.add(package_name)
+        graph = ModuleGraph()
+        graph.modules = packages
+        return graph
 
     def printImportedNames(self):
         for module in self.listModules():
@@ -318,35 +342,43 @@ def main(argv=sys.argv):
     progname = os.path.basename(argv[0])
     helptext = __doc__.strip().replace('findimports.py', progname)
     g = ModuleGraph()
-    action = g.printImports
+    action = 'printImports'
+    condense_to_packages = False
+    packagelevel = None
     try:
-        opts, args = getopt.getopt(argv[1:], 'duniah',
+        opts, args = getopt.getopt(argv[1:], 'duniahpl:',
                                    ['dot', 'unused', 'all', 'names', 'imports',
-                                    'help'])
+                                    'packages', 'level=', 'help'])
     except getopt.error, e:
         print >> sys.stderr, "%s: %s" % (progname, e)
         print >> sys.stderr, "Try %s --help." % progname
         return 1
     for k, v in opts:
         if k in ('-d', '--dot'):
-            action = g.printDot
+            action = 'printDot'
         elif k in ('-u', '--unused'):
-            action = g.printUnusedImports
+            action = 'printUnusedImports'
         elif k in ('-a', '--all'):
             g.all_unused = True
         elif k in ('-n', '--names'):
-            action = g.printImportedNames
+            action = 'printImportedNames'
         elif k in ('-i', '--imports'):
-            action = g.printImports
+            action = 'printImports'
+        elif k in ('-p', '--packages'):
+            condense_to_packages = True
+        elif k in ('-l', '--level'):
+            packagelevel = int(v)
         elif k in ('-h', '--help'):
             print helptext
             return 0
-    g.trackUnusedNames = (action == g.printUnusedImports)
+    g.trackUnusedNames = (action == 'printUnusedImports')
     if not args:
         args = ['.']
     for fn in args:
         g.parsePathname(fn)
-    action()
+    if condense_to_packages:
+        g = g.packageGraph(packagelevel)
+    getattr(g, action)()
     return 0
 
 if __name__ == '__main__':
