@@ -1,0 +1,33 @@
+Tracking of scopes
+==================
+
+We have an AST walker that keeps track of scopes and names used in
+expressions
+
+    >>> from findimports import find_imports_and_track_names
+
+    >>> open('marmalade.py', 'w').write('''
+    ... import os, shutil
+    ... def example1():
+    ...     import sys, gc
+    ...     my_name_is = sys.argv[0]
+    ... def example2():
+    ...     import sys
+    ...     my_whereabouts_are = os.getcwd()
+    ... ''')
+
+    >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
+    >>> for imp in imports:
+    ...     print imp
+    ImportInfo('os', 'marmalade.py', 2)
+    ImportInfo('shutil', 'marmalade.py', 2)
+    ImportInfo('sys', 'marmalade.py', 4)
+    ImportInfo('gc', 'marmalade.py', 4)
+    ImportInfo('sys', 'marmalade.py', 7)
+
+    >>> for name in unused_names:
+    ...     print name
+    ImportInfo('shutil', 'marmalade.py', 2)
+    ImportInfo('gc', 'marmalade.py', 4)
+    ImportInfo('sys', 'marmalade.py', 7)
+
