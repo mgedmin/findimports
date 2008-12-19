@@ -42,9 +42,12 @@ def tearDown(test):
 
 
 def additional_tests(): # hook for setuptools
+    sample_tree = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                               'tests', 'sample-tree'))
+    globs = dict(sample_tree=sample_tree)
     return unittest.TestSuite(
             doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
-                                 module_relative=False)
+                                 module_relative=False, globs=globs)
             for filename in sorted(glob.glob('tests/*.txt')))
 
 

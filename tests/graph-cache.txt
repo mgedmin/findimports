@@ -1,0 +1,22 @@
+Graph cache
+===========
+
+Parsing a large source tree can take a while
+
+    >>> from findimports import ModuleGraph
+    >>> graph = ModuleGraph()
+    >>> graph.parsePathname(sample_tree)
+    >>> sorted(graph.modules)
+    ['apple', 'orange']
+
+we can save a cache of all the information
+
+    >>> graph.writeCache('sample.importcache')
+
+and load it later
+
+    >>> newgraph = ModuleGraph()
+    >>> newgraph.readCache('sample.importcache')
+    >>> sorted(newgraph.modules)
+    ['apple', 'orange']
+
