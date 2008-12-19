@@ -95,7 +95,6 @@ class ImportFinder(ASTVisitor):
 
     def __init__(self, filename):
         self.imports = []
-        self.imported_names = sets.Set()
         self.filename = filename
 
     def processImport(self, name, imported_as, full_name, node):
