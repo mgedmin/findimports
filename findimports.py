@@ -72,7 +72,6 @@ import compiler
 import linecache
 import pickle
 from operator import attrgetter
-from compiler import ast
 from compiler.visitor import ASTVisitor
 
 try:
