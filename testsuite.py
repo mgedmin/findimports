@@ -27,6 +27,9 @@ class RedirectToStdout(object):
 
 
 def setUp(test):
+    test.old_path = list(sys.path)
+    sample_tree = os.path.abspath(os.path.join('tests', 'sample-tree'))
+    sys.path.append(os.path.join(sample_tree, 'zippedmodules.zip'))
     test.old_stderr = sys.stderr
     sys.stderr = RedirectToStdout()
     test.old_cwd = os.getcwd()
@@ -35,6 +38,7 @@ def setUp(test):
 
 
 def tearDown(test):
+    sys.path[:] = test.old_path
     sys.stderr = test.old_stderr
     os.chdir(test.old_cwd)
     shutil.rmtree(test.tempdir)
