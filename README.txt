@@ -8,4 +8,7 @@ module import graphs in ASCII or graphviz formats.
 A distinguishing feature of findimports is that it can parse doctest code
 inside docstrings.
 
+Note that not all cases are handled correctly, especially if you use
+'import foo.bar.baz'.
+
 FindImports requires Python 2.4 or later.
