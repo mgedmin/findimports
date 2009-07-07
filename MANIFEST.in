@@ -1,0 +1,4 @@
+include *.txt
+include testsuite.py
+include tests/*.txt
+recursive-include tests/sample-tree *.py *.zip
