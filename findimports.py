@@ -48,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2008 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2009 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -71,6 +71,7 @@ import doctest
 import compiler
 import linecache
 import pickle
+import zipfile
 from operator import attrgetter
 from compiler.visitor import ASTVisitor
 
@@ -482,13 +483,24 @@ class ModuleGraph(object):
         except KeyError:
             pass
         for dir in self.path:
-            for ext in ('.py', '.so', '.dll'):
-                candidate = os.path.join(dir, filename) + ext
-                if os.path.exists(candidate):
-                    modname = self.filenameToModname(candidate)
-                    self._module_cache[(dotted_name, extrapath)] = modname
-                    self._module_cache[(dotted_name, None)] = modname
-                    return modname
+            if os.path.isfile(dir):
+                zf = zipfile.ZipFile(dir)
+                names = zf.namelist()
+                for ext in ('.py', '.so', '.dll'):
+                    candidate = filename + ext
+                    if candidate in names:
+                        modname = filename.replace(os.path.sep, '.')
+                        self._module_cache[(dotted_name, extrapath)] = modname
+                        self._module_cache[(dotted_name, None)] = modname
+                        return modname
+            else:
+                for ext in ('.py', '.so', '.dll'):
+                    candidate = os.path.join(dir, filename) + ext
+                    if os.path.exists(candidate):
+                        modname = self.filenameToModname(candidate)
+                        self._module_cache[(dotted_name, extrapath)] = modname
+                        self._module_cache[(dotted_name, None)] = modname
+                        return modname
         return None
 
     def isPackage(self, dotted_name, extrapath=None):

@@ -1,0 +1,10 @@
+Changes
+=======
+
+
+1.2.8 (unreleased)
+------------------
+
+- Is able to find modules inside zip files (e.g. eggs).
+- Fixed deprecation warning on Python 2.6.
+
