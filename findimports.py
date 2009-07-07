@@ -66,7 +66,6 @@ Ave, Cambridge, MA 02139, USA.
 
 import os
 import sys
-import sets
 import getopt
 import doctest
 import compiler
@@ -75,6 +74,12 @@ import pickle
 from operator import attrgetter
 from compiler import ast
 from compiler.visitor import ASTVisitor
+
+try:
+    set
+except NameError:
+    # Python 2.4 compatibility
+    from sets import Set as set
 
 
 __version__ = '1.2.8dev'
@@ -334,7 +339,7 @@ class Module(object):
         self.modname = modname
         self.label = modname
         self.filename = filename
-        self.imports = sets.Set()
+        self.imports = set()
         self.imported_names = ()
         self.unused_names = ()
 
@@ -349,7 +354,7 @@ class ModuleCycle(object):
         self.modnames = modnames
         self.modname = modnames[0]
         self.label = "\n".join(modnames)
-        self.imports = sets.Set()
+        self.imports = set()
 
 
 class ModuleGraph(object):
@@ -367,7 +372,7 @@ class ModuleGraph(object):
         self._module_cache = {}
         # some builtin modules cannot be found using normal means, but we don't
         # want to report warnings about them
-        self._warned_about = sets.Set(['gc'])
+        self._warned_about = set(['gc'])
 
     def parsePathname(self, pathname):
         """Parse one or more source files.
@@ -413,7 +418,7 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        module.imports = sets.Set(
+        module.imports = set(
             [self.findModuleOfName(imp.name, filename, dir)
              for imp in module.imported_names])
 
@@ -566,7 +571,7 @@ class ModuleGraph(object):
         # Phase 0: prepare the graph
         imports = {}
         for u in self.modules:
-            imports[u] = sets.Set()
+            imports[u] = set()
             for v in self.modules[u].imports:
                 if v in self.modules: # skip external dependencies
                     imports[u].add(v)
@@ -588,7 +593,7 @@ class ModuleGraph(object):
         # Phase 2: compute the inverse graph
         revimports = {}
         for u in self.modules:
-            revimports[u] = sets.Set()
+            revimports[u] = set()
         for u in self.modules:
             for v in imports[u]:
                 revimports[v].add(u)
@@ -659,7 +664,7 @@ class ModuleGraph(object):
         """Produce a dependency graph in dot format."""
         print "digraph ModuleDependencies {"
         print "  node[shape=box];"
-        allNames = sets.Set()
+        allNames = set()
         nameDict = {}
         for n, module in enumerate(self.listModules()):
             module._dot_name = "mod%d" % n
@@ -669,7 +674,7 @@ class ModuleGraph(object):
             allNames |= module.imports
         print "  node[style=dotted];"
         if self.external_dependencies:
-            myNames = sets.Set(self.modules)
+            myNames = set(self.modules)
             extNames = list(allNames - myNames)
             extNames.sort()
             for n, name in enumerate(extNames):
