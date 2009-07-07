@@ -82,7 +82,7 @@ except NameError:
     from sets import Set as set
 
 
-__version__ = '1.2.9dev'
+__version__ = '1.2.9'
 
 
 def adjust_lineno(filename, lineno, name):

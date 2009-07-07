@@ -2,6 +2,12 @@ Changes
 =======
 
 
+1.2.9 (2009-07-07)
+------------------
+
+- Fixed broken and uninstallable source distribution by adding a MANIFEST.in.
+
+
 1.2.8 (2009-07-07)
 ------------------
 
