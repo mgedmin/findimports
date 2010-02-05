@@ -48,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2009 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2010 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -82,7 +82,7 @@ except NameError:
     from sets import Set as set
 
 
-__version__ = '1.2.10dev'
+__version__ = '1.2.10'
 
 
 def adjust_lineno(filename, lineno, name):
@@ -150,6 +150,8 @@ class ImportFinder(ASTVisitor):
             self.processImport(name, imported_as, name, node)
 
     def visitFrom(self, node):
+        if node.modname == '__future__':
+            return
         for name, imported_as in node.names:
             self.processImport(name, imported_as,
                                '%s.%s' % (node.modname, name), node)
