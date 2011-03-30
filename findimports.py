@@ -75,12 +75,6 @@ import zipfile
 from operator import attrgetter
 from compiler.visitor import ASTVisitor
 
-try:
-    set
-except NameError:
-    # Python 2.3 compatibility -- does anybody still care?
-    from sets import Set as set
-
 
 __version__ = '1.2.11'
 
