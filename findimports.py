@@ -78,11 +78,11 @@ from compiler.visitor import ASTVisitor
 try:
     set
 except NameError:
-    # Python 2.4 compatibility
+    # Python 2.3 compatibility -- does anybody still care?
     from sets import Set as set
 
 
-__version__ = '1.2.10'
+__version__ = '1.2.11'
 
 
 def adjust_lineno(filename, lineno, name):
@@ -432,7 +432,6 @@ class ModuleGraph(object):
                 break
         else:
             print >> sys.stderr, "%s: unknown file name extension" % filename
-        longest_prefix_len = 0
         filename = os.path.abspath(filename)
         elements = filename.split(os.path.sep)
         modname = []
