@@ -12,6 +12,19 @@ default:
 check test:
 	$(PYTHON) testsuite.py
 
+.PHONY: test-all-pythons
+test-all-pythons:
+	set -e; \
+	for ver in 2.4 2.5 2.6 2.7; do \
+		if which python$$ver > /dev/null; then \
+			$(MAKE) test PYTHON=python$$ver; \
+		else \
+			echo "=================================="; \
+			echo "Skipping python$$ver, not available."; \
+			echo "=================================="; \
+		fi; \
+	done
+
 .PHONY: preview-pypi-description
 preview-pypi-description:
 	# pip install restview, if missing
