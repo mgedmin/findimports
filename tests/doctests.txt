@@ -11,7 +11,7 @@ Imports in doctest sections inside docstrings are also handled
     ...     """
     ...         >>> import sys
     ...     """
-    ... class Example():
+    ... class Example:
     ...     """
     ...         >>> import gc
     ...     """
@@ -96,7 +96,7 @@ This is probably overkill, but we handle them recursively:
     >>> open('sandwitch.py', 'w').write('''
     ... def example():
     ...     """
-    ...         >>> class Example():
+    ...         >>> class Example:
     ...         ...    '>>> import sys'
     ...     """
     ... ''')
