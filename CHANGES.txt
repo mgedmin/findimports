@@ -5,6 +5,8 @@ Changes
 1.2.11 (unreleased)
 -------------------
 
+- Fix 'could not find cPickle' errors on Python 2.6 and newer.
+
 
 1.2.10 (2010-02-05)
 -------------------
