@@ -368,13 +368,17 @@ class ModuleGraph(object):
     verbose = False
     external_dependencies = True
 
+    # some builtin modules do not exist as separate .so files on disk
+    builtin_modules = (
+        'gc',
+        'cPickle', # since Python 2.6 there's no cPickle.so any more
+    )
+
     def __init__(self):
         self.modules = {}
         self.path = sys.path
         self._module_cache = {}
-        # some builtin modules cannot be found using normal means, but we don't
-        # want to report warnings about them
-        self._warned_about = set(['gc'])
+        self._warned_about = set()
 
     def parsePathname(self, pathname):
         """Parse one or more source files.
@@ -469,7 +473,7 @@ class ModuleGraph(object):
             return self._module_cache[(dotted_name, extrapath)]
         except KeyError:
             pass
-        if dotted_name in sys.modules:
+        if dotted_name in sys.modules or dotted_name in self.builtin_modules:
             return dotted_name
         filename = dotted_name.replace('.', os.path.sep)
         if extrapath:

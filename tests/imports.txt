@@ -15,6 +15,7 @@ All kinds of import statements are handled
     ...                  exc_info as EI,
     ...                  exit)
     ... from email import *
+    ... import imaginary.package
     ... ''')
 
     >>> for imp in find_imports('marmalade.py'):
@@ -28,7 +29,20 @@ All kinds of import statements are handled
     ImportInfo('sys.exc_info', 'marmalade.py', 8)
     ImportInfo('sys.exit', 'marmalade.py', 9)
     ImportInfo('email.*', 'marmalade.py', 10)
+    ImportInfo('imaginary.package', 'marmalade.py', 11)
 
 Note how we carefully try to make sure the line numbers are correct (e.g.
 'exit' is shown as imported on line 9, even though the AST node says the
 import statement began on line 7).
+
+
+Warnings about unknown modules
+------------------------------
+
+We print warnings when we cannot find a module/package
+
+    >>> from findimports import ModuleGraph
+    >>> graph = ModuleGraph()
+    >>> graph.parseFile('marmalade.py')
+    marmalade.py: could not find imaginary.package
+
