@@ -80,4 +80,7 @@ release: releasechecklist
 	@echo
 	@echo "Please increment the version number in $(FILE_WITH_VERSION)"
 	@echo "and add a new empty entry at the top of the changelog in $(FILE_WITH_CHANGELOG), then"
+	@echo
+	@echo '  bzr ci -m "Post-release version bump" && bzr push'
+	@echo
 
