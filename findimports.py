@@ -483,7 +483,14 @@ class ModuleGraph(object):
             pass
         for dir in self.path:
             if os.path.isfile(dir):
-                zf = zipfile.ZipFile(dir)
+                try:
+                    zf = zipfile.ZipFile(dir)
+                except zipfile.BadZipfile:
+                    if dir not in self._warned_about:
+                        print >> sys.stderr, ("%s: not a directory or zip file"
+                                              % dir)
+                        self._warned_about.add(dir)
+                    continue
                 names = zf.namelist()
                 for ext in ('.py', '.so', '.dll'):
                     candidate = filename + ext
