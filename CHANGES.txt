@@ -5,6 +5,9 @@ Changes
 1.2.12 (unreleased)
 -------------------
 
+- Handle zipfile errors when there are plain files that are not zip files
+  on sys.path.
+
 
 1.2.11 (2011-03-30)
 -------------------
