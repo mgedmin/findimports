@@ -5,6 +5,9 @@ Changes
 1.2.13 (unreleased)
 -------------------
 
+- Suppress "not a zipfile" warnings about ``*.egg-info`` files listed in
+  sys.path.
+
 
 1.2.12 (2011-04-08)
 -------------------
