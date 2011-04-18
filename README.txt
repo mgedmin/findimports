@@ -10,5 +10,3 @@ inside docstrings.
 
 Note that not all cases are handled correctly, especially if you use
 'import foo.bar.baz'.
-
-FindImports requires Python 2.4 or later.
