@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.2.13 (unreleased)
+1.2.13 (2011-04-18)
 -------------------
 
 - Suppress "not a zipfile" warnings about ``*.egg-info`` files listed in
