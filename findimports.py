@@ -483,6 +483,10 @@ class ModuleGraph(object):
             pass
         for dir in self.path:
             if os.path.isfile(dir):
+                if dir.endswith('.egg-info'):
+                    # distribute creates a setuptools-blah-blah.egg-info
+                    # that ends up in sys.path
+                    continue
                 try:
                     zf = zipfile.ZipFile(dir)
                 except zipfile.BadZipfile:
