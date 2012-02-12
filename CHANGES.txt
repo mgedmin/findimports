@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.2.14 (unreleased)
+1.2.14 (2012-02-12)
 -------------------
 
 - Recognize builtin modules using ``sys.builtin_module_names``.
