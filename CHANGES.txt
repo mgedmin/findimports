@@ -5,6 +5,9 @@ Changes
 1.2.14 (unreleased)
 -------------------
 
+- Recognize builtin modules using ``sys.builtin_module_names``.
+  Fixes https://bugs.launchpad.net/findimports/+bug/880989.
+
 
 1.2.13 (2011-04-18)
 -------------------

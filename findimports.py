@@ -48,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2010 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2012 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -363,10 +363,7 @@ class ModuleGraph(object):
     external_dependencies = True
 
     # some builtin modules do not exist as separate .so files on disk
-    builtin_modules = (
-        'gc',
-        'cPickle', # since Python 2.6 there's no cPickle.so any more
-    )
+    builtin_modules = sys.builtin_module_names
 
     def __init__(self):
         self.modules = {}
