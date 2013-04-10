@@ -2,10 +2,10 @@ Changes
 =======
 
 
-1.3.0 (unreleased)
+1.3.0 (2013-04-10)
 -------------------
 
-- Moved to github.
+- Moved to Github.
 
 - Drop Python 2.4 and 2.5 support.
 
