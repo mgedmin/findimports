@@ -4,8 +4,8 @@ from setuptools import setup
 
 from findimports import __version__
 
-readme = os.path.join(os.path.dirname(__file__), 'README.txt')
-changes = os.path.join(os.path.dirname(__file__), 'CHANGES.txt')
+readme = os.path.join(os.path.dirname(__file__), 'README.rst')
+changes = os.path.join(os.path.dirname(__file__), 'CHANGES.rst')
 
 setup(
     name='findimports',

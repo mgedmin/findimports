@@ -2,7 +2,7 @@ PYTHON = python
 
 # these do not need changing
 FILE_WITH_VERSION = findimports.py
-FILE_WITH_CHANGELOG = CHANGES.txt
+FILE_WITH_CHANGELOG = CHANGES.rst
 VCS_STATUS = git status --porcelain
 VCS_EXPORT = git archive --format=tar --prefix=tmp/tree/ HEAD | tar -xf -
 VCS_TAG = git tag
