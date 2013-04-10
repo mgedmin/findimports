@@ -2,7 +2,7 @@
 """
 FindImports is a script that processes Python module dependencies.  Currently
 it can be used for finding unused imports and graphing module dependencies
-(with graphviz).  FindImports requires Python 2.4 or later.
+(with graphviz).  FindImports requires Python 2.6 or later.
 
 Syntax: findimports.py [options] [filename|dirname ...]
 
@@ -48,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2012 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2013 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -76,7 +76,10 @@ from operator import attrgetter
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.2.15dev'
+__version__ = '1.3.dev0'
+__author__ = 'Marius Gedminas <marius@gedmin.as>'
+__licence__ = 'GPL v2 or later'
+__url__ = 'https://github.com/mgedmin/findimports'
 
 
 def adjust_lineno(filename, lineno, name):

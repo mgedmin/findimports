@@ -2,10 +2,12 @@ Changes
 =======
 
 
-1.2.15 (unreleased)
+1.3.0 (unreleased)
 -------------------
 
 - Moved to github.
+
+- Drop Python 2.4 and 2.5 support.
 
 
 1.2.14 (2012-02-12)

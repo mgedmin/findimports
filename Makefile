@@ -18,8 +18,9 @@ check test:
 
 .PHONY: test-all-pythons
 test-all-pythons:
+	## TODO: switch to detox
 	set -e; \
-	for ver in 2.4 2.5 2.6 2.7; do \
+	for ver in 2.6 2.7; do \
 		if which python$$ver > /dev/null; then \
 			$(MAKE) test PYTHON=python$$ver; \
 		else \
