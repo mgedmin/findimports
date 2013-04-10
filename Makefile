@@ -18,17 +18,8 @@ check test:
 
 .PHONY: test-all-pythons
 test-all-pythons:
-	## TODO: switch to detox
-	set -e; \
-	for ver in 2.6 2.7; do \
-		if which python$$ver > /dev/null; then \
-			$(MAKE) test PYTHON=python$$ver; \
-		else \
-			echo "=================================="; \
-			echo "Skipping python$$ver, not available."; \
-			echo "=================================="; \
-		fi; \
-	done
+	# pip install detox, if missing
+	detox
 
 .PHONY: preview-pypi-description
 preview-pypi-description:

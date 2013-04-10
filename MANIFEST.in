@@ -1,6 +1,7 @@
 include *.rst
 include Makefile
+include .gitignore
+include tox.ini
 include testsuite.py
 include tests/*.txt
-include .gitignore
 recursive-include tests/sample-tree *.py *.zip
