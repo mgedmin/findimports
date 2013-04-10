@@ -9,6 +9,8 @@ Changes
 
 - Drop Python 2.4 and 2.5 support.
 
+- Handle unicode docstrings with doctests.
+
 
 1.2.14 (2012-02-12)
 -------------------

@@ -177,7 +177,10 @@ class ImportFinder(ASTVisitor):
             raise
         for example in examples:
             try:
-                ast = compiler.parse(example.source)
+                source = example.source
+                if isinstance(source, unicode):
+                    source = source.encode('UTF-8')
+                ast = compiler.parse(source)
             except SyntaxError:
                 print >> sys.stderr, ("%s:%s: syntax error in doctest"
                                       % (self.filename, lineno))
