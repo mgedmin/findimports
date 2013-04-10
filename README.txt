@@ -10,3 +10,13 @@ inside docstrings.
 
 Note that not all cases are handled correctly, especially if you use
 'import foo.bar.baz'.
+
+
+Misc
+----
+
+Home page: https://github.com/mgedmin/findimports
+
+Old project page: https://launchpad.net/findimports
+
+Licence: GPL v2 or later (http://www.gnu.org/copyleft/gpl.html)
