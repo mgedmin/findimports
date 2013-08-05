@@ -99,14 +99,15 @@ def adjust_lineno(filename, lineno, name):
 class ImportInfo(object):
     """A record of a name and the location of the import statement."""
 
-    def __init__(self, name, filename, lineno):
+    def __init__(self, name, filename, lineno, level):
         self.name = name
         self.filename = filename
         self.lineno = lineno
+        self.level = level
 
     def __repr__(self):
-        return '%s(%r, %r, %r)' % (self.__class__.__name__, self.name,
-                                   self.filename, self.lineno)
+        return '%s(%r, %r, %r, %r)' % (self.__class__.__name__, self.name,
+                                   self.filename, self.lineno, self.level)
 
 
 class ImportFinder(ASTVisitor):
@@ -135,23 +136,25 @@ class ImportFinder(ASTVisitor):
         self.imports = []
         self.filename = filename
 
-    def processImport(self, name, imported_as, full_name, node):
+    def processImport(self, name, imported_as, full_name, level, node):
         lineno = adjust_lineno(self.filename,
                                self.lineno_offset + node.lineno,
                                name)
-        info = ImportInfo(full_name, self.filename, lineno)
+        info = ImportInfo(full_name, self.filename, lineno, level)
         self.imports.append(info)
 
     def visitImport(self, node):
         for name, imported_as in node.names:
-            self.processImport(name, imported_as, name, node)
+            self.processImport(name, imported_as, name, None, node)
 
     def visitFrom(self, node):
         if node.modname == '__future__':
             return
+
         for name, imported_as in node.names:
             self.processImport(name, imported_as,
-                               '%s.%s' % (node.modname, name), node)
+                           '%s.%s' % (node.modname, name)
+                           if node.modname else name, node.level, node)
 
     def visitSomethingWithADocstring(self, node):
         self.processDocstring(node.doc, node.lineno)
@@ -211,10 +214,11 @@ class Scope(object):
             return self.imports[name]
         return self.parent.whereImported(name)
 
-    def addImport(self, name, filename, lineno):
+    def addImport(self, name, filename, level, lineno):
         self.unused_names[name] = self.imports[name] = ImportInfo(name,
                                                                   filename,
-                                                                  lineno)
+                                                                  lineno,
+                                                                  level)
 
     def useName(self, name):
         if name in self.unused_names:
@@ -259,8 +263,8 @@ class ImportFinderAndNameTracker(ImportFinder):
         ImportFinder.visitFunction(self, node)
         self.leaveScope()
 
-    def processImport(self, name, imported_as, full_name, node):
-        ImportFinder.processImport(self, name, imported_as, full_name, node)
+    def processImport(self, name, imported_as, full_name, level, node):
+        ImportFinder.processImport(self, name, imported_as, full_name, level, node)
         if not imported_as:
             imported_as = name
         if imported_as != "*":
@@ -274,7 +278,7 @@ class ImportFinderAndNameTracker(ImportFinder):
                     print >> sys.stderr, ("%s:%s:   (location of previous import)"
                                         % (self.filename, where))
             else:
-                self.scope.addImport(imported_as, self.filename, lineno)
+                self.scope.addImport(imported_as, self.filename, level, lineno)
 
     def visitName(self, node):
         self.scope.useName(node.name)
@@ -422,7 +426,7 @@ class ModuleGraph(object):
             module.unused_names = None
         dir = os.path.dirname(filename)
         module.imports = set(
-            [self.findModuleOfName(imp.name, filename, dir)
+            [self.findModuleOfName(imp.name, imp.level, filename, dir)
              for imp in module.imported_names])
 
     def filenameToModname(self, filename):
@@ -445,11 +449,19 @@ class ModuleGraph(object):
         modname = ".".join(modname)
         return modname
 
-    def findModuleOfName(self, dotted_name, filename, extrapath=None):
+    def findModuleOfName(self, dotted_name, level, filename, extrapath=None):
         """Given a fully qualified name, find what module contains it."""
         if dotted_name.endswith('.*'):
             return dotted_name[:-2]
         name = dotted_name
+
+        orig_extrapath = extrapath
+        if level > 1:
+            extrapath = extrapath.split(os.path.sep)
+            level -= 1
+            extrapath = extrapath[0:-level]
+            extrapath = os.path.sep.join(extrapath)
+
         while name:
             candidate = self.isModule(name, extrapath)
             if candidate:
