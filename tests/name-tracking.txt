@@ -8,16 +8,19 @@ expressions
 
     >>> open('marmalade.py', 'w').write('''
     ... import sys, os
+    ... from .. import foobar
     ... my_name_is = sys.argv[0]
     ... ''')
 
     >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
     >>> for imp in imports:
     ...     print imp
-    ImportInfo('sys', 'marmalade.py', 2)
-    ImportInfo('os', 'marmalade.py', 2)
+    ImportInfo('sys', 'marmalade.py', 2, None)
+    ImportInfo('os', 'marmalade.py', 2, None)
+    ImportInfo('foobar', 'marmalade.py', 3, 2)
 
     >>> for name in unused_names:
     ...     print name
-    ImportInfo('os', 'marmalade.py', 2)
+    ImportInfo('os', 'marmalade.py', 2, None)
+    ImportInfo('foobar', 'marmalade.py', 3, 2)
 

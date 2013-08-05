@@ -5,11 +5,11 @@ Modules can be placed in zip files
 
     >>> from findimports import ModuleGraph
     >>> graph = ModuleGraph()
-    >>> graph.findModuleOfName('zippedsample', '<stdin>')
+    >>> graph.findModuleOfName('zippedsample', None, '<stdin>')
     'zippedsample'
 
 If a module cannot be located, we get an extra warning
 
-    >>> graph.findModuleOfName('imaginarysample', '<stdin>')
+    >>> graph.findModuleOfName('imaginarysample', None, '<stdin>')
     <stdin>: could not find imaginarysample
     'imaginarysample'
