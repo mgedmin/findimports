@@ -5,7 +5,7 @@ Changes
 1.3.1 (unreleased)
 ------------------
 
-- No changes yet.
+- Added support for relative imports.
 
 
 1.3.0 (2013-04-10)
