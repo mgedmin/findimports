@@ -456,7 +456,14 @@ class ModuleGraph(object):
             return dotted_name[:-2]
         name = dotted_name
 
-        if level > 1:
+        # extrapath is None only in a couple of test cases; in real life it's
+        # always present
+        if level > 1 and extrapath:
+            # strip trailing path bits for each extra level to account for
+            # relative imports
+            # from . import X has level == 1 and nothing is stripped (the level > 1 check accounts for this case)
+            # from .. import X has level == 2 and one trailing path component must go
+            # from ... import X has level == 3 and two trailing path components must go
             extrapath = extrapath.split(os.path.sep)
             level -= 1
             extrapath = extrapath[0:-level]
