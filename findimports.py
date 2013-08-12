@@ -456,7 +456,6 @@ class ModuleGraph(object):
             return dotted_name[:-2]
         name = dotted_name
 
-        orig_extrapath = extrapath
         if level > 1:
             extrapath = extrapath.split(os.path.sep)
             level -= 1
