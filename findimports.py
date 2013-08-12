@@ -128,6 +128,7 @@ class ImportFinder(ASTVisitor):
        q.w.e.y
        q.w.e.z
        woof.*
+
     """
 
     lineno_offset = 0       # needed when recursively parsing docstrings
@@ -800,6 +801,6 @@ def main(argv=sys.argv):
     getattr(g, action)()
     return 0
 
+
 if __name__ == '__main__':
     sys.exit(main())
-
