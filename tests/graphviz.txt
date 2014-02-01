@@ -17,10 +17,10 @@ graphviz
       extmod0[label="gc"];
       extmod1[label="os"];
       extmod2[label="sys"];
-      mod4 -> extmod0;
-      mod2 -> mod3;
-      mod2 -> extmod0;
-      mod0 -> extmod2;
       mod0 -> extmod1;
+      mod0 -> extmod2;
+      mod2 -> extmod0;
+      mod2 -> mod3;
+      mod4 -> extmod0;
     }
 
