@@ -5,11 +5,16 @@ FindImports extracts Python module dependencies by parsing source files.
 It can report names that are imported but not used, and it can generate
 module import graphs in ASCII or graphviz formats.
 
-A distinguishing feature of findimports is that it can parse doctest code
-inside docstrings.
+A distinguishing feature of findimports used to be that it could parse doctest
+code inside docstrings.
 
 Note that not all cases are handled correctly, especially if you use
 'import foo.bar.baz'.
+
+If you need to find unused imports in your codebase, I recommend Pyflakes_
+instead -- it's better maintained and more reliable.
+
+.. _Pyflakes: https://pypi.python.org/pypi/pyflakes
 
 
 Misc
