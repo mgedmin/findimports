@@ -3,6 +3,7 @@
 import unittest
 import doctest
 import os
+import re
 import sys
 import tempfile
 import shutil
@@ -24,6 +25,16 @@ class RedirectToStdout(object):
 
     def write(self, msg):
         sys.stdout.write(msg)
+
+
+class Checker(doctest.OutputChecker):
+    """Doctest output checker that can normalize Windows pathname differences."""
+
+    def check_output(self, want, got, optionflags):
+        want = re.sub("sample-tree/[^:]*",
+                      lambda m: m.group(0).replace("/", os.path.sep),
+                      want)
+        return doctest.OutputChecker.check_output(self, want, got, optionflags)
 
 
 def setUp(test):
@@ -51,10 +62,11 @@ def additional_tests(): # hook for setuptools
     sample_tree = os.path.abspath(os.path.join('tests', 'sample-tree'))
     globs = dict(sample_tree=sample_tree)
     return unittest.TestSuite(
-            doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
-                                 module_relative=False, globs=globs,
-                                 optionflags=doctest.REPORT_NDIFF)
-            for filename in sorted(glob.glob('tests/*.txt')))
+        doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
+                             module_relative=False, globs=globs,
+                             checker=Checker(),
+                             optionflags=doctest.REPORT_NDIFF)
+        for filename in sorted(glob.glob('tests/*.txt')))
 
 
 def main():
