@@ -724,7 +724,7 @@ class ModuleGraph(object):
                 nameDict[name] = id = "extmod%d" % n
                 print "  %s[label=\"%s\"];" % (id, name)
         for modname, module in sorted(self.modules.items()):
-            for other in module.imports:
+            for other in sorted(module.imports):
                 if other in nameDict:
                     print "  %s -> %s;" % (nameDict[module.modname],
                                            nameDict[other])
