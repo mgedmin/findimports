@@ -12,9 +12,11 @@ Note that not all cases are handled correctly, especially if you use
 'import foo.bar.baz'.
 
 If you need to find unused imports in your codebase, I recommend Pyflakes_
-instead -- it's better maintained and more reliable.
+instead -- it's better maintained and more reliable.  For import graphs
+consider snakefood_.
 
 .. _Pyflakes: https://pypi.python.org/pypi/pyflakes
+.. _snakefood: http://furius.ca/snakefood/
 
 
 Misc
