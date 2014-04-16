@@ -5,7 +5,7 @@ Changes
 1.3.1 (unreleased)
 ------------------
 
-- Added support for relative imports.
+- Added support for relative imports (e.g. ``from .. import foo``).
 
 
 1.3.0 (2013-04-10)
