@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.3.1 (unreleased)
+1.3.1 (2014-04-16)
 ------------------
 
 - Added support for relative imports (e.g. ``from .. import foo``).

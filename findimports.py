@@ -48,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2013 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2014 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -76,7 +76,7 @@ from operator import attrgetter
 from compiler.visitor import ASTVisitor
 
 
-__version__ = '1.3.1.dev0'
+__version__ = '1.3.1'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'GPL v2 or later'
 __url__ = 'https://github.com/mgedmin/findimports'
