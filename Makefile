@@ -3,6 +3,7 @@ PYTHON = python
 # these do not need changing
 FILE_WITH_VERSION = findimports.py
 FILE_WITH_CHANGELOG = CHANGES.rst
+VCS_GET_LATEST = git pull
 VCS_STATUS = git status --porcelain
 VCS_EXPORT = git archive --format=tar --prefix=tmp/tree/ HEAD | tar -xf -
 VCS_TAG = git tag
@@ -61,6 +62,7 @@ endif
 
 .PHONY: releasechecklist
 releasechecklist:
+	$(VCS_GET_LATEST)
 	@$(PYTHON) setup.py --version | grep -qv dev || { \
 	    echo "Please remove the 'dev' suffix from the version number in $(FILE_WITH_VERSION)"; exit 1; }
 	@$(PYTHON) setup.py --long-description | rst2html --exit-status=2 > /dev/null
