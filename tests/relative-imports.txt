@@ -1,0 +1,29 @@
+Test handling of relative imports
+=================================
+
+    >>> from testsuite import create_tree
+
+    >>> create_tree('''
+    ... -- foo/__init__.py --
+    ...
+    ... -- foo/bar.py --
+    ... from . import baz
+    ...
+    ... -- foo/baz.py --
+    ...
+    ... -- foo/qux/__init__.py --
+    ... from .. import bar
+    ... ''')
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.parsePathname('foo')
+    >>> g.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.baz
+    foo.baz:
+    <BLANKLINE>
+    foo.qux.__init__:
+      foo.bar

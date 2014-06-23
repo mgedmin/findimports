@@ -56,6 +56,22 @@ def tearDown(test):
     linecache.clearcache()
 
 
+def create_tree(files):
+    f = None
+    for line in files.splitlines():
+        if line.startswith('-- ') and line.endswith(' --'):
+            filename = line.strip('- ')
+            if not os.path.isdir(os.path.dirname(filename)):
+                os.makedirs(os.path.dirname(filename))
+            if f is not None:
+                f.close()
+            f = open(filename, 'w')
+        elif f is not None:
+            f.write(line + '\n')
+    if f is not None:
+        f.close()
+
+
 def additional_tests(): # hook for setuptools
     # paths relative to __file__ don't work if you run 'figleaf testsuite.py'
     # so we have to use paths relative to os.getcwd()
