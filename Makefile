@@ -17,6 +17,10 @@ default:
 check test:
 	$(PYTHON) testsuite.py
 
+.PHONY: coverage
+coverage:
+	tox -e coverage
+
 .PHONY: test-all-pythons
 test-all-pythons:
 	# pip install detox, if missing

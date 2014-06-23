@@ -1,0 +1,13 @@
+Future statements
+=================
+
+Future statements do not confuse findimports
+
+    >>> from findimports import find_imports
+
+    >>> open('future.py', 'w').write('''
+    ... from __future__ import nested_scopes
+    ... ''')
+
+    >>> for imp in find_imports('future.py'):
+    ...     print imp
