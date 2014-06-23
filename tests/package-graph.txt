@@ -1,0 +1,47 @@
+Test collapsing to packages
+===========================
+
+    >>> from testsuite import create_tree
+
+    >>> create_tree('''
+    ... -- foo/__init__.py --
+    ...
+    ... -- foo/bar.py --
+    ... from bar import a
+    ...
+    ... -- foo/baz.py --
+    ... import os
+    ...
+    ... -- bar/__init__.py --
+    ... import sys
+    ...
+    ... -- bar/a.py --
+    ... from foo import baz
+    ... ''')
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.path.append('.')
+    >>> g.parsePathname('foo')
+    >>> g.parsePathname('bar')
+    >>> g.printImports()
+    bar.__init__:
+      sys
+    bar.a:
+      foo.baz
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      bar.a
+    foo.baz:
+      os
+
+    >>> pg = g.packageGraph()
+    >>> pg.printImports()
+    bar:
+      foo
+      sys
+    foo:
+      bar
+      os
+
