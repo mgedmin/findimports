@@ -44,7 +44,7 @@ def setUp(test):
     test.old_stderr = sys.stderr
     sys.stderr = RedirectToStdout()
     test.old_cwd = os.getcwd()
-    test.tempdir = tempfile.mkdtemp('findimports')
+    test.tempdir = tempfile.mkdtemp(prefix='test-findimports-')
     os.chdir(test.tempdir)
 
 
