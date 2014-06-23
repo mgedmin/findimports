@@ -1,0 +1,48 @@
+Test cyclic imports
+
+    >>> from testsuite import create_tree
+
+    >>> create_tree('''
+    ... -- foo/__init__.py --
+    ...
+    ... -- foo/bar.py --
+    ... from . import baz
+    ... from . import qux
+    ...
+    ... -- foo/baz.py --
+    ... from . import bar
+    ... from . import mux
+    ...
+    ... -- foo/qux.py --
+    ... -- foo/mux.py --
+    ... ''')
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.parsePathname('foo')
+    >>> g.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.baz
+      foo.qux
+    foo.baz:
+      foo.bar
+      foo.mux
+    foo.mux:
+    <BLANKLINE>
+    foo.qux:
+    <BLANKLINE>
+
+    >>> cg = g.collapseCycles()
+    >>> cg.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar
+    foo.baz:
+      foo.mux
+      foo.qux
+    foo.mux:
+    <BLANKLINE>
+    foo.qux:
+    <BLANKLINE>
