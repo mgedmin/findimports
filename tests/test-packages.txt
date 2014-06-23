@@ -1,0 +1,73 @@
+Test handling of test packages
+==============================
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.removeTestPackage('foo.bar')
+    'foo.bar'
+    >>> g.removeTestPackage('foo.bar.tests')
+    'foo.bar'
+    >>> g.removeTestPackage('foo.tests.test_foo')
+    'foo'
+    >>> g.removeTestPackage('tests')
+    'tests'
+
+    >>> from testsuite import create_tree
+
+    >>> create_tree('''
+    ... -- foo/__init__.py --
+    ...
+    ... -- foo/bar.py --
+    ... import os
+    ...
+    ... -- foo/tests.py --
+    ... import unittest
+    ... from foo import bar
+    ...
+    ... -- bar/__init__.py --
+    ... import foo
+    ...
+    ... -- bar/qux.py --
+    ... import foo
+    ...
+    ... -- bar/tests/__init__.py --
+    ... import sys
+    ...
+    ... -- bar/tests/test_qux.py --
+    ... import unittest
+    ... import bar.qux
+    ... ''')
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.path.append('.')
+    >>> g.parsePathname('foo')
+    >>> g.parsePathname('bar')
+
+    >>> g.printImports()
+    bar.__init__:
+      foo
+    bar.qux:
+      foo
+    bar.tests.__init__:
+      sys
+    bar.tests.test_qux:
+      bar.qux
+      unittest
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      os
+    foo.tests:
+      foo.bar
+      unittest
+
+    >>> tg = g.packageGraph().collapseTests()
+    >>> tg.printImports()
+    bar:
+      foo
+      sys
+      unittest
+    foo:
+      os
+      unittest

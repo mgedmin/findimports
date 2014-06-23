@@ -350,6 +350,9 @@ class Module(object):
         self.imported_names = ()
         self.unused_names = ()
 
+    def __repr__(self):
+        return '<%s: %s>' % (self.__class__.__name__, self.modname)
+
 
 class ModuleCycle(object):
     """Node in a condenced module dependency graph.
@@ -587,7 +590,10 @@ class ModuleGraph(object):
         return graph
 
     def collapseTests(self, pkgnames=['tests', 'ftests']):
-        """Collapse test packages with parent packages."""
+        """Collapse test packages with parent packages.
+
+        Works only with package graphs.
+        """
         packages = {}
         for module in self.listModules():
             package_name = self.removeTestPackage(module.modname, pkgnames)
