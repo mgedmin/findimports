@@ -1,0 +1,25 @@
+Warnings about unknown modules
+==============================
+
+We print warnings when we cannot find a module/package
+
+    >>> from findimports import ModuleGraph
+
+    >>> open('marmalade.py', 'w').write('''
+    ... import sys
+    ... import os.path
+    ... import email.Message as EM
+    ... from . import foobar
+    ... from cStringIO import StringIO
+    ... from cPickle import dumps as D
+    ... from sys import (argv,
+    ...                  exc_info as EI,
+    ...                  exit)
+    ... from email import *
+    ... import imaginary.package
+    ... ''')
+
+    >>> graph = ModuleGraph()
+    >>> graph.parseFile('marmalade.py')
+    marmalade.py: could not find foobar
+    marmalade.py: could not find imaginary.package
