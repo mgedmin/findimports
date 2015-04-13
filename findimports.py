@@ -385,6 +385,13 @@ class ModuleGraph(object):
         self._module_cache = {}
         self._warned_about = set()
         self._stderr = sys.stderr
+        self._exts = ('.py', '.so', '.dll')
+        if hasattr(sys, '_multiarch'): # pragma: nocover
+            # Ubuntu 14.04 LTS renames
+            # /usr/lib/python2.7/lib-dynload/datetime.so to
+            # /usr/lib/python2.7/lib-dynload/datetime.x86_64-linux-gnu.so
+            # (https://github.com/mgedmin/findimports/issues/3)
+            self._exts += ('.%s.so' % sys._multiarch, )
 
     def warn(self, about, message, *args):
         if about in self._warned_about:
