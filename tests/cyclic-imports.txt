@@ -46,3 +46,19 @@ Test cyclic imports
     <BLANKLINE>
     foo.qux:
     <BLANKLINE>
+
+This is enabled when you pass --collapse to findimports:
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '-c'])
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar
+    foo.baz:
+      foo.mux
+      foo.qux
+    foo.mux:
+    <BLANKLINE>
+    foo.qux:
+    <BLANKLINE>
+
