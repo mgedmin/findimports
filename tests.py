@@ -38,6 +38,11 @@ class TestModuleGraph(unittest.TestCase):
         mg.warn('foo', 'no module foo (again)')
         self.assertEqual(mg._stderr.getvalue(), 'no module foo\n')
 
+    def test_parsePathname_regular_file(self):
+        mg = findimports.ModuleGraph()
+        mg.parsePathname(__file__.rstrip('co'))  # .pyc -> .py
+        self.assertTrue('unittest' in mg.modules[__name__].imports)
+
     def test_filenameToModname(self):
         mg = findimports.ModuleGraph()
         if '.x86_64-linux-gnu.so' not in mg._exts:
