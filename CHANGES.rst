@@ -5,6 +5,10 @@ Changes
 1.3.2 (unreleased)
 ------------------
 
+- Fix "cannot find datetime" on Ubuntu 14.04 LTS (`#3
+  <https://github.com/mgedmin/findimports/issues/3>`_).
+
+- 100% test coverage.
 
 
 1.3.1 (2014-04-16)
