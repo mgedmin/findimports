@@ -8,6 +8,13 @@ import findimports
 here = os.path.dirname(__file__)
 
 
+class TestModule(unittest.TestCase):
+
+    def test(self):
+        m = findimports.Module('foo', 'foo.py')
+        self.assertEqual(repr(m), '<Module: foo>')
+
+
 class TestModuleGraph(unittest.TestCase):
 
     def setUp(self):
