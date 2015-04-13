@@ -31,6 +31,14 @@ class TestModuleGraph(unittest.TestCase):
         mg.warn('foo', 'no module foo (again)')
         self.assertEqual(mg._stderr.getvalue(), 'no module foo\n')
 
+    def test_filenameToModname(self):
+        mg = findimports.ModuleGraph()
+        if '.x86_64-linux-gnu.so' not in mg._exts:
+            mg._exts += ('.x86_64-linux-gnu.so',)
+        self.assertEqual(mg.filenameToModname('foo.py'), 'foo')
+        self.assertEqual(mg.filenameToModname('foo.so'), 'foo')
+        self.assertEqual(mg.filenameToModname('foo.x86_64-linux-gnu.so'), 'foo')
+
     def test_isModule(self):
         mg = findimports.ModuleGraph()
         self.assertTrue(mg.isModule('os'))

@@ -451,7 +451,7 @@ class ModuleGraph(object):
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
-        for ext in ('.py', '.so', '.dll'):
+        for ext in reversed(self._exts):
             if filename.endswith(ext):
                 filename = filename[:-len(ext)]
                 break
@@ -509,7 +509,7 @@ class ModuleGraph(object):
             return dotted_name
         filename = dotted_name.replace('.', os.path.sep)
         if extrapath:
-            for ext in ('.py', '.so', '.dll'):
+            for ext in self._exts:
                 candidate = os.path.join(extrapath, filename) + ext
                 if os.path.exists(candidate):
                     modname = self.filenameToModname(candidate)
@@ -531,7 +531,7 @@ class ModuleGraph(object):
                     self.warn(dir, "%s: not a directory or zip file", dir)
                     continue
                 names = zf.namelist()
-                for ext in ('.py', '.so', '.dll'):
+                for ext in self._exts:
                     candidate = filename + ext
                     if candidate in names:
                         modname = filename.replace(os.path.sep, '.')
@@ -539,7 +539,7 @@ class ModuleGraph(object):
                         self._module_cache[(dotted_name, None)] = modname
                         return modname
             else:
-                for ext in ('.py', '.so', '.dll'):
+                for ext in self._exts:
                     candidate = os.path.join(dir, filename) + ext
                     if os.path.exists(candidate):
                         modname = self.filenameToModname(candidate)
