@@ -1,0 +1,22 @@
+Command-line parsing
+====================
+
+An invalid argument causes a short error message pointing out --help
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '--nosuchargument'])
+    findimports: option --nosuchargument not recognized
+    Try findimports --help.
+
+    >>> exitcode
+    1
+
+And here's the advertised help message:
+
+    >>> exitcode = main(['findimports', '--help'])  # doctest: +ELLIPSIS
+    FindImports is a script that processes Python module dependencies...
+    <BLANKLINE>
+    Syntax: findimports [options] [filename|dirname ...]
+    ...
+
+

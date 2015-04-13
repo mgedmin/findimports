@@ -32,3 +32,14 @@ We can suppress external dependencies (such as standard library modules)
     orange:
     <BLANKLINE>
 
+We can look at a higher-level overview (packages only):
+
+    >>> exitcode = main(['findimports', '-p', sample_tree])
+    apple:
+      os
+      sys
+    box:
+      gc
+    orange:
+      gc
+
