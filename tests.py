@@ -39,6 +39,13 @@ class TestModuleGraph(unittest.TestCase):
         self.assertEqual(mg.filenameToModname('foo.so'), 'foo')
         self.assertEqual(mg.filenameToModname('foo.x86_64-linux-gnu.so'), 'foo')
 
+    def test_filenameToModname_warns(self):
+        mg = findimports.ModuleGraph()
+        mg.warn = self.warn
+        mg.filenameToModname('foo.xyz')
+        self.assertEqual(self.warnings,
+                         ['foo.xyz: unknown file name extension'])
+
     def test_isModule(self):
         mg = findimports.ModuleGraph()
         self.assertTrue(mg.isModule('os'))
