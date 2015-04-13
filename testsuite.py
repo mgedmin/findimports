@@ -77,12 +77,15 @@ def additional_tests(): # hook for setuptools
     # so we have to use paths relative to os.getcwd()
     sample_tree = os.path.abspath(os.path.join('tests', 'sample-tree'))
     globs = dict(sample_tree=sample_tree)
-    return unittest.TestSuite(
-        doctest.DocFileSuite(filename, setUp=setUp, tearDown=tearDown,
+    doctests = sorted(glob.glob('tests/*.txt'))
+    return unittest.TestSuite([
+        unittest.defaultTestLoader.loadTestsFromName('tests'),
+        doctest.DocFileSuite(setUp=setUp, tearDown=tearDown,
                              module_relative=False, globs=globs,
                              checker=Checker(),
-                             optionflags=doctest.REPORT_NDIFF)
-        for filename in sorted(glob.glob('tests/*.txt')))
+                             optionflags=doctest.REPORT_NDIFF,
+                             *doctests),
+    ])
 
 
 def main():
