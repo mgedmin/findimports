@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.3.2 (unreleased)
+1.3.2 (2015-04-13)
 ------------------
 
 - Fix "cannot find datetime" on Ubuntu 14.04 LTS (`#3
