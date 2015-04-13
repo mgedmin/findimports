@@ -1,7 +1,11 @@
+import os
 import unittest
 from cStringIO import StringIO
 
 import findimports
+
+
+here = os.path.dirname(__file__)
 
 
 class TestModuleGraph(unittest.TestCase):
@@ -34,3 +38,22 @@ class TestModuleGraph(unittest.TestCase):
         self.assertTrue(mg.isModule('datetime'))
         self.assertFalse(mg.isModule('nosuchmodule'))
         self.assertFalse(mg.isModule('logging'))  # it's a package
+
+    def test_isModule_warns_about_bad_zip_files(self):
+        # anything that's a regular file but isn't a valid zip file
+        # (oh and it shouldn't end in .egg-info)
+        badzipfile = __file__
+        mg = findimports.ModuleGraph()
+        mg.path = [badzipfile]
+        mg.warn = self.warn
+        mg.isModule('nosuchmodule')
+        self.assertEqual(self.warnings,
+                         ['%s: not a directory or zip file' % badzipfile])
+
+    def test_isModule_skips_egginfo_files(self):
+        egginfo = os.path.join(here, 'tests', 'sample-tree', 'snake.egg-info')
+        mg = findimports.ModuleGraph()
+        mg.path = [egginfo]
+        mg.warn = self.warn
+        mg.isModule('nosuchmodule')
+        self.assertEqual(self.warnings, [])
