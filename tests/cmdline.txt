@@ -19,4 +19,16 @@ And here's the advertised help message:
     Syntax: findimports [options] [filename|dirname ...]
     ...
 
+The default pathname is '.'
+
+    >>> import os
+    >>> os.chdir(sample_tree)
+    >>> exitcode = main(['findimports', '-pil1'])
+    apple:
+      os
+      sys
+    box:
+      gc
+    orange:
+      gc
 

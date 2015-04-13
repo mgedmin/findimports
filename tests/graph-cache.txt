@@ -32,3 +32,26 @@ it'll get loaded
     >>> 'box.cat' in newgraph.modules
     True
 
+This is hooked up to the --write-cache command-line argument:
+
+    >>> import os
+    >>> os.unlink('sample.importcache')
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '--write-cache=sample.importcache', sample_tree, '-pN'])
+    apple:
+    <BLANKLINE>
+    box:
+    <BLANKLINE>
+    orange:
+    <BLANKLINE>
+
+    >>> exitcode = main(['findimports', 'sample.importcache', '-p'])
+    apple:
+      os
+      sys
+    box:
+      gc
+    orange:
+      gc
+
