@@ -249,8 +249,9 @@ class ImportFinderAndNameTracker(ImportFinder):
         self.scope = self.scope_stack.pop()
 
     def leaveAllScopes(self):
-        while self.scope_stack:
-            self.leaveScope()
+        # newScope()/leaveScope() calls are always balanced so scope_stack
+        # should be empty at this point
+        assert not self.scope_stack
         self.unused_names += self.scope.unused_names.values()
         self.unused_names.sort(key=attrgetter('lineno'))
 
