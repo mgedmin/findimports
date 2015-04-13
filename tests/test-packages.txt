@@ -71,3 +71,13 @@ Test handling of test packages
     foo:
       os
       unittest
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '-pT'])
+    bar:
+      foo
+      sys
+      unittest
+    foo:
+      os
+      unittest
