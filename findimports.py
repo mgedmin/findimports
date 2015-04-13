@@ -48,7 +48,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2014 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2015 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -384,6 +384,15 @@ class ModuleGraph(object):
         self.path = sys.path
         self._module_cache = {}
         self._warned_about = set()
+        self._stderr = sys.stderr
+
+    def warn(self, about, message, *args):
+        if about in self._warned_about:
+            return
+        if args:
+            message = message % args
+        print >> self._stderr, message
+        self._warned_about.add(about)
 
     def parsePathname(self, pathname):
         """Parse one or more source files.
@@ -440,7 +449,7 @@ class ModuleGraph(object):
                 filename = filename[:-len(ext)]
                 break
         else:
-            print >> sys.stderr, "%s: unknown file name extension" % filename
+            self.warn(filename, '%s: unknown file name extension', filename)
         filename = os.path.abspath(filename)
         elements = filename.split(os.path.sep)
         modname = []
@@ -480,10 +489,7 @@ class ModuleGraph(object):
             if candidate:
                 return candidate
             name = name[:name.rfind('.')]
-        if dotted_name not in self._warned_about:
-            print >> sys.stderr, ("%s: could not find %s"
-                                  % (filename, dotted_name))
-            self._warned_about.add(dotted_name)
+        self.warn(dotted_name, '%s: could not find %s', filename, dotted_name)
         return dotted_name
 
     def isModule(self, dotted_name, extrapath=None):
@@ -515,10 +521,7 @@ class ModuleGraph(object):
                 try:
                     zf = zipfile.ZipFile(dir)
                 except zipfile.BadZipfile:
-                    if dir not in self._warned_about:
-                        print >> sys.stderr, ("%s: not a directory or zip file"
-                                              % dir)
-                        self._warned_about.add(dir)
+                    self.warn(dir, "%s: not a directory or zip file", dir)
                     continue
                 names = zf.namelist()
                 for ext in ('.py', '.so', '.dll'):
