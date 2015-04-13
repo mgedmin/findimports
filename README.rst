@@ -30,8 +30,8 @@ Licence: GPL v2 or later (http://www.gnu.org/copyleft/gpl.html)
 
 |buildstatus|_ |coverage|_
 
-.. |buildstatus| image:: https://api.travis-ci.org/mgedmin/findimports.png?branch=master
+.. |buildstatus| image:: https://api.travis-ci.org/mgedmin/findimports.svg?branch=master
 .. _buildstatus: https://travis-ci.org/mgedmin/findimports
 
-.. |coverage| image:: https://coveralls.io/repos/mgedmin/findimports/badge.png?branch=master
+.. |coverage| image:: https://coveralls.io/repos/mgedmin/findimports/badge.svg?branch=master
 .. _coverage: https://coveralls.io/r/mgedmin/findimports
