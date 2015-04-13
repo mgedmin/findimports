@@ -271,7 +271,7 @@ class ImportFinderAndNameTracker(ImportFinder):
         if imported_as != "*":
             lineno = self.lineno_offset + node.lineno
             if (self.warn_about_duplicates and
-                self.scope.haveImport(imported_as)):
+                    self.scope.haveImport(imported_as)):
                 where = self.scope.whereImported(imported_as).lineno
                 print >> sys.stderr, ("%s:%s: %s imported again"
                                       % (self.filename, lineno, imported_as))
@@ -295,8 +295,10 @@ class ImportFinderAndNameTracker(ImportFinder):
             full_name.reverse()
             name = ""
             for part in full_name:
-                if name: name = '%s.%s' % (name, part)
-                else: name += part
+                if name:
+                    name = '%s.%s' % (name, part)
+                else:
+                    name += part
                 self.scope.useName(name)
         for c in node.getChildNodes():
             self.visit(c)
@@ -438,9 +440,9 @@ class ModuleGraph(object):
         self.modules[modname] = module
         if self.trackUnusedNames:
             module.imported_names, module.unused_names = \
-                    find_imports_and_track_names(filename,
-                                                 self.warn_about_duplicates,
-                                                 self.verbose)
+                find_imports_and_track_names(filename,
+                                             self.warn_about_duplicates,
+                                             self.verbose)
         else:
             module.imported_names = find_imports(filename)
             module.unused_names = None
@@ -715,8 +717,8 @@ class ModuleGraph(object):
                 if not self.all_unused:
                     line = linecache.getline(module.filename, lineno)
                     if '#' in line:
-                        continue # assume there's a comment explaining why it
-                                 # is not used
+                        # assume there's a comment explaining why it's not used
+                        continue
                 print "%s:%s: %s not used" % (module.filename, lineno, name)
 
     def printDot(self):
