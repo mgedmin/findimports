@@ -19,7 +19,8 @@ check test:
 
 .PHONY: coverage
 coverage:
-	tox -e coverage
+	coverage run --source=findimports testsuite.py
+	coverage report
 
 .PHONY: test-all-pythons
 test-all-pythons:
