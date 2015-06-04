@@ -286,14 +286,14 @@ class ImportFinderAndNameTracker(ImportFinder):
     def visit_Name(self, node):
         self.scope.useName(node.id)
 
-    def visit_Getattr(self, node):
-        full_name = [node.attrname]
-        parent = node.expr
-        while isinstance(parent, ast.Getattr):
-            full_name.append(parent.attrname)
-            parent = parent.expr
+    def visit_Attribute(self, node):
+        full_name = [node.attr]
+        parent = node.value
+        while isinstance(parent, ast.Attribute):
+            full_name.append(parent.attr)
+            parent = parent.value
         if isinstance(parent, ast.Name):
-            full_name.append(parent.name)
+            full_name.append(parent.id)
             full_name.reverse()
             name = ""
             for part in full_name:
@@ -302,8 +302,7 @@ class ImportFinderAndNameTracker(ImportFinder):
                 else:
                     name += part
                 self.scope.useName(name)
-        for c in node.getChildNodes():
-            self.visit(c)
+        self.generic_visit(node)
 
 
 def find_imports(filename):
