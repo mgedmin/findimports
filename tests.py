@@ -43,6 +43,7 @@ class TestModuleGraph(unittest.TestCase):
 
     def test_parsePathname_regular_file(self):
         mg = findimports.ModuleGraph()
+        mg.warn = self.warn
         mg.parsePathname(__file__.rstrip('co'))  # .pyc -> .py
         self.assertTrue('unittest' in mg.modules[__name__].imports)
 
