@@ -64,7 +64,7 @@ this program; if not, write to the Free Software Foundation, Inc., 675 Mass
 Ave, Cambridge, MA 02139, USA.
 """
 
-import compiler
+import ast
 import doctest
 import getopt
 import linecache
@@ -73,7 +73,6 @@ import pickle
 import sys
 import zipfile
 from operator import attrgetter
-from compiler.visitor import ASTVisitor
 
 
 __version__ = '1.3.3.dev0'
@@ -110,7 +109,7 @@ class ImportInfo(object):
                                    self.filename, self.lineno, self.level)
 
 
-class ImportFinder(ASTVisitor):
+class ImportFinder(ast.NodeVisitor):
     """AST visitor that collects all imported names in its imports attribute.
 
     For example, the following import statements in the AST tree
@@ -144,33 +143,35 @@ class ImportFinder(ASTVisitor):
         info = ImportInfo(full_name, self.filename, lineno, level)
         self.imports.append(info)
 
-    def visitImport(self, node):
-        for name, imported_as in node.names:
-            self.processImport(name, imported_as, name, None, node)
+    def visit_Import(self, node):
+        for alias in node.names:
+            self.processImport(alias.name, alias.asname, alias.name, None, node)
 
-    def visitFrom(self, node):
-        if node.modname == '__future__':
+    def visit_ImportFrom(self, node):
+        if node.module == '__future__':
             return
 
-        for name, imported_as in node.names:
-            self.processImport(name, imported_as,
-                           '%s.%s' % (node.modname, name)
-                           if node.modname else name, node.level, node)
+        for alias in node.names:
+            name = alias.name
+            imported_as = alias.asname
+            fullname = '%s.%s' % (node.module, name) if node.module else name
+            self.processImport(name, imported_as, fullname, node.level, node)
 
     def visitSomethingWithADocstring(self, node):
-        self.processDocstring(node.doc, node.lineno)
-        for c in node.getChildNodes():
-            self.visit(c)
+        # ClassDef and FunctionDef have a 'lineno' attribute, Module doesn't.
+        lineno = getattr(node, 'lineno', None)
+        self.processDocstring(ast.get_docstring(node, clean=False), lineno)
+        self.generic_visit(node)
 
-    visitModule = visitSomethingWithADocstring
-    visitClass = visitSomethingWithADocstring
-    visitFunction = visitSomethingWithADocstring
+    visit_Module = visitSomethingWithADocstring
+    visit_ClassDef = visitSomethingWithADocstring
+    visit_FunctionDef = visitSomethingWithADocstring
 
     def processDocstring(self, docstring, lineno):
         if not docstring:
             return
         if lineno is None:
-            # Module nodes have a lineno of None.
+            # Module nodes don't have a lineno
             lineno = 0
         dtparser = doctest.DocTestParser()
         try:
@@ -184,13 +185,13 @@ class ImportFinder(ASTVisitor):
                 source = example.source
                 if isinstance(source, unicode):
                     source = source.encode('UTF-8')
-                ast = compiler.parse(source)
+                node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
                 print >> sys.stderr, ("%s:%s: syntax error in doctest"
                                       % (self.filename, lineno))
             else:
                 self.lineno_offset += lineno + example.lineno
-                compiler.walk(ast, self)
+                self.visit(node)
                 self.lineno_offset -= lineno + example.lineno
 
 
@@ -260,9 +261,9 @@ class ImportFinderAndNameTracker(ImportFinder):
         ImportFinder.processDocstring(self, docstring, lineno)
         self.leaveScope()
 
-    def visitFunction(self, node):
+    def visit_Function(self, node):
         self.newScope(self.scope, 'function %s' % node.name)
-        ImportFinder.visitFunction(self, node)
+        ImportFinder.visit_Function(self, node)
         self.leaveScope()
 
     def processImport(self, name, imported_as, full_name, level, node):
@@ -282,16 +283,16 @@ class ImportFinderAndNameTracker(ImportFinder):
             else:
                 self.scope.addImport(imported_as, self.filename, level, lineno)
 
-    def visitName(self, node):
-        self.scope.useName(node.name)
+    def visit_Name(self, node):
+        self.scope.useName(node.id)
 
-    def visitGetattr(self, node):
+    def visit_Getattr(self, node):
         full_name = [node.attrname]
         parent = node.expr
-        while isinstance(parent, compiler.ast.Getattr):
+        while isinstance(parent, ast.Getattr):
             full_name.append(parent.attrname)
             parent = parent.expr
-        if isinstance(parent, compiler.ast.Name):
+        if isinstance(parent, ast.Name):
             full_name.append(parent.name)
             full_name.reverse()
             name = ""
@@ -310,9 +311,10 @@ def find_imports(filename):
 
     Returns a list of ImportInfo objects.
     """
-    ast = compiler.parseFile(filename)
+    with open(filename) as f:
+        root = ast.parse(f.read(), filename)
     visitor = ImportFinder(filename)
-    compiler.walk(ast, visitor)
+    visitor.visit(root)
     return visitor.imports
 
 
@@ -322,11 +324,12 @@ def find_imports_and_track_names(filename, warn_about_duplicates=False,
 
     Returns ``(imports, unused)``.  Both are lists of ImportInfo objects.
     """
-    ast = compiler.parseFile(filename)
+    with open(filename) as f:
+        root = ast.parse(f.read(), filename)
     visitor = ImportFinderAndNameTracker(filename)
     visitor.warn_about_duplicates = warn_about_duplicates
     visitor.verbose = verbose
-    compiler.walk(ast, visitor)
+    visitor.visit(root)
     visitor.leaveAllScopes()
     return visitor.imports, visitor.unused_names
 
