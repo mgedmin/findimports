@@ -19,7 +19,7 @@ check test:
 
 .PHONY: coverage
 coverage:
-	coverage run --source=findimports testsuite.py
+	coverage run testsuite.py
 	coverage report
 
 .PHONY: test-all-pythons
