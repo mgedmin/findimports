@@ -779,7 +779,7 @@ def main(argv=sys.argv):
                                     'packages', 'level=', 'help', 'collapse',
                                     'noext', 'tests', 'write-cache=',
                                     'duplicate', 'verbose'])
-    except getopt.error, e:
+    except getopt.error as e:
         print("%s: %s" % (progname, e), file=sys.stderr)
         print("Try %s --help." % progname, file=sys.stderr)
         return 1
