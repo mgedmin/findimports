@@ -2,8 +2,13 @@ Changes
 =======
 
 
-1.3.3 (unreleased)
+1.4.0 (unreleased)
 ------------------
+
+- Python 3 support (3.3 and newer).
+
+- Use ``ast`` instead of ``compiler`` (`#1
+  <https://github.com/mgedmin/findimports/issues/1>`_).
 
 
 1.3.2 (2015-04-13)
