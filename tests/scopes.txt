@@ -14,6 +14,9 @@ expressions
     ... def example2():
     ...     import sys
     ...     my_whereabouts_are = os.path.abspath(os.getcwd())
+    ... def example3():
+    ...     import gc
+    ...     gc.collect()
     ... ''')
 
     >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
@@ -24,6 +27,7 @@ expressions
     ImportInfo('sys', 'marmalade.py', 4, None)
     ImportInfo('gc', 'marmalade.py', 4, None)
     ImportInfo('sys', 'marmalade.py', 7, None)
+    ImportInfo('gc', 'marmalade.py', 10, None)
 
     >>> for name in unused_names:
     ...     print name

@@ -261,9 +261,9 @@ class ImportFinderAndNameTracker(ImportFinder):
         ImportFinder.processDocstring(self, docstring, lineno)
         self.leaveScope()
 
-    def visit_Function(self, node):
+    def visit_FunctionDef(self, node):
         self.newScope(self.scope, 'function %s' % node.name)
-        ImportFinder.visit_Function(self, node)
+        ImportFinder.visit_FunctionDef(self, node)
         self.leaveScope()
 
     def processImport(self, name, imported_as, full_name, level, node):
