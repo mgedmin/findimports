@@ -6,21 +6,23 @@ expressions
 
     >>> from findimports import find_imports_and_track_names
 
-    >>> open('marmalade.py', 'w').write('''
-    ... import sys, os
-    ... from .. import foobar
-    ... my_name_is = sys.argv[0]
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
+    ... import sys as system, os
+    ... from .. import foobar as fb
+    ... my_name_is = system.argv[0]
+    ... from email import *
     ... ''')
 
     >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
     >>> for imp in imports:
-    ...     print imp
+    ...     print(imp)
     ImportInfo('sys', 'marmalade.py', 2, None)
     ImportInfo('os', 'marmalade.py', 2, None)
     ImportInfo('foobar', 'marmalade.py', 3, 2)
+    ImportInfo('email.*', 'marmalade.py', 5, 0)
 
     >>> for name in unused_names:
-    ...     print name
+    ...     print(name)
     ImportInfo('os', 'marmalade.py', 2, None)
-    ImportInfo('foobar', 'marmalade.py', 3, 2)
+    ImportInfo('fb', 'marmalade.py', 3, 2)
 

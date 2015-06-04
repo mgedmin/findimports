@@ -5,7 +5,7 @@ Let's copy the sample tree to the temporary directory used for the tests,
 so we can see short relative pathnames.
 
     >>> import shutil
-    >>> shutil.copytree(sample_tree, 'sample-tree')
+    >>> _ = shutil.copytree(sample_tree, 'sample-tree')
 
 Passing '-u' to findimports will give a list of unused import statements,
 formatted in the traditional Unix compiler style
@@ -25,7 +25,7 @@ Sometimes you want to explicitly disable a warning (e.g. when the name is
 imported solely for the purpose of being re-exported).  Simply place a
 comment on that line of code to suppress the warning:
 
-    >>> open('sample-tree/unused.py', 'w').write('''
+    >>> with open('sample-tree/unused.py', 'w') as f: _ = f.write('''
     ... import re # unused, but this comment makes findimports ignore that
     ... ''')
 

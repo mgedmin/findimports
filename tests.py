@@ -1,6 +1,9 @@
 import os
 import unittest
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import findimports
 
@@ -40,6 +43,7 @@ class TestModuleGraph(unittest.TestCase):
 
     def test_parsePathname_regular_file(self):
         mg = findimports.ModuleGraph()
+        mg.warn = self.warn
         mg.parsePathname(__file__.rstrip('co'))  # .pyc -> .py
         self.assertTrue('unittest' in mg.modules[__name__].imports)
 
@@ -64,7 +68,6 @@ class TestModuleGraph(unittest.TestCase):
         self.assertTrue(mg.isModule('sys'))
         self.assertTrue(mg.isModule('datetime'))
         self.assertFalse(mg.isModule('nosuchmodule'))
-        self.assertFalse(mg.isModule('logging'))  # it's a package
 
     def test_isModule_warns_about_bad_zip_files(self):
         # anything that's a regular file but isn't a valid zip file

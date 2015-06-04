@@ -1,0 +1,27 @@
+Tracking usage of dotted names
+==============================
+
+We have an AST walker that keeps track of scopes and names used in
+expressions.  It works with dotted names too:
+
+    >>> from findimports import find_imports_and_track_names
+
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
+    ... def f1():
+    ...     import os.path
+    ... def f2():
+    ...     import os.path
+    ...     os.path.exists('foo')
+    ...     x[0].append('')
+    ... ''')
+
+    >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
+    >>> for imp in imports:
+    ...     print(imp)
+    ImportInfo('os.path', 'marmalade.py', 3, None)
+    ImportInfo('os.path', 'marmalade.py', 5, None)
+
+    >>> for name in unused_names:
+    ...     print(name)
+    ImportInfo('os.path', 'marmalade.py', 3, None)
+

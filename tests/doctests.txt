@@ -5,7 +5,7 @@ Imports in doctest sections inside docstrings are also handled
 
     >>> from findimports import find_imports
 
-    >>> open('marmalade.py', 'w').write('''
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import doctest
     ... def example():
     ...     """
@@ -18,7 +18,7 @@ Imports in doctest sections inside docstrings are also handled
     ... ''')
 
     >>> for imp in find_imports('marmalade.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('doctest', 'marmalade.py', 2, None)
     ImportInfo('sys', 'marmalade.py', 5, None)
     ImportInfo('gc', 'marmalade.py', 9, None)
@@ -32,14 +32,14 @@ Module docstrings
 Module docstrings are special in that the corresponding module AST node has
 no line number.  We don't crash:
 
-    >>> open('jam.py', 'w').write('''
+    >>> with open('jam.py', 'w') as f: _ = f.write('''
     ... """
     ...         >>> import sys
     ... """
     ... ''')
 
     >>> for imp in find_imports('jam.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('sys', 'jam.py', 3, None)
 
 
@@ -49,7 +49,7 @@ Doctest errors
 Doctest errors abort processing, after showing where the erroneous docstring
 is
 
-    >>> open('peanut_butter.py', 'w').write('''
+    >>> with open('peanut_butter.py', 'w') as f: _ = f.write('''
     ... def example():
     ...     """
     ...         >>> import sys
@@ -59,7 +59,7 @@ is
 
     >>> try:
     ...     for imp in find_imports('peanut_butter.py'):
-    ...         print imp
+    ...         print(imp)
     ... except:
     ...     import traceback
     ...     traceback.print_exc()
@@ -69,7 +69,7 @@ is
       ...
     ValueError: line 3 of the docstring for <string> has inconsistent leading whitespace: 'missing blank line after doctest section'
 
-    >>> open('jelly.py', 'w').write('''
+    >>> with open('jelly.py', 'w') as f: _ = f.write('''
     ... def example1():
     ...     """
     ...         >>> if something:
@@ -82,7 +82,7 @@ is
     ... ''')
 
     >>> for imp in find_imports('jelly.py'):
-    ...     print imp
+    ...     print(imp)
     jelly.py:2: syntax error in doctest
     ImportInfo('sys', 'jelly.py', 5, None)
     ImportInfo('os', 'jelly.py', 9, None)
@@ -93,7 +93,7 @@ Nested docstrings
 
 This is probably overkill, but we handle them recursively:
 
-    >>> open('sandwitch.py', 'w').write('''
+    >>> with open('sandwitch.py', 'w') as f: _ = f.write('''
     ... def example():
     ...     """
     ...         >>> class Example:
@@ -101,6 +101,6 @@ This is probably overkill, but we handle them recursively:
     ...     """
     ... ''')
     >>> for imp in find_imports('sandwitch.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('sys', 'sandwitch.py', 5, None)
 

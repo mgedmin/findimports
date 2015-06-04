@@ -5,9 +5,9 @@ Future statements do not confuse findimports
 
     >>> from findimports import find_imports
 
-    >>> open('future.py', 'w').write('''
+    >>> with open('future.py', 'w') as f: _ = f.write('''
     ... from __future__ import nested_scopes
     ... ''')
 
     >>> for imp in find_imports('future.py'):
-    ...     print imp
+    ...     print(imp)

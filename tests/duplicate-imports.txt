@@ -5,7 +5,7 @@ Our advanced AST walker can report duplicate imports
 
     >>> from findimports import find_imports_and_track_names
 
-    >>> open('marmalade.py', 'w').write('''
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import os
     ... def example1():
     ...     import os
