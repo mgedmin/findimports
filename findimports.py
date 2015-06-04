@@ -64,13 +64,13 @@ this program; if not, write to the Free Software Foundation, Inc., 675 Mass
 Ave, Cambridge, MA 02139, USA.
 """
 
-import os
-import sys
-import getopt
-import doctest
 import compiler
+import doctest
+import getopt
 import linecache
+import os
 import pickle
+import sys
 import zipfile
 from operator import attrgetter
 from compiler.visitor import ASTVisitor
