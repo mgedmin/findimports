@@ -484,7 +484,7 @@ class ModuleGraph(object):
 
         # extrapath is None only in a couple of test cases; in real life it's
         # always present
-        if level > 1 and extrapath:
+        if level and level > 1 and extrapath:
             # strip trailing path bits for each extra level to account for
             # relative imports
             # from . import X has level == 1 and nothing is stripped (the level > 1 check accounts for this case)
