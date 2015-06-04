@@ -13,7 +13,7 @@ All kinds of import statements are handled
     ... from cStringIO import StringIO
     ... from cPickle import dumps as D
     ... from sys import (argv,
-    ...                  exc_info as EI,
+    ...                  exc_info as EI,  # complexity is fun
     ...                  exit)
     ... from email import *
     ... import imaginary.package
@@ -34,5 +34,5 @@ All kinds of import statements are handled
     ImportInfo('imaginary.package', 'marmalade.py', 12, None)
 
 Note how we carefully try to make sure the line numbers are correct (e.g.
-'exit' is shown as imported on line 9, even though the AST node says the
-import statement began on line 7).
+'exit' is shown as imported on line 10, even though the AST node says the
+import statement began on line 8).

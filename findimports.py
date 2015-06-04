@@ -72,6 +72,7 @@ import getopt
 import linecache
 import os
 import pickle
+import re
 import sys
 import zipfile
 from operator import attrgetter
@@ -90,8 +91,9 @@ def adjust_lineno(filename, lineno, name):
     is always the first line number.
     """
     line = linecache.getline(filename, lineno)
-    # Hack warning: might be fooled by substrings or comments
-    while name not in line and line:
+    # Hack warning: might be fooled by comments
+    rx = re.compile(r'\b%s\b' % re.escape(name) if name != '*' else '[*]')
+    while line and not rx.search(line):
         lineno += 1
         line = linecache.getline(filename, lineno)
     return lineno
