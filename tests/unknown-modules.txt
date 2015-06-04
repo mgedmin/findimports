@@ -5,7 +5,7 @@ We print warnings when we cannot find a module/package
 
     >>> from findimports import ModuleGraph
 
-    >>> open('marmalade.py', 'w').write('''
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import sys
     ... import os.path
     ... import email.Message as EM

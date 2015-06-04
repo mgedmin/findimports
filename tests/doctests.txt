@@ -5,7 +5,7 @@ Imports in doctest sections inside docstrings are also handled
 
     >>> from findimports import find_imports
 
-    >>> open('marmalade.py', 'w').write('''
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import doctest
     ... def example():
     ...     """
@@ -32,7 +32,7 @@ Module docstrings
 Module docstrings are special in that the corresponding module AST node has
 no line number.  We don't crash:
 
-    >>> open('jam.py', 'w').write('''
+    >>> with open('jam.py', 'w') as f: _ = f.write('''
     ... """
     ...         >>> import sys
     ... """
@@ -49,7 +49,7 @@ Doctest errors
 Doctest errors abort processing, after showing where the erroneous docstring
 is
 
-    >>> open('peanut_butter.py', 'w').write('''
+    >>> with open('peanut_butter.py', 'w') as f: _ = f.write('''
     ... def example():
     ...     """
     ...         >>> import sys
@@ -69,7 +69,7 @@ is
       ...
     ValueError: line 3 of the docstring for <string> has inconsistent leading whitespace: 'missing blank line after doctest section'
 
-    >>> open('jelly.py', 'w').write('''
+    >>> with open('jelly.py', 'w') as f: _ = f.write('''
     ... def example1():
     ...     """
     ...         >>> if something:
@@ -93,7 +93,7 @@ Nested docstrings
 
 This is probably overkill, but we handle them recursively:
 
-    >>> open('sandwitch.py', 'w').write('''
+    >>> with open('sandwitch.py', 'w') as f: _ = f.write('''
     ... def example():
     ...     """
     ...         >>> class Example:

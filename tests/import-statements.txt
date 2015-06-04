@@ -5,7 +5,7 @@ All kinds of import statements are handled
 
     >>> from findimports import find_imports
 
-    >>> open('marmalade.py', 'w').write('''
+    >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import sys
     ... import os.path
     ... import email.Message as EM

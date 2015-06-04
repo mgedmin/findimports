@@ -25,7 +25,7 @@ Sometimes you want to explicitly disable a warning (e.g. when the name is
 imported solely for the purpose of being re-exported).  Simply place a
 comment on that line of code to suppress the warning:
 
-    >>> open('sample-tree/unused.py', 'w').write('''
+    >>> with open('sample-tree/unused.py', 'w') as f: _ = f.write('''
     ... import re # unused, but this comment makes findimports ignore that
     ... ''')
 
