@@ -68,7 +68,6 @@ class TestModuleGraph(unittest.TestCase):
         self.assertTrue(mg.isModule('sys'))
         self.assertTrue(mg.isModule('datetime'))
         self.assertFalse(mg.isModule('nosuchmodule'))
-        self.assertFalse(mg.isModule('logging'))  # it's a package
 
     def test_isModule_warns_about_bad_zip_files(self):
         # anything that's a regular file but isn't a valid zip file
