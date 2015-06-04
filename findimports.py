@@ -428,15 +428,13 @@ class ModuleGraph(object):
 
     def writeCache(self, filename):
         """Write the graph to a cache file."""
-        f = file(filename, 'wb')
-        pickle.dump(self.modules, f)
-        f.close()
+        with open(filename, 'wb') as f:
+            pickle.dump(self.modules, f)
 
     def readCache(self, filename):
         """Load the graph from a cache file."""
-        f = file(filename, 'rb')
-        self.modules = pickle.load(f)
-        f.close()
+        with open(filename, 'rb') as f:
+            self.modules = pickle.load(f)
 
     def parseFile(self, filename):
         """Parse a single file."""
