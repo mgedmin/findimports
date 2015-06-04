@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.4.0 (unreleased)
+1.4.0 (2015-06-04)
 ------------------
 
 - Python 3 support (3.3 and newer).
