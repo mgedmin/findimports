@@ -5,7 +5,7 @@ Let's copy the sample tree to the temporary directory used for the tests,
 so we can see short relative pathnames.
 
     >>> import shutil
-    >>> shutil.copytree(sample_tree, 'sample-tree')
+    >>> _ = shutil.copytree(sample_tree, 'sample-tree')
 
 Passing '-u' to findimports will give a list of unused import statements,
 formatted in the traditional Unix compiler style
