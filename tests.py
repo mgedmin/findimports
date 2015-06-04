@@ -1,6 +1,9 @@
 import os
 import unittest
-from cStringIO import StringIO
+try:
+    from cStringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import findimports
 

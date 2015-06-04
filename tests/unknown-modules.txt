@@ -10,8 +10,8 @@ We print warnings when we cannot find a module/package
     ... import os.path
     ... import email.Message as EM
     ... from . import foobar
-    ... from cStringIO import StringIO
-    ... from cPickle import dumps as D
+    ... from io import StringIO
+    ... from pickle import dumps as D
     ... from sys import (argv,
     ...                  exc_info as EI,
     ...                  exit)
