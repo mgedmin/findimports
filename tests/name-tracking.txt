@@ -10,6 +10,7 @@ expressions
     ... import sys, os
     ... from .. import foobar
     ... my_name_is = sys.argv[0]
+    ... from email import *
     ... ''')
 
     >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
@@ -18,6 +19,7 @@ expressions
     ImportInfo('sys', 'marmalade.py', 2, None)
     ImportInfo('os', 'marmalade.py', 2, None)
     ImportInfo('foobar', 'marmalade.py', 3, 2)
+    ImportInfo('email.*', 'marmalade.py', 5, 0)
 
     >>> for name in unused_names:
     ...     print(name)
