@@ -185,7 +185,7 @@ class ImportFinder(ast.NodeVisitor):
         for example in examples:
             try:
                 source = example.source
-                if isinstance(source, unicode):
+                if not isinstance(source, str):
                     source = source.encode('UTF-8')
                 node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
