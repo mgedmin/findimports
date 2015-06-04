@@ -7,9 +7,9 @@ expressions
     >>> from findimports import find_imports_and_track_names
 
     >>> with open('marmalade.py', 'w') as f: _ = f.write('''
-    ... import sys, os
-    ... from .. import foobar
-    ... my_name_is = sys.argv[0]
+    ... import sys as system, os
+    ... from .. import foobar as fb
+    ... my_name_is = system.argv[0]
     ... from email import *
     ... ''')
 
@@ -24,5 +24,5 @@ expressions
     >>> for name in unused_names:
     ...     print(name)
     ImportInfo('os', 'marmalade.py', 2, None)
-    ImportInfo('foobar', 'marmalade.py', 3, 2)
+    ImportInfo('fb', 'marmalade.py', 3, 2)
 
