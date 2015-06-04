@@ -10,4 +10,4 @@ Future statements do not confuse findimports
     ... ''')
 
     >>> for imp in find_imports('future.py'):
-    ...     print imp
+    ...     print(imp)

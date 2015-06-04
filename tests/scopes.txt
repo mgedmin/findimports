@@ -21,7 +21,7 @@ expressions
 
     >>> imports, unused_names = find_imports_and_track_names('marmalade.py')
     >>> for imp in imports:
-    ...     print imp
+    ...     print(imp)
     ImportInfo('os', 'marmalade.py', 2, None)
     ImportInfo('shutil', 'marmalade.py', 2, None)
     ImportInfo('sys', 'marmalade.py', 4, None)
@@ -30,7 +30,7 @@ expressions
     ImportInfo('gc', 'marmalade.py', 10, None)
 
     >>> for name in unused_names:
-    ...     print name
+    ...     print(name)
     ImportInfo('shutil', 'marmalade.py', 2, None)
     ImportInfo('gc', 'marmalade.py', 4, None)
     ImportInfo('sys', 'marmalade.py', 7, None)

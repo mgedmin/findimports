@@ -64,6 +64,8 @@ this program; if not, write to the Free Software Foundation, Inc., 675 Mass
 Ave, Cambridge, MA 02139, USA.
 """
 
+from __future__ import print_function
+
 import ast
 import doctest
 import getopt
@@ -177,8 +179,8 @@ class ImportFinder(ast.NodeVisitor):
         try:
             examples = dtparser.get_examples(docstring)
         except Exception:
-            print >> sys.stderr, ("%s:%s: error while parsing doctest"
-                                  % (self.filename, lineno))
+            print("{filename}:{lineno}: error while parsing doctest".format(
+                filename=self.filename, lineno=lineno), file=sys.stderr)
             raise
         for example in examples:
             try:
@@ -187,8 +189,8 @@ class ImportFinder(ast.NodeVisitor):
                     source = source.encode('UTF-8')
                 node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
-                print >> sys.stderr, ("%s:%s: syntax error in doctest"
-                                      % (self.filename, lineno))
+                print("{filename}:{lineno}: syntax error in doctest".format(
+                    filename=self.filename, lineno=lineno), file=sys.stderr)
             else:
                 self.lineno_offset += lineno + example.lineno
                 self.visit(node)
@@ -275,11 +277,11 @@ class ImportFinderAndNameTracker(ImportFinder):
             if (self.warn_about_duplicates and
                     self.scope.haveImport(imported_as)):
                 where = self.scope.whereImported(imported_as).lineno
-                print >> sys.stderr, ("%s:%s: %s imported again"
-                                      % (self.filename, lineno, imported_as))
+                print("{filename}:{lineno}: {name} imported again".format(
+                    filename=self.filename, lineno=lineno, name=imported_as), file=sys.stderr)
                 if self.verbose:
-                    print >> sys.stderr, ("%s:%s:   (location of previous import)"
-                                        % (self.filename, where))
+                    print("{filename}:{lineno}:   (location of previous import)".format(
+                        filename=self.filename, lineno=where), file=sys.stderr)
             else:
                 self.scope.addImport(imported_as, self.filename, level, lineno)
 
@@ -403,7 +405,7 @@ class ModuleGraph(object):
             return
         if args:
             message = message % args
-        print >> self._stderr, message
+        print(message, file=self._stderr)
         self._warned_about.add(about)
 
     def parsePathname(self, pathname):
@@ -695,20 +697,20 @@ class ModuleGraph(object):
     def printImportedNames(self):
         """Produce a report of imported names."""
         for module in self.listModules():
-            print "%s:" % module.modname
-            print "  %s" % "\n  ".join(imp.name for imp in module.imported_names)
+            print("%s:" % module.modname)
+            print("  %s" % "\n  ".join(imp.name for imp in module.imported_names))
 
     def printImports(self):
         """Produce a report of dependencies."""
         for module in self.listModules():
-            print "%s:" % module.label
+            print("%s:" % module.label)
             if self.external_dependencies:
                 imports = list(module.imports)
             else:
                 imports = [modname for modname in module.imports
                            if modname in self.modules]
             imports.sort()
-            print "  %s" % "\n  ".join(imports)
+            print("  %s" % "\n  ".join(imports))
 
     def printUnusedImports(self):
         """Produce a report of unused imports."""
@@ -722,34 +724,34 @@ class ModuleGraph(object):
                     if '#' in line:
                         # assume there's a comment explaining why it's not used
                         continue
-                print "%s:%s: %s not used" % (module.filename, lineno, name)
+                print("%s:%s: %s not used" % (module.filename, lineno, name))
 
     def printDot(self):
         """Produce a dependency graph in dot format."""
-        print "digraph ModuleDependencies {"
-        print "  node[shape=box];"
+        print("digraph ModuleDependencies {")
+        print("  node[shape=box];")
         allNames = set()
         nameDict = {}
         for n, module in enumerate(self.listModules()):
             module._dot_name = "mod%d" % n
             nameDict[module.modname] = module._dot_name
-            print "  %s[label=\"%s\"];" % (module._dot_name,
-                                           quote(module.label))
+            print("  %s[label=\"%s\"];" % (module._dot_name,
+                                           quote(module.label)))
             allNames |= module.imports
-        print "  node[style=dotted];"
+        print("  node[style=dotted];")
         if self.external_dependencies:
             myNames = set(self.modules)
             extNames = list(allNames - myNames)
             extNames.sort()
             for n, name in enumerate(extNames):
                 nameDict[name] = id = "extmod%d" % n
-                print "  %s[label=\"%s\"];" % (id, name)
+                print("  %s[label=\"%s\"];" % (id, name))
         for modname, module in sorted(self.modules.items()):
             for other in sorted(module.imports):
                 if other in nameDict:
-                    print "  %s -> %s;" % (nameDict[module.modname],
-                                           nameDict[other])
-        print "}"
+                    print("  %s -> %s;" % (nameDict[module.modname],
+                                           nameDict[other]))
+        print("}")
 
 
 def quote(s):
@@ -778,8 +780,8 @@ def main(argv=sys.argv):
                                     'noext', 'tests', 'write-cache=',
                                     'duplicate', 'verbose'])
     except getopt.error, e:
-        print >> sys.stderr, "%s: %s" % (progname, e)
-        print >> sys.stderr, "Try %s --help." % progname
+        print("%s: %s" % (progname, e), file=sys.stderr)
+        print("Try %s --help." % progname, file=sys.stderr)
         return 1
     for k, v in opts:
         if k in ('-d', '--dot'):
@@ -809,7 +811,7 @@ def main(argv=sys.argv):
         elif k == '--write-cache':
             write_cache = v
         elif k in ('-h', '--help'):
-            print helptext
+            print(helptext)
             return 0
     g.trackUnusedNames = (action == 'printUnusedImports')
     if not args:

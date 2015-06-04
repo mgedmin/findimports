@@ -20,7 +20,7 @@ All kinds of import statements are handled
     ... ''')
 
     >>> for imp in find_imports('marmalade.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('sys', 'marmalade.py', 2, None)
     ImportInfo('os.path', 'marmalade.py', 3, None)
     ImportInfo('email.Message', 'marmalade.py', 4, None)

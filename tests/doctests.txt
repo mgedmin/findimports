@@ -18,7 +18,7 @@ Imports in doctest sections inside docstrings are also handled
     ... ''')
 
     >>> for imp in find_imports('marmalade.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('doctest', 'marmalade.py', 2, None)
     ImportInfo('sys', 'marmalade.py', 5, None)
     ImportInfo('gc', 'marmalade.py', 9, None)
@@ -39,7 +39,7 @@ no line number.  We don't crash:
     ... ''')
 
     >>> for imp in find_imports('jam.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('sys', 'jam.py', 3, None)
 
 
@@ -59,7 +59,7 @@ is
 
     >>> try:
     ...     for imp in find_imports('peanut_butter.py'):
-    ...         print imp
+    ...         print(imp)
     ... except:
     ...     import traceback
     ...     traceback.print_exc()
@@ -82,7 +82,7 @@ is
     ... ''')
 
     >>> for imp in find_imports('jelly.py'):
-    ...     print imp
+    ...     print(imp)
     jelly.py:2: syntax error in doctest
     ImportInfo('sys', 'jelly.py', 5, None)
     ImportInfo('os', 'jelly.py', 9, None)
@@ -101,6 +101,6 @@ This is probably overkill, but we handle them recursively:
     ...     """
     ... ''')
     >>> for imp in find_imports('sandwitch.py'):
-    ...     print imp
+    ...     print(imp)
     ImportInfo('sys', 'sandwitch.py', 5, None)
 
