@@ -5,6 +5,10 @@ Changes
 1.4.1 (unreleased)
 ------------------
 
+- Replace ``getopt`` with ``optparse``.  This changes the ``--help``
+  message as a side effect (`#4
+  <https://github.com/mgedmin/findimports/issues/4>`_).
+
 
 1.4.0 (2015-06-04)
 ------------------

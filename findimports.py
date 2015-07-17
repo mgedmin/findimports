@@ -2,7 +2,7 @@
 """
 FindImports is a script that processes Python module dependencies.  Currently
 it can be used for finding unused imports and graphing module dependencies
-(with graphviz).  FindImports requires Python 2.6 or later.
+(with graphviz).
 
 Syntax: findimports.py [options] [filename|dirname ...]
 
@@ -26,6 +26,8 @@ Options:
   -c, --collapse    Collapse dependency cycles.
   -T, --tests       Collapse packages named 'tests' and 'ftests' with parent
                     packages.
+
+FindImports requires Python 2.6 or later.
 
 Notes:
 
@@ -68,8 +70,8 @@ from __future__ import print_function
 
 import ast
 import doctest
-import getopt
 import linecache
+import optparse
 import os
 import pickle
 import re
@@ -762,72 +764,72 @@ def quote(s):
     return s.replace("\\", "\\\\").replace('"', '\\"').replace('\n', '\\n')
 
 
-def main(argv=sys.argv):
-    progname = os.path.basename(argv[0])
-    helptext = __doc__.strip().replace('findimports.py', progname)
-    g = ModuleGraph()
-    action = 'printImports'
-    condense_to_packages = False
-    collapse_cycles = False
-    collapse_tests = False
-    packagelevel = None
-    noext = False
-    write_cache = None
+def main(argv=None):
+    progname = os.path.basename(argv[0]) if argv else None
+    description = __doc__.strip().split('\n\n')[0]
+    parser = optparse.OptionParser('%prog [options] [filename|dirname ...]',
+                                   prog=progname, description=description)
+    parser.add_option('-i', '--imports', action='store_const',
+                      dest='action', const='printImports',
+                      default='printImports',
+                      help='print dependency graph (default action)')
+    parser.add_option('-d', '--dot', action='store_const',
+                      dest='action', const='printDot',
+                      help='print dependency graph in dot (graphviz) format')
+    parser.add_option('-n', '--names', action='store_const',
+                      dest='action', const='printImportedNames',
+                      help='print dependency graph with all imported names')
+    parser.add_option('-u', '--unused', action='store_const',
+                      dest='action', const='printUnusedImports',
+                      help='print unused imports')
+    parser.add_option('-a', '--all', action='store_true',
+                      dest='all_unused',
+                      help="don't ignore unused imports when there's a comment on the same line (only affects -u)")
+    parser.add_option('--duplicate', action='store_true',
+                      dest='warn_about_duplicates',
+                      help='warn about duplicate imports')
+    parser.add_option('-v', '--verbose', action='store_true',
+                      help='print more information (currently only affects --duplicate)')
+    parser.add_option('-N', '--noext', action='store_true',
+                      help='omit external dependencies')
+    parser.add_option('-p', '--packages', action='store_true',
+                      dest='condense_to_packages',
+                      help='convert the module graph to a package graph')
+    parser.add_option('-l', '--level', type='int',
+                      dest='packagelevel',
+                      help='collapse subpackages to the topmost Nth levels')
+    parser.add_option('-c', '--collapse', action='store_true',
+                      dest='collapse_cycles',
+                      help='collapse dependency cycles')
+    parser.add_option('-T', '--tests', action='store_true',
+                      dest='collapse_tests',
+                      help="collapse packages named 'tests' and 'ftests' with parent packages")
+    parser.add_option('-w', '--write-cache', metavar='FILE',
+                      help="write a pickle cache of parsed imports; provide the cache filename as the only non-option argument to load it back")
     try:
-        opts, args = getopt.gnu_getopt(argv[1:], 'duniahpl:cNTv',
-                                   ['dot', 'unused', 'all', 'names', 'imports',
-                                    'packages', 'level=', 'help', 'collapse',
-                                    'noext', 'tests', 'write-cache=',
-                                    'duplicate', 'verbose'])
-    except getopt.error as e:
-        print("%s: %s" % (progname, e), file=sys.stderr)
-        print("Try %s --help." % progname, file=sys.stderr)
-        return 1
-    for k, v in opts:
-        if k in ('-d', '--dot'):
-            action = 'printDot'
-        elif k in ('-u', '--unused'):
-            action = 'printUnusedImports'
-        elif k in ('-a', '--all'):
-            g.all_unused = True
-        elif k == '--duplicate':
-            g.warn_about_duplicates = True
-        elif k in ('-v', '--verbose'):
-            g.verbose = True
-        elif k in ('-n', '--names'):
-            action = 'printImportedNames'
-        elif k in ('-i', '--imports'):
-            action = 'printImports'
-        elif k in ('-p', '--packages'):
-            condense_to_packages = True
-        elif k in ('-l', '--level'):
-            packagelevel = int(v)
-        elif k in ('-c', '--collapse'):
-            collapse_cycles = True
-        elif k in ('-N', '--noext'):
-            noext = True
-        elif k in ('-T', '--tests'):
-            collapse_tests = True
-        elif k == '--write-cache':
-            write_cache = v
-        elif k in ('-h', '--help'):
-            print(helptext)
-            return 0
-    g.trackUnusedNames = (action == 'printUnusedImports')
+        opts, args = parser.parse_args(args=argv[1:] if argv else None)
+    except SystemExit as e:
+        return e.code
     if not args:
         args = ['.']
+
+    g = ModuleGraph()
+    g.all_unused = opts.all_unused
+    g.warn_about_duplicates = opts.warn_about_duplicates
+    g.verbose = opts.verbose
+    g.trackUnusedNames = (opts.action == 'printUnusedImports')
     for fn in args:
         g.parsePathname(fn)
-    if write_cache:
-        g.writeCache(write_cache)
-    if condense_to_packages:
-        g = g.packageGraph(packagelevel)
-    if collapse_tests:
+    if opts.write_cache:
+        g.writeCache(opts.write_cache)
+    if opts.condense_to_packages:
+        g = g.packageGraph(opts.packagelevel)
+    if opts.collapse_tests:
         g = g.collapseTests()
-    if collapse_cycles:
+    if opts.collapse_cycles:
         g = g.collapseCycles()
-    g.external_dependencies = not noext
-    getattr(g, action)()
+    g.external_dependencies = not opts.noext
+    getattr(g, opts.action)()
     return 0
 
 
