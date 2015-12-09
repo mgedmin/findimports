@@ -28,10 +28,13 @@ Old project page: https://launchpad.net/findimports
 
 Licence: GPL v2 or later (http://www.gnu.org/copyleft/gpl.html)
 
-|buildstatus|_ |coverage|_
+|buildstatus|_ |appveyor|_ |coverage|_
 
 .. |buildstatus| image:: https://api.travis-ci.org/mgedmin/findimports.svg?branch=master
 .. _buildstatus: https://travis-ci.org/mgedmin/findimports
+
+.. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mgedmin/findimports?branch=master&svg=true
+.. _appveyor: https://ci.appveyor.com/project/mgedmin/findimports/branch/master
 
 .. |coverage| image:: https://coveralls.io/repos/mgedmin/findimports/badge.svg?branch=master
 .. _coverage: https://coveralls.io/r/mgedmin/findimports
