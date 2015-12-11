@@ -34,7 +34,7 @@ Licence: GPL v2 or later (http://www.gnu.org/copyleft/gpl.html)
 .. _buildstatus: https://travis-ci.org/mgedmin/findimports
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mgedmin/findimports?branch=master&svg=true
-.. _appveyor: https://ci.appveyor.com/project/mgedmin/findimports/branch/master
+.. _appveyor: https://ci.appveyor.com/project/mgedmin/findimports
 
 .. |coverage| image:: https://coveralls.io/repos/mgedmin/findimports/badge.svg?branch=master
 .. _coverage: https://coveralls.io/r/mgedmin/findimports
