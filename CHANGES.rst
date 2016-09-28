@@ -2,7 +2,7 @@ Changes
 =======
 
 
-1.4.1 (unreleased)
+1.4.1 (2016-09-28)
 ------------------
 
 - Replace ``getopt`` with ``optparse``.  This changes the ``--help``
