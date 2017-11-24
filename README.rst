@@ -16,7 +16,7 @@ instead -- it's better maintained and more reliable.  For import graphs
 consider snakefood_.
 
 .. _Pyflakes: https://pypi.python.org/pypi/pyflakes
-.. _snakefood: http://furius.ca/snakefood/
+.. _snakefood: https://pypi.python.org/pypi/snakefood
 
 
 Misc
@@ -26,7 +26,7 @@ Home page: https://github.com/mgedmin/findimports
 
 Old project page: https://launchpad.net/findimports
 
-Licence: GPL v2 or later (http://www.gnu.org/copyleft/gpl.html)
+Licence: GPL v2 or later (https://www.gnu.org/copyleft/gpl.html)
 
 |buildstatus|_ |appveyor|_ |coverage|_
 
