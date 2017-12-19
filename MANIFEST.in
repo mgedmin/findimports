@@ -12,3 +12,6 @@ recursive-include tests/sample-tree *.py *.zip
 # added by check_manifest.py
 include *.yml
 include LICENSE
+
+# added by check_manifest.py
+include *.mk
