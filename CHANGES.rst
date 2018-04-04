@@ -7,7 +7,7 @@ Changes
 
 - Support Python 3.6.
 
-- Drop support for Python 2.6.
+- Drop support for Python 2.6 and 3.3.
 
 
 1.4.1 (2016-09-28)
