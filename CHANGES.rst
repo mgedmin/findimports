@@ -5,7 +5,7 @@ Changes
 1.5.0 (unreleased)
 ------------------
 
-- Support Python 3.6.
+- Support Python 3.6 and 3.7.
 
 - Drop support for Python 2.6 and 3.3.
 
