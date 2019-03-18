@@ -9,6 +9,8 @@ Changes
 
 - Drop support for Python 2.6 and 3.3.
 
+- Suppress duplicate import warnings if the line in question has a comment.
+
 
 1.4.1 (2016-09-28)
 ------------------

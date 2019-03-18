@@ -281,11 +281,13 @@ class ImportFinderAndNameTracker(ImportFinder):
             if (self.warn_about_duplicates and
                     self.scope.haveImport(imported_as)):
                 where = self.scope.whereImported(imported_as).lineno
-                print("{filename}:{lineno}: {name} imported again".format(
-                    filename=self.filename, lineno=lineno, name=imported_as), file=sys.stderr)
-                if self.verbose:
-                    print("{filename}:{lineno}:   (location of previous import)".format(
-                        filename=self.filename, lineno=where), file=sys.stderr)
+                line = linecache.getline(self.filename, lineno)
+                if '#' not in line:
+                    print("{filename}:{lineno}: {name} imported again".format(
+                        filename=self.filename, lineno=lineno, name=imported_as), file=sys.stderr)
+                    if self.verbose:
+                        print("{filename}:{lineno}:   (location of previous import)".format(
+                            filename=self.filename, lineno=where), file=sys.stderr)
             else:
                 self.scope.addImport(imported_as, self.filename, level, lineno)
 
