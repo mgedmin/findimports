@@ -43,6 +43,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Programming Language :: Python :: Implementation :: PyPy',
+    ] + [
         'License :: OSI Approved :: GNU General Public License (GPL)'
             if licence.startswith('GPL') else
         'License :: OSI Approved :: MIT License'
