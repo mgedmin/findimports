@@ -5,7 +5,7 @@ Changes
 1.5.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Drop support for Python 3.4.
 
 
 1.5.0 (2019-03-18)
