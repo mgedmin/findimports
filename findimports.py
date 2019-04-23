@@ -80,7 +80,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '1.5.1'
+__version__ = '1.5.2.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'GPL v2 or later'
 __url__ = 'https://github.com/mgedmin/findimports'
