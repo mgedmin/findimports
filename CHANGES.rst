@@ -5,7 +5,7 @@ Changes
 1.5.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Python 3.8.
 
 
 1.5.1 (2019-04-23)
