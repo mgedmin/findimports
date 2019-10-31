@@ -398,7 +398,7 @@ class ModuleGraph(object):
 
     def __init__(self):
         self.modules = {}
-        self.path = sys.path
+        self.path = list(sys.path)
         self._module_cache = {}
         self._warned_about = set()
         self._stderr = sys.stderr

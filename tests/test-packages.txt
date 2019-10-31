@@ -72,6 +72,8 @@ Test handling of test packages
       os
       unittest
 
+    >>> import sys
+    >>> sys.path.append('.')
     >>> from findimports import main
     >>> exitcode = main(['findimports', '-pT'])
     bar:
