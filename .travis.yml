@@ -1,18 +1,32 @@
 language: python
-dist: xenial
 python:
-    - 2.7
-    - 3.5
-    - 3.6
-    - 3.7
-    - 3.8
-    - pypy
-    - pypy3
+  - 2.7
+  - 3.5
+  - 3.6
+  - 3.7
+  - 3.8
+  - pypy
+  - pypy3
 install:
-    - pip install coverage coveralls
+  - pip install coverage coveralls
 script:
-    - coverage run --source=findimports testsuite.py
+  - coverage run --source=findimports testsuite.py
 after_script:
-    - coveralls
+  - coveralls
+
+matrix:
+  include:
+    - name: flake8
+      install: pip install flake8
+      script: flake8 *.py
+      after_script:
+
 notifications:
-    email: false
+  irc:
+    channels:
+      - "chat.freenode.net##mgedmin"
+    on_success: change
+    on_failure: always
+    template:
+      # ping my nick so I get a pushbullet notification on my phone
+      - "mgedmin: %{repository_name} (%{branch}) build %{result}: %{build_url}"

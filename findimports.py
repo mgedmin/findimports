@@ -16,7 +16,7 @@ Options:
   -u, --unused      Print unused imports.
   -a, --all         Print unused imports even if there's a comment.
   --duplicate       Print duplicate imports.
-  -v                Print more information (currently only affects --duplicate).
+  -v                Print more information (only affects --duplicate).
 
   -N, --noext       Omit external dependencies.
 
@@ -27,7 +27,7 @@ Options:
   -T, --tests       Collapse packages named 'tests' and 'ftests' with parent
                     packages.
 
-FindImports requires Python 2.6 or later.
+FindImports requires Python 2.7 or later.
 
 Notes:
 
@@ -50,7 +50,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2015 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2019 Marius Gedminas <marius@pov.lt>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -111,8 +111,10 @@ class ImportInfo(object):
         self.level = level
 
     def __repr__(self):
-        return '%s(%r, %r, %r, %r)' % (self.__class__.__name__, self.name,
-                                   self.filename, self.lineno, self.level)
+        return '%s(%r, %r, %r, %r)' % (
+            self.__class__.__name__, self.name, self.filename, self.lineno,
+            self.level,
+        )
 
 
 class ImportFinder(ast.NodeVisitor):
@@ -151,7 +153,8 @@ class ImportFinder(ast.NodeVisitor):
 
     def visit_Import(self, node):
         for alias in node.names:
-            self.processImport(alias.name, alias.asname, alias.name, None, node)
+            self.processImport(alias.name, alias.asname, alias.name, None,
+                               node)
 
     def visit_ImportFrom(self, node):
         if node.module == '__future__':
@@ -223,10 +226,8 @@ class Scope(object):
         return self.parent.whereImported(name)
 
     def addImport(self, name, filename, level, lineno):
-        self.unused_names[name] = self.imports[name] = ImportInfo(name,
-                                                                  filename,
-                                                                  lineno,
-                                                                  level)
+        self.unused_names[name] = self.imports[name] = ImportInfo(
+            name, filename, lineno, level)
 
     def useName(self, name):
         if name in self.unused_names:
@@ -273,7 +274,8 @@ class ImportFinderAndNameTracker(ImportFinder):
         self.leaveScope()
 
     def processImport(self, name, imported_as, full_name, level, node):
-        ImportFinder.processImport(self, name, imported_as, full_name, level, node)
+        ImportFinder.processImport(
+            self, name, imported_as, full_name, level, node)
         if not imported_as:
             imported_as = name
         if imported_as != "*":
@@ -284,10 +286,12 @@ class ImportFinderAndNameTracker(ImportFinder):
                 line = linecache.getline(self.filename, lineno)
                 if '#' not in line:
                     print("{filename}:{lineno}: {name} imported again".format(
-                        filename=self.filename, lineno=lineno, name=imported_as), file=sys.stderr)
+                        filename=self.filename, lineno=lineno,
+                        name=imported_as), file=sys.stderr)
                     if self.verbose:
-                        print("{filename}:{lineno}:   (location of previous import)".format(
-                            filename=self.filename, lineno=where), file=sys.stderr)
+                        print("{filename}:{lineno}:   (location of previous"
+                              " import)".format(filename=self.filename,
+                                                lineno=where), file=sys.stderr)
             else:
                 self.scope.addImport(imported_as, self.filename, level, lineno)
 
@@ -399,7 +403,7 @@ class ModuleGraph(object):
         self._warned_about = set()
         self._stderr = sys.stderr
         self._exts = ('.py', '.so', '.dll')
-        if hasattr(sys, '_multiarch'): # pragma: nocover
+        if hasattr(sys, '_multiarch'):  # pragma: nocover
             # Ubuntu 14.04 LTS renames
             # /usr/lib/python2.7/lib-dynload/datetime.so to
             # /usr/lib/python2.7/lib-dynload/datetime.x86_64-linux-gnu.so
@@ -448,10 +452,11 @@ class ModuleGraph(object):
         module = Module(modname, filename)
         self.modules[modname] = module
         if self.trackUnusedNames:
-            module.imported_names, module.unused_names = \
+            module.imported_names, module.unused_names = (
                 find_imports_and_track_names(filename,
                                              self.warn_about_duplicates,
                                              self.verbose)
+            )
         else:
             module.imported_names = find_imports(filename)
             module.unused_names = None
@@ -472,9 +477,10 @@ class ModuleGraph(object):
         elements = filename.split(os.path.sep)
         modname = []
         while elements:
-            modname.append(elements[-1])
-            del elements[-1]
-            if not os.path.exists(os.path.sep.join(elements + ['__init__.py'])):
+            modname.append(elements.pop())
+            if not os.path.exists(
+                os.path.sep.join(elements + ['__init__.py'])
+            ):
                 break
         modname.reverse()
         modname = ".".join(modname)
@@ -491,9 +497,15 @@ class ModuleGraph(object):
         if level and level > 1 and extrapath:
             # strip trailing path bits for each extra level to account for
             # relative imports
-            # from . import X has level == 1 and nothing is stripped (the level > 1 check accounts for this case)
-            # from .. import X has level == 2 and one trailing path component must go
-            # from ... import X has level == 3 and two trailing path components must go
+            # level 1: from . import X
+            # - nothing is stripped
+            #   (the level > 1 check accounts for this case)
+            # level 2: from .. import X
+            # - one trailing path component must go
+            # level 3: from ... import X
+            # - two trailing path components must go
+            # levels 4 through infinity:
+            # - you get the pattern
             extrapath = extrapath.split(os.path.sep)
             level -= 1
             extrapath = extrapath[0:-level]
@@ -583,7 +595,7 @@ class ModuleGraph(object):
             if name in pkgnames:
                 break
             result.append(name)
-        if not result: # empty names are baad
+        if not result:  # empty names are baad
             return dotted_name
         return '.'.join(result)
 
@@ -604,7 +616,7 @@ class ModuleGraph(object):
             package = packages[package_name]
             for name in module.imports:
                 package_name = self.packageOf(name, packagelevel)
-                if package_name != package.modname: # no loops
+                if package_name != package.modname:  # no loops
                     package.imports.add(package_name)
         graph = ModuleGraph()
         graph.modules = packages
@@ -625,7 +637,7 @@ class ModuleGraph(object):
             package = packages[package_name]
             for name in module.imports:
                 package_name = self.removeTestPackage(name, pkgnames)
-                if package_name != package.modname: # no loops
+                if package_name != package.modname:  # no loops
                     package.imports.add(package_name)
         graph = ModuleGraph()
         graph.modules = packages
@@ -638,28 +650,33 @@ class ModuleGraph(object):
         """
         # This algorithm determines Strongly Connected Components.  Look it up.
         # It is adapted to suit our data structures.
+
         # Phase 0: prepare the graph
         imports = {}
         for u in self.modules:
             imports[u] = set()
             for v in self.modules[u].imports:
-                if v in self.modules: # skip external dependencies
+                if v in self.modules:  # skip external dependencies
                     imports[u].add(v)
+
         # Phase 1: order the vertices
         visited = {}
         for u in self.modules:
             visited[u] = False
         order = []
+
         def visit1(u):
             visited[u] = True
             for v in imports[u]:
                 if not visited[v]:
                     visit1(v)
             order.append(u)
+
         for u in self.modules:
             if not visited[u]:
                 visit1(u)
         order.reverse()
+
         # Phase 2: compute the inverse graph
         revimports = {}
         for u in self.modules:
@@ -667,17 +684,20 @@ class ModuleGraph(object):
         for u in self.modules:
             for v in imports[u]:
                 revimports[v].add(u)
+
         # Phase 3: determine the strongly connected components
         components = {}
         component_of = {}
         for u in self.modules:
             visited[u] = False
+
         def visit2(u):
             visited[u] = True
             component.append(u)
             for v in revimports[u]:
                 if not visited[v]:
                     visit2(v)
+
         for u in order:
             if not visited[u]:
                 component = []
@@ -687,6 +707,7 @@ class ModuleGraph(object):
                 components[node.modname] = node
                 for modname in component:
                     component_of[modname] = node
+
         # Phase 4: construct the condensed graph
         for node in components.values():
             for modname in node.modnames:
@@ -702,7 +723,8 @@ class ModuleGraph(object):
         """Produce a report of imported names."""
         for module in self.listModules():
             print("%s:" % module.modname)
-            print("  %s" % "\n  ".join(imp.name for imp in module.imported_names))
+            print("  %s" % "\n  ".join(
+                imp.name for imp in module.imported_names))
 
     def printImports(self):
         """Produce a report of dependencies."""
@@ -786,12 +808,14 @@ def main(argv=None):
                       help='print unused imports')
     parser.add_option('-a', '--all', action='store_true',
                       dest='all_unused',
-                      help="don't ignore unused imports when there's a comment on the same line (only affects -u)")
+                      help="don't ignore unused imports when there's a comment"
+                           " on the same line (only affects -u)")
     parser.add_option('--duplicate', action='store_true',
                       dest='warn_about_duplicates',
                       help='warn about duplicate imports')
     parser.add_option('-v', '--verbose', action='store_true',
-                      help='print more information (currently only affects --duplicate)')
+                      help='print more information (currently only affects'
+                           ' --duplicate)')
     parser.add_option('-N', '--noext', action='store_true',
                       help='omit external dependencies')
     parser.add_option('-p', '--packages', action='store_true',
@@ -805,9 +829,12 @@ def main(argv=None):
                       help='collapse dependency cycles')
     parser.add_option('-T', '--tests', action='store_true',
                       dest='collapse_tests',
-                      help="collapse packages named 'tests' and 'ftests' with parent packages")
+                      help="collapse packages named 'tests' and 'ftests'"
+                           " with parent packages")
     parser.add_option('-w', '--write-cache', metavar='FILE',
-                      help="write a pickle cache of parsed imports; provide the cache filename as the only non-option argument to load it back")
+                      help="write a pickle cache of parsed imports; provide"
+                           " the cache filename as the only non-option"
+                           " argument to load it back")
     try:
         opts, args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:

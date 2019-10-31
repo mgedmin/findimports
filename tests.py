@@ -53,7 +53,8 @@ class TestModuleGraph(unittest.TestCase):
             mg._exts += ('.x86_64-linux-gnu.so',)
         self.assertEqual(mg.filenameToModname('foo.py'), 'foo')
         self.assertEqual(mg.filenameToModname('foo.so'), 'foo')
-        self.assertEqual(mg.filenameToModname('foo.x86_64-linux-gnu.so'), 'foo')
+        self.assertEqual(mg.filenameToModname('foo.x86_64-linux-gnu.so'),
+                         'foo')
 
     def test_filenameToModname_warns(self):
         mg = findimports.ModuleGraph()

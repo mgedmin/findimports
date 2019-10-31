@@ -28,7 +28,7 @@ class RedirectToStdout(object):
 
 
 class Checker(doctest.OutputChecker):
-    """Doctest output checker that can normalize Windows pathname differences."""
+    """Doctest output checker for normalizing Windows pathname differences."""
 
     def check_output(self, want, got, optionflags):
         want = re.sub("sample-tree/[^:]*",
@@ -72,7 +72,7 @@ def create_tree(files):
         f.close()
 
 
-def additional_tests(): # hook for setuptools
+def additional_tests():  # hook for setuptools setup.py test
     # paths relative to __file__ don't work if you run 'figleaf testsuite.py'
     # so we have to use paths relative to os.getcwd()
     sample_tree = os.path.abspath(os.path.join('tests', 'sample-tree'))

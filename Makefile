@@ -6,6 +6,10 @@ FILE_WITH_CHANGELOG = CHANGES.rst
 default:
 	@echo "Nothing to build here"
 
+.PHONY: flake8
+flake8:
+	flake8 *.py
+
 .PHONY: check test
 check test:
 	$(PYTHON) testsuite.py
@@ -17,8 +21,7 @@ coverage:
 
 .PHONY: test-all-pythons
 test-all-pythons:
-	# pip install detox, if missing
-	detox
+	tox -p auto
 
 .PHONY: preview-pypi-description
 preview-pypi-description:
