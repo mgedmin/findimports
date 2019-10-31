@@ -19,7 +19,12 @@ We print warnings when we cannot find a module/package
     ... import imaginary.package
     ... ''')
 
+    >>> with open('foo.py', 'w') as f: _ = f.write('''
+    ... # decoy, see https://github.com/mgedmin/findimports/issues/10
+    ... ''')
+
     >>> graph = ModuleGraph()
+    >>> graph.path.append('.')
     >>> graph.parseFile('marmalade.py')
     marmalade.py: could not find foobar
     marmalade.py: could not find imaginary.package

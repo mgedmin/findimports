@@ -518,7 +518,7 @@ class ModuleGraph(object):
             candidate = self.isPackage(name, extrapath)
             if candidate:
                 return candidate
-            name = name[:name.rfind('.')]
+            name = name.rpartition('.')[0]
         self.warn(dotted_name, '%s: could not find %s', filename, dotted_name)
         return dotted_name
 
