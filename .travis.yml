@@ -10,7 +10,7 @@ python:
 install:
   - pip install coverage coveralls
 script:
-  - coverage run --source=findimports testsuite.py
+  - coverage run testsuite.py
 after_script:
   - coveralls
 
