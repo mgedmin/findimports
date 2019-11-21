@@ -16,7 +16,7 @@ Changes
 - Fix a bug where a package/module with a name that is a prefix of another
   package/module might accidentally be used instead of the other one (e.g. py
   instead of pylab).  See `issue 10
-  <https://github.com/mgedmin/findimports/issue/10>`_.
+  <https://github.com/mgedmin/findimports/issues/10>`_.
 
 
 1.5.1 (2019-04-23)
