@@ -5,7 +5,7 @@ Changes
 1.5.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Drop support for Python 3.5.
 
 
 1.5.2 (2019-10-31)

@@ -8,20 +8,16 @@ default:
 
 .PHONY: flake8
 flake8:
-	flake8 *.py
+	tox -e flake8
 
 .PHONY: check test
 check test:
-	$(PYTHON) testsuite.py
+	tox -p auto
 
 .PHONY: coverage
 coverage:
 	coverage run testsuite.py
 	coverage report -m --fail-under=100
-
-.PHONY: test-all-pythons
-test-all-pythons:
-	tox -p auto
 
 .PHONY: preview-pypi-description
 preview-pypi-description:
