@@ -28,8 +28,11 @@ jobs:
           - pypy3
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Git clone
+        uses: actions/checkout@v2
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
         with:
           python-version: "${{ matrix.python-version }}"
 

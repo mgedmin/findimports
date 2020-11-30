@@ -9,7 +9,7 @@ python:
   - pypy
   - pypy3
 install:
-  - pip install coverage coveralls
+  - pip install coverage coverage-python-version coveralls
 script:
   - coverage run testsuite.py
 after_script:

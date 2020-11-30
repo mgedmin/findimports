@@ -193,7 +193,7 @@ class ImportFinder(ast.NodeVisitor):
             try:
                 source = example.source
                 if not isinstance(source, str):
-                    source = source.encode('UTF-8')
+                    source = source.encode('UTF-8')  # pragma: PY2
                 node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
                 print("{filename}:{lineno}: syntax error in doctest".format(

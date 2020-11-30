@@ -8,8 +8,7 @@ test:                           ##: run tests
 
 .PHONY: coverage
 coverage:                       ##: measure test coverage
-	coverage run testsuite.py
-	coverage report -m --fail-under=100
+	tox -e coverage
 
 .PHONY: flake8
 flake8:                         ##: check for style problems
