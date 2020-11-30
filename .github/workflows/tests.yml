@@ -54,9 +54,9 @@ jobs:
 
       - name: Report to coveralls
         run: coveralls
+        if: "${{ matrix.python-version }} != '2.7'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
           COVERALLS_PARALLEL: true
 
