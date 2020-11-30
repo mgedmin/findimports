@@ -30,7 +30,7 @@ Licence: GPL v2 or later (https://www.gnu.org/copyleft/gpl.html)
 |buildstatus|_ |appveyor|_ |coverage|_
 
 .. |buildstatus| image:: https://github.com/mgedmin/findimports/workflows/build/badge.svg?branch=master
-.. _buildstatus: https://github.com/mgedmin/findimports/actions?query=workflow%3Atests
+.. _buildstatus: https://github.com/mgedmin/findimports/actions
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mgedmin/findimports?branch=master&svg=true
 .. _appveyor: https://ci.appveyor.com/project/mgedmin/findimports
