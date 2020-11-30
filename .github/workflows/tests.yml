@@ -31,7 +31,7 @@ jobs:
       - name: Git clone
         uses: actions/checkout@v2
 
-      - name: Setup Python ${{ matrix.python-version }}
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: "${{ matrix.python-version }}"
@@ -43,13 +43,10 @@ jobs:
           python -m pip install -U coverage coverage-python-version flake8
 
       - name: Run flake8
-        run: |
-          flake8 *.py
+        run: flake8 *.py
 
       - name: Run tests
-        run: |
-          coverage run testsuite.py
+        run: coverage run testsuite.py
 
       - name: Check test coverage
-        run: |
-          coverage report -m --fail-under=100
+        run: coverage report -m --fail-under=100
