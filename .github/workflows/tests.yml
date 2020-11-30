@@ -1,4 +1,5 @@
-name: Tests
+# NB: this name is used in the status badge
+name: build
 
 on:
   push:
