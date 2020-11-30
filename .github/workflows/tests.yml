@@ -40,7 +40,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -U setuptools wheel
-          python -m pip install -U coverage flake8
+          python -m pip install -U coverage coverage-python-version flake8
 
       - name: Run flake8
         run: |
