@@ -1,3 +1,5 @@
 [run]
 source = findimports
 branch = False
+plugins =
+    coverage_python_version
