@@ -19,13 +19,13 @@ jobs:
     strategy:
       matrix:
         python-version:
-          - 2.7
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
-          - pypy2
-          - pypy3
+          - "2.7"
+          - "3.6"
+          - "3.7"
+          - "3.8"
+          - "3.9"
+          - "pypy2"
+          - "pypy3"
 
     steps:
       - name: Git clone
@@ -54,7 +54,7 @@ jobs:
 
       - name: Report to coveralls
         run: coveralls
-        if: "${{ matrix.python-version }} != '2.7'"
+        if: "matrix.python-version != '2.7'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
