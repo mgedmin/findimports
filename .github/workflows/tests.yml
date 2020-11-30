@@ -16,7 +16,7 @@ jobs:
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
 
-    stategy:
+    strategy:
       matrix:
         python-version:
           - 2.7
