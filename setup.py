@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 import ast
+import email.utils
 import os
 import re
-import email.utils
+
 from setuptools import setup
 
 

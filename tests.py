@@ -1,11 +1,13 @@
 import os
 import unittest
+
+import findimports
+
+
 try:
     from cStringIO import StringIO
 except ImportError:
     from io import StringIO
-
-import findimports
 
 
 here = os.path.dirname(__file__)

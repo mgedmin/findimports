@@ -1,14 +1,14 @@
 #!/usr/bin/python
 
-import unittest
 import doctest
-import os
-import re
-import sys
-import tempfile
-import shutil
 import glob
 import linecache
+import os
+import re
+import shutil
+import sys
+import tempfile
+import unittest
 
 
 class RedirectToStdout(object):
