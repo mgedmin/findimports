@@ -82,7 +82,7 @@ from operator import attrgetter
 
 __version__ = '1.5.3.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
-__licence__ = 'GPL v2 or later'
+__licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
 
 

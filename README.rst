@@ -25,7 +25,7 @@ Misc
 
 Home page: https://github.com/mgedmin/findimports
 
-Licence: GPL v2 or later (https://www.gnu.org/copyleft/gpl.html)
+Licence: GPL v2 or v3 (https://www.gnu.org/copyleft/gpl.html)
 
 |buildstatus|_ |appveyor|_ |coverage|_
 
