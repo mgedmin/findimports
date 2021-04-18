@@ -80,9 +80,9 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '1.5.2'
+__version__ = '1.5.3.dev1'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
-__licence__ = 'GPL v2 or later'
+__licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
 
 
@@ -193,7 +193,7 @@ class ImportFinder(ast.NodeVisitor):
             try:
                 source = example.source
                 if not isinstance(source, str):
-                    source = source.encode('UTF-8')
+                    source = source.encode('UTF-8')  # pragma: PY2
                 node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
                 print("{filename}:{lineno}: syntax error in doctest".format(
@@ -456,8 +456,6 @@ class ModuleGraph(object):
 
     def parseFile(self, filename):
         """Parse a single file."""
-        if filename.startswith(".\\venv\\"):
-            return
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
         self.modules[modname] = module
