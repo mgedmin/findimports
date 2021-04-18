@@ -80,9 +80,9 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '1.5.3.dev0'
+__version__ = '1.5.2'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
-__licence__ = 'GPL v2 or v3'  # or ask me for MIT
+__licence__ = 'GPL v2 or later'
 __url__ = 'https://github.com/mgedmin/findimports'
 
 
@@ -193,7 +193,7 @@ class ImportFinder(ast.NodeVisitor):
             try:
                 source = example.source
                 if not isinstance(source, str):
-                    source = source.encode('UTF-8')  # pragma: PY2
+                    source = source.encode('UTF-8')
                 node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
                 print("{filename}:{lineno}: syntax error in doctest".format(
@@ -418,15 +418,23 @@ class ModuleGraph(object):
         print(message, file=self._stderr)
         self._warned_about.add(about)
 
-    def parsePathname(self, pathname):
+    def parsePathname(self, pathname, ignores=None):
         """Parse one or more source files.
 
         ``pathname`` may be a file name or a directory name.
+        ``ignores`` is a list of files or directories to ignore.
         """
         if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
                 dirs.sort()
                 files.sort()
+
+                for ignore in ignores:
+                    if ignore in dirs:
+                        dirs.remove(ignore)
+                    if ignore in files:
+                        files.remove(ignore)
+
                 for fn in files:
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
@@ -448,6 +456,8 @@ class ModuleGraph(object):
 
     def parseFile(self, filename):
         """Parse a single file."""
+        if filename.startswith(".\\venv\\"):
+            return
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
         self.modules[modname] = module
@@ -835,6 +845,9 @@ def main(argv=None):
                       help="write a pickle cache of parsed imports; provide"
                            " the cache filename as the only non-option"
                            " argument to load it back")
+    parser.add_option('-I', '--ignore', metavar='FILE', action="append",
+                      help="ignore a file or directory;"
+                           " this option can be used multiple times")
     try:
         opts, args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:
@@ -848,7 +861,7 @@ def main(argv=None):
     g.verbose = opts.verbose
     g.trackUnusedNames = (opts.action == 'printUnusedImports')
     for fn in args:
-        g.parsePathname(fn)
+        g.parsePathname(fn, ignores=opts.ignore or ["venv"])
     if opts.write_cache:
         g.writeCache(opts.write_cache)
     if opts.condense_to_packages:
