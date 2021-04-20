@@ -418,7 +418,7 @@ class ModuleGraph(object):
         print(message, file=self._stderr)
         self._warned_about.add(about)
 
-    def parsePathname(self, pathname, ignores=None):
+    def parsePathname(self, pathname, ignores=[]):
         """Parse one or more source files.
 
         ``pathname`` may be a file name or a directory name.
