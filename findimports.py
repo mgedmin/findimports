@@ -845,7 +845,8 @@ def main(argv=None):
                            " argument to load it back")
     parser.add_option('-I', '--ignore', metavar='FILE', action="append",
                       help="ignore a file or directory;"
-                           " this option can be used multiple times")
+                           " this option can be used multiple times."
+                           " Default: ['venv']")
     try:
         opts, args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:
