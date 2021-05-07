@@ -76,6 +76,7 @@ import os
 import pickle
 import re
 import sys
+import tokenize
 import zipfile
 from operator import attrgetter
 
@@ -322,7 +323,7 @@ def find_imports(filename):
 
     Returns a list of ImportInfo objects.
     """
-    with open(filename) as f:
+    with tokenize.open(filename) as f:
         root = ast.parse(f.read(), filename)
     visitor = ImportFinder(filename)
     visitor.visit(root)
@@ -335,7 +336,7 @@ def find_imports_and_track_names(filename, warn_about_duplicates=False,
 
     Returns ``(imports, unused)``.  Both are lists of ImportInfo objects.
     """
-    with open(filename) as f:
+    with tokenize.open(filename) as f:
         root = ast.parse(f.read(), filename)
     visitor = ImportFinderAndNameTracker(filename)
     visitor.warn_about_duplicates = warn_about_duplicates
