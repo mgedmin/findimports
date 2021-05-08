@@ -9,6 +9,12 @@ Changes
 
 - Drop support for Python 3.5.
 
+- Drop support for Python 2.7.
+
+- Fix a bug where the encoding of Python files was not determined in the
+  same way as by Python itself.  See `issue 15
+  <https://github.com/mgedmin/findimports/issues/15>`_.  This requires
+  the use of ``tokenize.open`` which is not in Python 2.7.
 
 1.5.2 (2019-10-31)
 ------------------
