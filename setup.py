@@ -50,6 +50,7 @@ setup(
             if licence.startswith('MIT') else
         'License :: uhh, dunno',
     ],
+    python_requires='>=3.6',
 
     py_modules=['findimports'],
     test_suite='testsuite',
