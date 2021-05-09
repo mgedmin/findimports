@@ -3,7 +3,6 @@ include Makefile
 include .coveragerc
 include .gitignore
 include tox.ini
-include .travis.yml
 include testsuite.py
 include tests.py
 include tests/*.txt

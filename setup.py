@@ -31,6 +31,7 @@ setup(
     url=url,
     description='Python module import analysis tool',
     long_description=read('README.rst') + '\n\n' + read('CHANGES.rst'),
+    long_description_content_type='text/x-rst',
     license=licence,
     classifiers=[
         'Development Status :: 4 - Beta',
