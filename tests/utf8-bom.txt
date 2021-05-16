@@ -1,0 +1,14 @@
+Byte Order Marks
+================
+
+Files with byte order marks are properly handled
+
+
+    >>> from findimports import find_imports
+
+    >>> with open('utf8bom.py', 'w', encoding='UTF-8') as f: _ = f.write('''\ufeff
+    ... import sys
+    ... ''')
+    >>> for imp in find_imports('utf8bom.py'):
+    ...     print(imp)
+    ImportInfo('sys', 'utf8bom.py', 2, None)

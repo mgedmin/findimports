@@ -1,0 +1,16 @@
+Legacy Encodings
+================
+
+Files with legacy encodings specified via `-*- coding -*-` are supported.
+
+
+    >>> from findimports import find_imports
+
+    >>> with open('latin1.py', 'wb') as f: _ = f.write(b'''\
+    ... # -*- coding: latin-1 -*-
+    ... # \xab is a LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
+    ... import os
+    ... ''')
+    >>> for imp in find_imports('latin1.py'):
+    ...     print(imp)
+    ImportInfo('os', 'latin1.py', 3, None)

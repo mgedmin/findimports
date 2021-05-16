@@ -31,13 +31,13 @@ setup(
     url=url,
     description='Python module import analysis tool',
     long_description=read('README.rst') + '\n\n' + read('CHANGES.rst'),
+    long_description_content_type='text/x-rst',
     license=licence,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
@@ -51,6 +51,7 @@ setup(
             if licence.startswith('MIT') else
         'License :: uhh, dunno',
     ],
+    python_requires='>=3.6',
 
     py_modules=['findimports'],
     test_suite='testsuite',
