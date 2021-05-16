@@ -429,11 +429,7 @@ class ModuleGraph(object):
                 dirs.sort()
                 files.sort()
 
-                for ignore in ignores:
-                    if ignore in dirs:
-                        dirs.remove(ignore)
-                    if ignore in files:
-                        files.remove(ignore)
+                self.filterIgnores(dirs, files, ignores)
 
                 for fn in files:
                     # ignore emacsish junk
@@ -443,6 +439,13 @@ class ModuleGraph(object):
             self.readCache(pathname)
         else:
             self.parseFile(pathname)
+    
+    def filterIgnores(self, dirs, files, ignores):
+        for ignore in ignores:
+            if ignore in dirs:
+                dirs.remove(ignore)
+            if ignore in files:
+                files.remove(ignore)
 
     def writeCache(self, filename):
         """Write the graph to a cache file."""
