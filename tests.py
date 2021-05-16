@@ -52,7 +52,7 @@ class TestModuleGraph(unittest.TestCase):
     def test_filterIgnores(self):
         dirs = ['venv', 'submodule']
         files = ['code.py', 'README.txt']
-        mg = findImports.ModuleGraph()
+        mg = findimports.ModuleGraph()
         mg.filterIgnores(dirs, files, ignores=['venv', 'README.txt'])
         self.assertEqual(dirs, ['submodule'])
         self.assertEqual(files, ['code.py'])
