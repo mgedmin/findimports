@@ -48,6 +48,14 @@ class TestModuleGraph(unittest.TestCase):
         mg.warn = self.warn
         mg.parsePathname(__file__.rstrip('co'))  # .pyc -> .py
         self.assertTrue('unittest' in mg.modules[__name__].imports)
+        
+    def test_filterIgnores(self):
+        dirs = ['venv', 'submodule']
+        files = ['code.py', 'README.txt']
+        mg = findImports.ModuleGraph()
+        mg.filterIgnores(dirs, files, ignores=['venv', 'README.txt'])
+        self.assertEqual(dirs, ['submodule'])
+        self.assertEqual(files, ['code.py'])
 
     def test_filenameToModname(self):
         mg = findimports.ModuleGraph()
