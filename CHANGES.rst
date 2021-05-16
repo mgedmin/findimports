@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.1.0 (unreleased)
+2.1.0 (2021-05-16)
 ------------------
 
 - Add ``--ignore`` flag to ignore files and directories, it can be used multiple 
