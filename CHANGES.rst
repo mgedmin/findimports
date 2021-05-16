@@ -2,10 +2,11 @@ Changes
 =======
 
 
-2.0.1 (unreleased)
+2.1.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add ``--ignore`` flag to ignore files and directories, it can be used multiple 
+  times. See `pull request #14 <https://github.com/mgedmin/findimports/pull/14>`_.
 
 
 2.0.0 (2021-05-09)

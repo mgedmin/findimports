@@ -7,27 +7,37 @@ it can be used for finding unused imports and graphing module dependencies
 Syntax: findimports.py [options] [filename|dirname ...]
 
 Options:
-  -h, --help        This help message
+  -h, --help            Show this help message and exit.
 
-  -i, --imports     Print dependency graph (default action).
-  -d, --dot         Print dependency graph in dot (graphviz) format.
-  -n, --names       Print dependency graph with all imported names.
+  -i, --imports         Print dependency graph (default action).
+  -d, --dot             Print dependency graph in dot (graphviz) format.
+  -n, --names           Print dependency graph with all imported names.
 
-  -u, --unused      Print unused imports.
-  -a, --all         Print unused imports even if there's a comment.
-  --duplicate       Print duplicate imports.
-  -v                Print more information (only affects --duplicate).
+  -u, --unused          Print unused imports.
+  -a, --all             Don't ignore unused imports when there's a comment on
+                        the same line (only affects -u).
+  --duplicate           Warn about duplicate imports.
+  -v, --verbose         Print more information (currently only 
+                        affects --duplicate).
 
-  -N, --noext       Omit external dependencies.
+  -N, --noext           Omit external dependencies.
 
-  -p, --packages    Convert the module graph to a package graph.
-  -l N, --level N   Collapse subpackages deeper than the Nth level.
+  -p, --packages        Convert the module graph to a package graph.
+  -l N, --level=N       Collapse subpackages to the topmost Nth levels.
+                 
+  -c, --collapse        Collapse dependency cycles.
+  -T, --tests           Collapse packages named 'tests' and 'ftests' with
+                        parent packages.
 
-  -c, --collapse    Collapse dependency cycles.
-  -T, --tests       Collapse packages named 'tests' and 'ftests' with parent
-                    packages.
+  -w FILE, --write-cache=FILE
+                        Write a pickle cache of parsed imports; provide the
+                        cache filename as the only non-option argument to load
+                        it back.
+  -I FILE, --ignore=FILE
+                        Ignore a file or directory; this option can be used
+                        multiple times. Default: ['venv']
 
-FindImports requires Python 2.7 or later.
+FindImports requires Python 3.6 or later.
 
 Notes:
 
@@ -81,7 +91,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '2.0.1.dev0'
+__version__ = '2.1.0.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
@@ -419,15 +429,19 @@ class ModuleGraph(object):
         print(message, file=self._stderr)
         self._warned_about.add(about)
 
-    def parsePathname(self, pathname):
+    def parsePathname(self, pathname, ignores=[]):
         """Parse one or more source files.
 
         ``pathname`` may be a file name or a directory name.
+        ``ignores`` is a list of files or directories to ignore.
         """
         if os.path.isdir(pathname):
             for root, dirs, files in os.walk(pathname):
                 dirs.sort()
                 files.sort()
+
+                self.filterIgnores(dirs, files, ignores)
+
                 for fn in files:
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
@@ -436,6 +450,13 @@ class ModuleGraph(object):
             self.readCache(pathname)
         else:
             self.parseFile(pathname)
+    
+    def filterIgnores(self, dirs, files, ignores):
+        for ignore in ignores:
+            if ignore in dirs:
+                dirs.remove(ignore)
+            if ignore in files:
+                files.remove(ignore)
 
     def writeCache(self, filename):
         """Write the graph to a cache file."""
@@ -836,6 +857,10 @@ def main(argv=None):
                       help="write a pickle cache of parsed imports; provide"
                            " the cache filename as the only non-option"
                            " argument to load it back")
+    parser.add_option('-I', '--ignore', metavar='FILE', action="append",
+                      help="ignore a file or directory;"
+                           " this option can be used multiple times."
+                           " Default: ['venv']")
     try:
         opts, args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:
@@ -849,7 +874,7 @@ def main(argv=None):
     g.verbose = opts.verbose
     g.trackUnusedNames = (opts.action == 'printUnusedImports')
     for fn in args:
-        g.parsePathname(fn)
+        g.parsePathname(fn, ignores=opts.ignore or ["venv"])
     if opts.write_cache:
         g.writeCache(opts.write_cache)
     if opts.condense_to_packages:
