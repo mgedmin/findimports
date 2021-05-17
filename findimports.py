@@ -17,14 +17,14 @@ Options:
   -a, --all             Don't ignore unused imports when there's a comment on
                         the same line (only affects -u).
   --duplicate           Warn about duplicate imports.
-  -v, --verbose         Print more information (currently only 
+  -v, --verbose         Print more information (currently only
                         affects --duplicate).
 
   -N, --noext           Omit external dependencies.
 
   -p, --packages        Convert the module graph to a package graph.
   -l N, --level=N       Collapse subpackages to the topmost Nth levels.
-                 
+
   -c, --collapse        Collapse dependency cycles.
   -T, --tests           Collapse packages named 'tests' and 'ftests' with
                         parent packages.
@@ -450,7 +450,7 @@ class ModuleGraph(object):
             self.readCache(pathname)
         else:
             self.parseFile(pathname)
-    
+
     def filterIgnores(self, dirs, files, ignores):
         for ignore in ignores:
             if ignore in dirs:
