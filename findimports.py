@@ -686,7 +686,7 @@ class ModuleGraph(object):
         with open(filename, 'rb') as f:
             self.modules = pickle.load(f)
 
-    def parseFile(self, filename, ignore_stdlib_modules=False):
+    def parseFile(self, filename, ignore_stdlib_modules):
         """Parse a single file."""
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
