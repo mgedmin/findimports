@@ -1066,7 +1066,7 @@ def main(argv=None):
     parser.add_option('--ignore-std-lib', action='store_true',
                       dest='ignore_std_lib',
                       help="ignore the imports of modules from the python"
-                           " stdandard library")
+                           " standard library")
     parser.add_option('-v', '--verbose', action='store_true',
                       help='print more information (currently only affects'
                            ' --duplicate)')
