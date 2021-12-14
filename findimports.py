@@ -628,7 +628,7 @@ class ModuleGraph(object):
         """Return an alphabetical list of all modules."""
         modules = list(self.modules.items())
         modules.sort()
-        return [module for _, module in modules]
+        return [module for name, module in modules]
 
     def packageGraph(self, packagelevel=None):
         """Convert a module graph to a package graph."""
