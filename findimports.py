@@ -122,8 +122,8 @@ class ImportInfo(object):
         self.level = level
 
     def __repr__(self):
-        return "{class_name}('{name}', '{filename}', {lineno}, {level})".format(
-            class_name=self.__class__.__name__,
+        return "{classname}('{name}', '{filename}', {lineno}, {level})".format(
+            classname=self.__class__.__name__,
             name=self.name,
             filename=self.filename,
             lineno=self.lineno,
@@ -799,7 +799,10 @@ class ModuleGraph(object):
         for modname, module in sorted(self.modules.items()):
             for other in sorted(module.imports):
                 if other in nameDict:
-                    print(f"  {nameDict[module.modname]} -> {nameDict[other]};")
+                    print("  {0} -> {1};".format(
+                        nameDict[module.modname],
+                        nameDict[other]
+                    ))
         print("}")
 
 
