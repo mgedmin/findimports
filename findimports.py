@@ -97,6 +97,219 @@ __licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
 
 
+STDLIB_MODNAMES_SET = {
+    "__future__",
+    "__main__",
+    "_thread",
+    "abc",
+    "aifc",
+    "argparse",
+    "array",
+    "ast",
+    "asynchat",
+    "asyncio",
+    "asyncore",
+    "atexit",
+    "audioop",
+    "base64",
+    "bdb",
+    "binascii",
+    "binhex",
+    "bisect",
+    "builtins",
+    "bz2",
+    "calendar",
+    "cgi",
+    "cgitb",
+    "chunk",
+    "cmath",
+    "cmd",
+    "code",
+    "codecs",
+    "codeop",
+    "collections",
+    "colorsys",
+    "compileall",
+    "concurrent",
+    "configparser",
+    "contextlib",
+    "contextvars",
+    "copy",
+    "copyreg",
+    "cProfile",
+    "crypt",
+    "csv",
+    "ctypes",
+    "curses",
+    "dataclasses",
+    "datetime",
+    "dbm",
+    "decimal",
+    "difflib",
+    "dis",
+    "distutils",
+    "doctest",
+    "email",
+    "encodings",
+    "ensurepip",
+    "enum",
+    "errno",
+    "faulthandler",
+    "fcntl",
+    "filecmp",
+    "fileinput",
+    "fnmatch",
+    "formatter",
+    "fractions",
+    "ftplib",
+    "functools",
+    "gc",
+    "getopt",
+    "getpass",
+    "gettext",
+    "glob",
+    "graphlib",
+    "grp",
+    "gzip",
+    "hashlib",
+    "heapq",
+    "hmac",
+    "html",
+    "http",
+    "imaplib",
+    "imghdr",
+    "imp",
+    "importlib",
+    "inspect",
+    "io",
+    "ipaddress",
+    "itertools",
+    "json",
+    "keyword",
+    "lib2to3",
+    "linecache",
+    "locale",
+    "logging",
+    "lzma",
+    "mailbox",
+    "mailcap",
+    "marshal",
+    "math",
+    "mimetypes",
+    "mmap",
+    "modulefinder",
+    "msilib",
+    "msvcrt",
+    "multiprocessing",
+    "netrc",
+    "nis",
+    "nntplib",
+    "numbers",
+    "operator",
+    "optparse",
+    "os",
+    "ossaudiodev",
+    "parser",
+    "pathlib",
+    "pdb",
+    "pickle",
+    "pickletools",
+    "pipes",
+    "pkgutil",
+    "platform",
+    "plistlib",
+    "poplib",
+    "posix",
+    "pprint",
+    "profile",
+    "pstats",
+    "pty",
+    "pwd",
+    "py_compile",
+    "pyclbr",
+    "pydoc",
+    "queue",
+    "quopri",
+    "random",
+    "re",
+    "readline",
+    "reprlib",
+    "resource",
+    "rlcompleter",
+    "runpy",
+    "sched",
+    "secrets",
+    "select",
+    "selectors",
+    "shelve",
+    "shlex",
+    "shutil",
+    "signal",
+    "site",
+    "smtpd",
+    "smtplib",
+    "sndhdr",
+    "socket",
+    "socketserver",
+    "spwd",
+    "sqlite3",
+    "ssl",
+    "stat",
+    "statistics",
+    "string",
+    "stringprep",
+    "struct",
+    "subprocess",
+    "sunau",
+    "symbol",
+    "symtable",
+    "sys",
+    "sysconfig",
+    "syslog",
+    "tabnanny",
+    "tarfile",
+    "telnetlib",
+    "tempfile",
+    "termios",
+    "test",
+    "textwrap",
+    "threading",
+    "time",
+    "timeit",
+    "tkinter",
+    "token",
+    "tokenize",
+    "trace",
+    "traceback",
+    "tracemalloc",
+    "tty",
+    "turtle",
+    "turtledemo",
+    "types",
+    "typing",
+    "unicodedata",
+    "unittest",
+    "urllib",
+    "uu",
+    "uuid",
+    "venv",
+    "warnings",
+    "wave",
+    "weakref",
+    "webbrowser",
+    "winreg",
+    "winsound",
+    "wsgiref",
+    "xdrlib",
+    "xml",
+    "xmlrpc",
+    "zipapp",
+    "zipfile",
+    "zipimport",
+    "zlib",
+    "zoneinfo",
+}
+
 def adjust_lineno(filename, lineno, name):
     """Adjust the line number of an import.
 
@@ -130,6 +343,10 @@ class ImportInfo(object):
             level=self.level
         )
 
+    @property
+    def toplvl_name(self):
+        return self.name.split('.')[0]
+
 
 class ImportFinder(ast.NodeVisitor):
     """AST visitor that collects all imported names in its imports attribute.
@@ -159,6 +376,8 @@ class ImportFinder(ast.NodeVisitor):
         self.filename = filename
 
     def processImport(self, name, imported_as, full_name, level, node):
+        # if self.ignore_stdlib_modules and name.split('.')[0] in STDLIB_MODULE_SET:
+        #     return
         lineno = adjust_lineno(self.filename,
                                self.lineno_offset + node.lineno,
                                name)
@@ -432,7 +651,7 @@ class ModuleGraph(object):
         print(message, file=self._stderr)
         self._warned_about.add(about)
 
-    def parsePathname(self, pathname, ignores=[]):
+    def parsePathname(self, pathname, ignores=[], ignore_stdlib_modules=False):
         """Parse one or more source files.
 
         ``pathname`` may be a file name or a directory name.
@@ -448,11 +667,12 @@ class ModuleGraph(object):
                 for fn in files:
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
-                        self.parseFile(os.path.join(root, fn))
+                        self.parseFile(os.path.join(root, fn),
+                                       ignore_stdlib_modules)
         elif pathname.endswith('.importcache'):
             self.readCache(pathname)
         else:
-            self.parseFile(pathname)
+            self.parseFile(pathname, ignore_stdlib_modules)
 
     def filterIgnores(self, dirs, files, ignores):
         for ignore in ignores:
@@ -471,7 +691,7 @@ class ModuleGraph(object):
         with open(filename, 'rb') as f:
             self.modules = pickle.load(f)
 
-    def parseFile(self, filename):
+    def parseFile(self, filename, ignore_stdlib_modules):
         """Parse a single file."""
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
@@ -486,6 +706,11 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
+        if ignore_stdlib_modules:
+            module.imported_names = filter(
+                lambda modname: modname.toplvl_name not in STDLIB_MODNAMES_SET,
+                module.imported_names
+            )
         module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
@@ -839,6 +1064,10 @@ def main(argv=None):
     parser.add_option('--duplicate', action='store_true',
                       dest='warn_about_duplicates',
                       help='warn about duplicate imports')
+    parser.add_option('--ignore-std-lib', action='store_true',
+                      dest='ignore_std_lib',
+                      help="ignore the imports of modules from the python"
+                           " stdandard library")
     parser.add_option('-v', '--verbose', action='store_true',
                       help='print more information (currently only affects'
                            ' --duplicate)')
@@ -878,7 +1107,9 @@ def main(argv=None):
     g.verbose = opts.verbose
     g.trackUnusedNames = (opts.action == 'printUnusedImports')
     for fn in args:
-        g.parsePathname(fn, ignores=opts.ignore or ["venv"])
+        g.parsePathname(fn,
+            ignores=opts.ignore or ["venv"],
+            ignore_stdlib_modules=opts.ignore_std_lib)
     if opts.write_cache:
         g.writeCache(opts.write_cache)
     if opts.condense_to_packages:
