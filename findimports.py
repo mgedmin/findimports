@@ -310,6 +310,7 @@ STDLIB_MODNAMES_SET = {
     "zoneinfo",
 }
 
+
 def adjust_lineno(filename, lineno, name):
     """Adjust the line number of an import.
 
@@ -376,8 +377,6 @@ class ImportFinder(ast.NodeVisitor):
         self.filename = filename
 
     def processImport(self, name, imported_as, full_name, level, node):
-        # if self.ignore_stdlib_modules and name.split('.')[0] in STDLIB_MODULE_SET:
-        #     return
         lineno = adjust_lineno(self.filename,
                                self.lineno_offset + node.lineno,
                                name)
@@ -1108,8 +1107,8 @@ def main(argv=None):
     g.trackUnusedNames = (opts.action == 'printUnusedImports')
     for fn in args:
         g.parsePathname(fn,
-            ignores=opts.ignore or ["venv"],
-            ignore_stdlib_modules=opts.ignore_std_lib)
+                        ignores=opts.ignore or ["venv"],
+                        ignore_stdlib_modules=opts.ignore_std_lib)
     if opts.write_cache:
         g.writeCache(opts.write_cache)
     if opts.condense_to_packages:
