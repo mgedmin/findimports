@@ -567,14 +567,15 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        if ignore_stdlib_modules:
-            module.imported_names = list(filter(
-                lambda modname: modname.name not in STDLIB_MODNAMES_SET,
-                module.imported_names
-            ))
         module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
+        if ignore_stdlib_modules:
+            module.imported_names = list(filter(
+                lambda info: info.name not in STDLIB_MODNAMES_SET,
+                module.imported_names,
+            ))
+            module.imports -= STDLIB_MODNAMES_SET
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
@@ -926,7 +927,7 @@ def main(argv=None):
                       dest='warn_about_duplicates',
                       help='warn about duplicate imports')
     parser.add_option('--ignore-stdlib', action='store_true',
-                      dest='ignore_std_lib',
+                      dest='ignore_stdlib',
                       help="ignore the imports of modules from the Python"
                            " standard library")
     parser.add_option('-v', '--verbose', action='store_true',
@@ -970,7 +971,7 @@ def main(argv=None):
     for fn in args:
         g.parsePathname(fn,
                         ignores=opts.ignore or ["venv"],
-                        ignore_stdlib_modules=opts.ignore_std_lib)
+                        ignore_stdlib_modules=opts.ignore_stdlib)
     if opts.write_cache:
         g.writeCache(opts.write_cache)
     if opts.condense_to_packages:
