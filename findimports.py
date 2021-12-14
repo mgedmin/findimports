@@ -17,6 +17,8 @@ Options:
   -a, --all             Don't ignore unused imports when there's a comment on
                         the same line (only affects -u).
   --duplicate           Warn about duplicate imports.
+  --ignore-stdlib       ignore the imports of modules from the Python standard
+                        library
   -v, --verbose         Print more information (currently only
                         affects --duplicate).
 
