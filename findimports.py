@@ -486,9 +486,9 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        module.imports = set(
+        module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
-            for imp in module.imported_names)
+            for imp in module.imported_names}
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
