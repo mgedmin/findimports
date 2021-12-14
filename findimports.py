@@ -717,8 +717,6 @@ class ModuleGraph(object):
             module.unused_names = None
         dir = os.path.dirname(filename)
         if ignore_stdlib_modules:
-            # This cannot remain a 'filter' object. Immediate conversion to
-            # a list is mandatory.
             module.imported_names = list(filter(
                 lambda modname: modname.toplvl_name not in STDLIB_MODNAMES_SET,
                 module.imported_names
