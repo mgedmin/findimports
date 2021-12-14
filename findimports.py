@@ -1076,7 +1076,7 @@ def main(argv=None):
     parser.add_option('--duplicate', action='store_true',
                       dest='warn_about_duplicates',
                       help='warn about duplicate imports')
-    parser.add_option('--ignore-std-lib', action='store_true',
+    parser.add_option('--ignore-stdlib', action='store_true',
                       dest='ignore_std_lib',
                       help="ignore the imports of modules from the Python"
                            " standard library")
