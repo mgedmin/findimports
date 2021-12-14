@@ -97,7 +97,7 @@ __licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
 
 
-STDLIB_MODNAMES_SET = {
+STDLIB_MODNAMES_SET = frozenset([
     "__future__",
     "__main__",
     "_thread",
@@ -308,7 +308,7 @@ STDLIB_MODNAMES_SET = {
     "zipimport",
     "zlib",
     "zoneinfo",
-}
+])
 
 
 def adjust_lineno(filename, lineno, name):
@@ -1078,7 +1078,7 @@ def main(argv=None):
                       help='warn about duplicate imports')
     parser.add_option('--ignore-std-lib', action='store_true',
                       dest='ignore_std_lib',
-                      help="ignore the imports of modules from the python"
+                      help="ignore the imports of modules from the Python"
                            " standard library")
     parser.add_option('-v', '--verbose', action='store_true',
                       help='print more information (currently only affects'
