@@ -346,7 +346,18 @@ class ImportInfo(object):
 
     @property
     def toplvl_name(self):
-        return self.name.split('.')[0]
+        """Return the 'toplevel' name of an import.
+
+        For example, these imports :
+            import numpy as np
+            from .directory.filename import function
+            import scipy.io
+          have respectively the following toplevel names :
+            numpy
+            filename
+            scipy
+        """
+        return self.name
 
 
 class ImportFinder(ast.NodeVisitor):
@@ -706,10 +717,12 @@ class ModuleGraph(object):
             module.unused_names = None
         dir = os.path.dirname(filename)
         if ignore_stdlib_modules:
-            module.imported_names = filter(
+            # This cannot remain a 'filter' object. Immediate conversion to
+            # a list is mandatory.
+            module.imported_names = list(filter(
                 lambda modname: modname.toplvl_name not in STDLIB_MODNAMES_SET,
                 module.imported_names
-            )
+            ))
         module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
