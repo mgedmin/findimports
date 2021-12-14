@@ -122,9 +122,12 @@ class ImportInfo(object):
         self.level = level
 
     def __repr__(self):
-        return '%s(%r, %r, %r, %r)' % (
-            self.__class__.__name__, self.name, self.filename, self.lineno,
-            self.level,
+        return "{classname}('{name}', '{filename}', {lineno}, {level})".format(
+            classname=self.__class__.__name__,
+            name=self.name,
+            filename=self.filename,
+            lineno=self.lineno,
+            level=self.level
         )
 
 
@@ -174,7 +177,7 @@ class ImportFinder(ast.NodeVisitor):
         for alias in node.names:
             name = alias.name
             imported_as = alias.asname
-            fullname = '%s.%s' % (node.module, name) if node.module else name
+            fullname = f"{node.module}.{name}" if node.module else name
             self.processImport(name, imported_as, fullname, node.level, node)
 
     def visitSomethingWithADocstring(self, node):
@@ -280,7 +283,7 @@ class ImportFinderAndNameTracker(ImportFinder):
         self.leaveScope()
 
     def visit_FunctionDef(self, node):
-        self.newScope(self.scope, 'function %s' % node.name)
+        self.newScope(self.scope, f"function {node.name}")
         ImportFinder.visit_FunctionDef(self, node)
         self.leaveScope()
 
@@ -321,7 +324,7 @@ class ImportFinderAndNameTracker(ImportFinder):
             name = ""
             for part in full_name:
                 if name:
-                    name = '%s.%s' % (name, part)
+                    name = f"{name}.{part}"
                 else:
                     name += part
                 self.scope.useName(name)
@@ -379,7 +382,7 @@ class Module(object):
         self.unused_names = ()
 
     def __repr__(self):
-        return '<%s: %s>' % (self.__class__.__name__, self.modname)
+        return f"<{self.__class__.__name__}: {self.modname}>"
 
 
 class ModuleCycle(object):
@@ -419,7 +422,7 @@ class ModuleGraph(object):
             # /usr/lib/python2.7/lib-dynload/datetime.so to
             # /usr/lib/python2.7/lib-dynload/datetime.x86_64-linux-gnu.so
             # (https://github.com/mgedmin/findimports/issues/3)
-            self._exts += ('.%s.so' % sys._multiarch, )
+            self._exts += f".{sys._multiarch}.so"
 
     def warn(self, about, message, *args):
         if about in self._warned_about:
@@ -483,9 +486,9 @@ class ModuleGraph(object):
             module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
-        module.imports = set(
-            [self.findModuleOfName(imp.name, imp.level, filename, dir)
-             for imp in module.imported_names])
+        module.imports = {
+            self.findModuleOfName(imp.name, imp.level, filename, dir)
+            for imp in module.imported_names}
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
@@ -744,21 +747,21 @@ class ModuleGraph(object):
     def printImportedNames(self):
         """Produce a report of imported names."""
         for module in self.listModules():
-            print("%s:" % module.modname)
-            print("  %s" % "\n  ".join(
+            print(f"{module.modname}:")
+            print("  " + "\n  ".join(
                 imp.name for imp in module.imported_names))
 
     def printImports(self):
         """Produce a report of dependencies."""
         for module in self.listModules():
-            print("%s:" % module.label)
+            print(f"{module.label}:")
             if self.external_dependencies:
                 imports = list(module.imports)
             else:
                 imports = [modname for modname in module.imports
                            if modname in self.modules]
             imports.sort()
-            print("  %s" % "\n  ".join(imports))
+            print("  " + "\n  ".join(imports))
 
     def printUnusedImports(self):
         """Produce a report of unused imports."""
@@ -772,7 +775,7 @@ class ModuleGraph(object):
                     if '#' in line:
                         # assume there's a comment explaining why it's not used
                         continue
-                print("%s:%s: %s not used" % (module.filename, lineno, name))
+                print(f"{module.filename}:{lineno}: {name} not used")
 
     def printDot(self):
         """Produce a dependency graph in dot format."""
@@ -781,10 +784,9 @@ class ModuleGraph(object):
         allNames = set()
         nameDict = {}
         for n, module in enumerate(self.listModules()):
-            module._dot_name = "mod%d" % n
+            module._dot_name = f"mod{n}"
             nameDict[module.modname] = module._dot_name
-            print("  %s[label=\"%s\"];" % (module._dot_name,
-                                           quote(module.label)))
+            print(f"  {module._dot_name}[label=\"{quote(module.label)}\"];")
             allNames |= module.imports
         print("  node[style=dotted];")
         if self.external_dependencies:
@@ -792,13 +794,15 @@ class ModuleGraph(object):
             extNames = list(allNames - myNames)
             extNames.sort()
             for n, name in enumerate(extNames):
-                nameDict[name] = id = "extmod%d" % n
-                print("  %s[label=\"%s\"];" % (id, name))
+                nameDict[name] = id = f"extmod{n}"
+                print(f"  {id}[label=\"{name}\"];")
         for modname, module in sorted(self.modules.items()):
             for other in sorted(module.imports):
                 if other in nameDict:
-                    print("  %s -> %s;" % (nameDict[module.modname],
-                                           nameDict[other]))
+                    print("  {0} -> {1};".format(
+                        nameDict[module.modname],
+                        nameDict[other]
+                    ))
         print("}")
 
 
