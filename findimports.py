@@ -573,10 +573,8 @@ class ModuleGraph(object):
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
         if ignore_stdlib_modules:
-            module.imported_names = list(filter(
-                lambda info: info.name not in STDLIB_MODNAMES_SET,
-                module.imported_names,
-            ))
+            module.imported_names = [info for info in module.imported_names
+                                     if info.name not in STDLIB_MODNAMES_SET]
             module.imports -= STDLIB_MODNAMES_SET
 
     def filenameToModname(self, filename):
