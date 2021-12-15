@@ -100,6 +100,7 @@ __url__ = 'https://github.com/mgedmin/findimports'
 
 
 STDLIB_MODNAMES_SET = getattr(sys, 'stdlib_module_names', frozenset([
+    # taken from Python 3.10
     "__future__", "_abc", "_aix_support",
     "_ast", "_asyncio", "_bisect",
     "_blake2", "_bootsubprocess", "_bz2",
