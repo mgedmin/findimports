@@ -85,7 +85,6 @@ import doctest
 import linecache
 import optparse
 import os
-import sys
 import pickle
 import re
 import sys
