@@ -17,6 +17,8 @@ Options:
   -a, --all             Don't ignore unused imports when there's a comment on
                         the same line (only affects -u).
   --duplicate           Warn about duplicate imports.
+  --ignore-stdlib       ignore the imports of modules from the Python standard
+                        library
   -v, --verbose         Print more information (currently only
                         affects --duplicate).
 
@@ -95,6 +97,111 @@ __version__ = '2.1.1.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
+
+
+STDLIB_MODNAMES_SET = getattr(sys, 'stdlib_module_names', frozenset([
+    # taken from Python 3.10
+    "__future__", "_abc", "_aix_support",
+    "_ast", "_asyncio", "_bisect",
+    "_blake2", "_bootsubprocess", "_bz2",
+    "_codecs", "_codecs_cn", "_codecs_hk",
+    "_codecs_iso2022", "_codecs_jp", "_codecs_kr",
+    "_codecs_tw", "_collections", "_collections_abc",
+    "_compat_pickle", "_compression", "_contextvars",
+    "_crypt", "_csv", "_ctypes",
+    "_curses", "_curses_panel", "_datetime",
+    "_dbm", "_decimal", "_elementtree",
+    "_frozen_importlib", "_frozen_importlib_external", "_functools",
+    "_gdbm", "_hashlib", "_heapq",
+    "_imp", "_io", "_json",
+    "_locale", "_lsprof", "_lzma",
+    "_markupbase", "_md5", "_msi",
+    "_multibytecodec", "_multiprocessing", "_opcode",
+    "_operator", "_osx_support", "_overlapped",
+    "_pickle", "_posixshmem", "_posixsubprocess",
+    "_py_abc", "_pydecimal", "_pyio",
+    "_queue", "_random", "_sha1",
+    "_sha256", "_sha3", "_sha512",
+    "_signal", "_sitebuiltins", "_socket",
+    "_sqlite3", "_sre", "_ssl",
+    "_stat", "_statistics", "_string",
+    "_strptime", "_struct", "_symtable",
+    "_thread", "_threading_local", "_tkinter",
+    "_tracemalloc", "_uuid", "_warnings",
+    "_weakref", "_weakrefset", "_winapi",
+    "_zoneinfo", "abc", "aifc",
+    "antigravity", "argparse", "array",
+    "ast", "asynchat", "asyncio",
+    "asyncore", "atexit", "audioop",
+    "base64", "bdb", "binascii",
+    "binhex", "bisect", "builtins",
+    "bz2", "cProfile", "calendar",
+    "cgi", "cgitb", "chunk",
+    "cmath", "cmd", "code",
+    "codecs", "codeop", "collections",
+    "colorsys", "compileall", "concurrent",
+    "configparser", "contextlib", "contextvars",
+    "copy", "copyreg", "crypt",
+    "csv", "ctypes", "curses",
+    "dataclasses", "datetime", "dbm",
+    "decimal", "difflib", "dis",
+    "distutils", "doctest", "email",
+    "encodings", "ensurepip", "enum",
+    "errno", "faulthandler", "fcntl",
+    "filecmp", "fileinput", "fnmatch",
+    "fractions", "ftplib", "functools",
+    "gc", "genericpath", "getopt",
+    "getpass", "gettext", "glob",
+    "graphlib", "grp", "gzip",
+    "hashlib", "heapq", "hmac",
+    "html", "http", "idlelib",
+    "imaplib", "imghdr", "imp",
+    "importlib", "inspect", "io",
+    "ipaddress", "itertools", "json",
+    "keyword", "lib2to3", "linecache",
+    "locale", "logging", "lzma",
+    "mailbox", "mailcap", "marshal",
+    "math", "mimetypes", "mmap",
+    "modulefinder", "msilib", "msvcrt",
+    "multiprocessing", "netrc", "nis",
+    "nntplib", "nt", "ntpath",
+    "nturl2path", "numbers", "opcode",
+    "operator", "optparse", "os",
+    "ossaudiodev", "pathlib", "pdb",
+    "pickle", "pickletools", "pipes",
+    "pkgutil", "platform", "plistlib",
+    "poplib", "posix", "posixpath",
+    "pprint", "profile", "pstats",
+    "pty", "pwd", "py_compile",
+    "pyclbr", "pydoc", "pydoc_data",
+    "pyexpat", "queue", "quopri",
+    "random", "re", "readline",
+    "reprlib", "resource", "rlcompleter",
+    "runpy", "sched", "secrets",
+    "select", "selectors", "shelve",
+    "shlex", "shutil", "signal",
+    "site", "smtpd", "smtplib",
+    "sndhdr", "socket", "socketserver",
+    "spwd", "sqlite3", "sre_compile",
+    "sre_constants", "sre_parse", "ssl",
+    "stat", "statistics", "string",
+    "stringprep", "struct", "subprocess",
+    "sunau", "symtable", "sys",
+    "sysconfig", "syslog", "tabnanny",
+    "tarfile", "telnetlib", "tempfile",
+    "termios", "textwrap", "this",
+    "threading", "time", "timeit",
+    "tkinter", "token", "tokenize",
+    "trace", "traceback", "tracemalloc",
+    "tty", "turtle", "turtledemo",
+    "types", "typing", "unicodedata",
+    "unittest", "urllib", "uu",
+    "uuid", "venv", "warnings",
+    "wave", "weakref", "webbrowser",
+    "winreg", "winsound", "wsgiref",
+    "xdrlib", "xml", "xmlrpc",
+    "zipapp", "zipfile", "zipimport",
+]))
 
 
 def adjust_lineno(filename, lineno, name):
@@ -432,7 +539,7 @@ class ModuleGraph(object):
         print(message, file=self._stderr)
         self._warned_about.add(about)
 
-    def parsePathname(self, pathname, ignores=[]):
+    def parsePathname(self, pathname, ignores=[], ignore_stdlib_modules=False):
         """Parse one or more source files.
 
         ``pathname`` may be a file name or a directory name.
@@ -448,11 +555,12 @@ class ModuleGraph(object):
                 for fn in files:
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
-                        self.parseFile(os.path.join(root, fn))
+                        self.parseFile(os.path.join(root, fn),
+                                       ignore_stdlib_modules)
         elif pathname.endswith('.importcache'):
             self.readCache(pathname)
         else:
-            self.parseFile(pathname)
+            self.parseFile(pathname, ignore_stdlib_modules)
 
     def filterIgnores(self, dirs, files, ignores):
         for ignore in ignores:
@@ -471,7 +579,7 @@ class ModuleGraph(object):
         with open(filename, 'rb') as f:
             self.modules = pickle.load(f)
 
-    def parseFile(self, filename):
+    def parseFile(self, filename, ignore_stdlib_modules):
         """Parse a single file."""
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
@@ -489,6 +597,10 @@ class ModuleGraph(object):
         module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
+        if ignore_stdlib_modules:
+            module.imported_names = [info for info in module.imported_names
+                                     if info.name not in STDLIB_MODNAMES_SET]
+            module.imports -= STDLIB_MODNAMES_SET
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
@@ -839,6 +951,10 @@ def main(argv=None):
     parser.add_option('--duplicate', action='store_true',
                       dest='warn_about_duplicates',
                       help='warn about duplicate imports')
+    parser.add_option('--ignore-stdlib', action='store_true',
+                      dest='ignore_stdlib',
+                      help="ignore the imports of modules from the Python"
+                           " standard library")
     parser.add_option('-v', '--verbose', action='store_true',
                       help='print more information (currently only affects'
                            ' --duplicate)')
@@ -878,7 +994,9 @@ def main(argv=None):
     g.verbose = opts.verbose
     g.trackUnusedNames = (opts.action == 'printUnusedImports')
     for fn in args:
-        g.parsePathname(fn, ignores=opts.ignore or ["venv"])
+        g.parsePathname(fn,
+                        ignores=opts.ignore or ["venv"],
+                        ignore_stdlib_modules=opts.ignore_stdlib)
     if opts.write_cache:
         g.writeCache(opts.write_cache)
     if opts.condense_to_packages:

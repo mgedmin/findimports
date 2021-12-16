@@ -6,12 +6,14 @@ Changes
 ------------------
 
 - Add support for Python 3.10.
+- Add ``--ignore-stdlib`` flag to ignore modules from the Python standard
+  library.
 
 
 2.1.0 (2021-05-16)
 ------------------
 
-- Add ``--ignore`` flag to ignore files and directories, it can be used multiple 
+- Add ``--ignore`` flag to ignore files and directories, it can be used multiple
   times. See `pull request #14 <https://github.com/mgedmin/findimports/pull/14>`_.
 
 
