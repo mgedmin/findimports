@@ -4,40 +4,46 @@ FindImports is a script that processes Python module dependencies.  Currently
 it can be used for finding unused imports and graphing module dependencies
 (with graphviz).
 
-Syntax: findimports.py [options] [filename|dirname ...]
+Syntax: findimports.py [action] [options] [filename|dirname ...]
 
-Options:
-  -h, --help            Show this help message and exit.
+positional arguments:
+  filename|dirname      The files and/or directories to inspect, default: "."
 
-  -i, --imports         Print dependency graph (default action).
-  -d, --dot             Print dependency graph in dot (graphviz) format.
-  -n, --names           Print dependency graph with all imported names.
+optional arguments:
+  -h, --help            show this help message and exit
 
-  -u, --unused          Print unused imports.
-  -a, --all             Don't ignore unused imports when there's a comment on
-                        the same line (only affects -u).
-  --duplicate           Warn about duplicate imports.
+actions:
+  Exactly one of these actions will be performed (default: --imports)
+
+  -i, --imports         print dependency graph (default action)
+  -d, --dot             print dependency graph in dot (graphviz) format
+  -n, --names           print dependency graph with all imported names
+  -u, --unused          print unused imports
+
+options:
+  -a, --all             don't ignore unused imports when there's a comment on
+                        the same line (only affects -u)
+  --duplicate           warn about duplicate imports
   --ignore-stdlib       ignore the imports of modules from the Python standard
                         library
-  -v, --verbose         Print more information (currently only
-                        affects --duplicate).
-
-  -N, --noext           Omit external dependencies.
-
-  -p, --packages        Convert the module graph to a package graph.
-  -l N, --level=N       Collapse subpackages to the topmost Nth levels.
-
-  -c, --collapse        Collapse dependency cycles.
-  -T, --tests           Collapse packages named 'tests' and 'ftests' with
-                        parent packages.
-
-  -w FILE, --write-cache=FILE
-                        Write a pickle cache of parsed imports; provide the
+  -v, --verbose         print more information (currently only affects
+                        --duplicate)
+  -N, --noext           omit external dependencies
+  -p, --packages        convert the module graph to a package graph
+  -l PACKAGELEVEL, --level PACKAGELEVEL
+                        collapse subpackages to the topmost Nth levels. Only
+                        used if --packages is given. Default: no limit
+  -c, --collapse        collapse dependency cycles
+  -T, --tests           collapse packages named 'tests' and 'ftests' with
+                        parent packages
+  -w FILE, --write-cache FILE
+                        write a pickle cache of parsed imports; provide the
                         cache filename as the only non-option argument to load
-                        it back.
-  -I FILE, --ignore=FILE
-                        Ignore a file or directory; this option can be used
+                        it back
+  -I FILE, --ignore FILE
+                        ignore a file or directory; this option can be used
                         multiple times. Default: ['venv']
+
 
 FindImports requires Python 3.6 or later.
 
@@ -80,10 +86,10 @@ Ave, Cambridge, MA 02139, USA.
 
 from __future__ import print_function
 
+import argparse
 import ast
 import doctest
 import linecache
-import optparse
 import os
 import pickle
 import re
@@ -929,84 +935,98 @@ def quote(s):
 def main(argv=None):
     progname = os.path.basename(argv[0]) if argv else None
     description = __doc__.strip().split('\n\n')[0]
-    parser = optparse.OptionParser('%prog [options] [filename|dirname ...]',
-                                   prog=progname, description=description)
-    parser.add_option('-i', '--imports', action='store_const',
-                      dest='action', const='printImports',
-                      default='printImports',
-                      help='print dependency graph (default action)')
-    parser.add_option('-d', '--dot', action='store_const',
-                      dest='action', const='printDot',
-                      help='print dependency graph in dot (graphviz) format')
-    parser.add_option('-n', '--names', action='store_const',
-                      dest='action', const='printImportedNames',
-                      help='print dependency graph with all imported names')
-    parser.add_option('-u', '--unused', action='store_const',
-                      dest='action', const='printUnusedImports',
-                      help='print unused imports')
-    parser.add_option('-a', '--all', action='store_true',
-                      dest='all_unused',
-                      help="don't ignore unused imports when there's a comment"
-                           " on the same line (only affects -u)")
-    parser.add_option('--duplicate', action='store_true',
-                      dest='warn_about_duplicates',
-                      help='warn about duplicate imports')
-    parser.add_option('--ignore-stdlib', action='store_true',
-                      dest='ignore_stdlib',
-                      help="ignore the imports of modules from the Python"
-                           " standard library")
-    parser.add_option('-v', '--verbose', action='store_true',
-                      help='print more information (currently only affects'
-                           ' --duplicate)')
-    parser.add_option('-N', '--noext', action='store_true',
-                      help='omit external dependencies')
-    parser.add_option('-p', '--packages', action='store_true',
-                      dest='condense_to_packages',
-                      help='convert the module graph to a package graph')
-    parser.add_option('-l', '--level', type='int',
-                      dest='packagelevel',
-                      help='collapse subpackages to the topmost Nth levels')
-    parser.add_option('-c', '--collapse', action='store_true',
-                      dest='collapse_cycles',
-                      help='collapse dependency cycles')
-    parser.add_option('-T', '--tests', action='store_true',
-                      dest='collapse_tests',
-                      help="collapse packages named 'tests' and 'ftests'"
-                           " with parent packages")
-    parser.add_option('-w', '--write-cache', metavar='FILE',
-                      help="write a pickle cache of parsed imports; provide"
-                           " the cache filename as the only non-option"
-                           " argument to load it back")
-    parser.add_option('-I', '--ignore', metavar='FILE', action="append",
-                      help="ignore a file or directory;"
-                           " this option can be used multiple times."
-                           " Default: ['venv']")
+    parser = argparse.ArgumentParser(
+        usage='%(prog)s [action] [options] [filename|dirname ...]',
+        prog=progname, description=description)
+
+    parser.add_argument(
+        'filenames', metavar='filename|dirname', nargs='*', default=['.'],
+        help='The files and/or directories to inspect, default: "."')
+
+    actions = parser.add_argument_group(
+        'actions',
+        description='Exactly one of these actions will be performed'
+                    ' (default: --imports)')
+    actions = actions.add_mutually_exclusive_group()
+    actions.add_argument('-i', '--imports', action='store_const',
+                         dest='action', const='printImports',
+                         default='printImports',
+                         help='print dependency graph (default action)')
+    actions.add_argument('-d', '--dot', action='store_const',
+                         dest='action', const='printDot',
+                         help='print dependency graph in dot (graphviz)'
+                              ' format')
+    actions.add_argument('-n', '--names', action='store_const',
+                         dest='action', const='printImportedNames',
+                         help='print dependency graph with all imported names')
+    actions.add_argument('-u', '--unused', action='store_const',
+                         dest='action', const='printUnusedImports',
+                         help='print unused imports')
+
+    options = parser.add_argument_group('options')
+    options.add_argument('-a', '--all', action='store_true',
+                         dest='all_unused',
+                         help="don't ignore unused imports when there's a"
+                              " comment on the same line (only affects -u)")
+    options.add_argument('--duplicate', action='store_true',
+                         dest='warn_about_duplicates',
+                         help='warn about duplicate imports')
+    options.add_argument('--ignore-stdlib', action='store_true',
+                         dest='ignore_stdlib',
+                         help="ignore the imports of modules from the Python"
+                              " standard library")
+    options.add_argument('-v', '--verbose', action='store_true',
+                         help='print more information (currently only affects'
+                              ' --duplicate)')
+    options.add_argument('-N', '--noext', action='store_true',
+                         help='omit external dependencies')
+    options.add_argument('-p', '--packages', action='store_true',
+                         dest='condense_to_packages',
+                         help='convert the module graph to a package graph')
+    options.add_argument('-l', '--level', type=int,
+                         dest='packagelevel',
+                         help='collapse subpackages to the topmost Nth levels.'
+                              ' Only used if --packages is given.'
+                              ' Default: no limit')
+    options.add_argument('-c', '--collapse', action='store_true',
+                         dest='collapse_cycles',
+                         help='collapse dependency cycles')
+    options.add_argument('-T', '--tests', action='store_true',
+                         dest='collapse_tests',
+                         help="collapse packages named 'tests' and 'ftests'"
+                              " with parent packages")
+    options.add_argument('-w', '--write-cache', metavar='FILE',
+                         help="write a pickle cache of parsed imports; provide"
+                              " the cache filename as the only non-option"
+                              " argument to load it back")
+    options.add_argument('-I', '--ignore', metavar='FILE', action="append",
+                         help="ignore a file or directory;"
+                              " this option can be used multiple times."
+                              " Default: ['venv']")
     try:
-        opts, args = parser.parse_args(args=argv[1:] if argv else None)
+        args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:
         return e.code
-    if not args:
-        args = ['.']
 
     g = ModuleGraph()
-    g.all_unused = opts.all_unused
-    g.warn_about_duplicates = opts.warn_about_duplicates
-    g.verbose = opts.verbose
-    g.trackUnusedNames = (opts.action == 'printUnusedImports')
-    for fn in args:
+    g.all_unused = args.all_unused
+    g.warn_about_duplicates = args.warn_about_duplicates
+    g.verbose = args.verbose
+    g.trackUnusedNames = (args.action == 'printUnusedImports')
+    for fn in args.filenames:
         g.parsePathname(fn,
-                        ignores=opts.ignore or ["venv"],
-                        ignore_stdlib_modules=opts.ignore_stdlib)
-    if opts.write_cache:
-        g.writeCache(opts.write_cache)
-    if opts.condense_to_packages:
-        g = g.packageGraph(opts.packagelevel)
-    if opts.collapse_tests:
+                        ignores=args.ignore or ["venv"],
+                        ignore_stdlib_modules=args.ignore_stdlib)
+    if args.write_cache:
+        g.writeCache(args.write_cache)
+    if args.condense_to_packages:
+        g = g.packageGraph(args.packagelevel)
+    if args.collapse_tests:
         g = g.collapseTests()
-    if opts.collapse_cycles:
+    if args.collapse_cycles:
         g = g.collapseCycles()
-    g.external_dependencies = not opts.noext
-    getattr(g, opts.action)()
+    g.external_dependencies = not args.noext
+    getattr(g, args.action)()
     return 0
 
 

@@ -5,9 +5,8 @@ An invalid argument causes a short error message
 
     >>> from findimports import main
     >>> exitcode = main(['findimports', '--nosuchargument'])
-    Usage: findimports [options] [filename|dirname ...]
-    <BLANKLINE>
-    findimports: error: no such option: --nosuchargument
+    usage: findimports [action] [options] [filename|dirname ...]
+    findimports: error: unrecognized arguments: --nosuchargument
 
     >>> exitcode
     2
@@ -15,7 +14,7 @@ An invalid argument causes a short error message
 You can ask for a help message
 
     >>> exitcode = main(['findimports', '--help'])  # doctest: +ELLIPSIS
-    Usage: findimports [options] [filename|dirname ...]
+    usage: findimports [action] [options] [filename|dirname ...]
     <BLANKLINE>
     FindImports is a script that processes Python module dependencies...
     ...
