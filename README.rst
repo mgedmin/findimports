@@ -13,11 +13,10 @@ Note that not all cases are handled correctly, especially if you use
 
 If you need to find unused imports in your codebase, I recommend Pyflakes_
 instead -- it's better maintained and more reliable.  For import graphs
-consider pydeps_ or snakefood_.
+consider pydeps_.
 
 .. _Pyflakes: https://pypi.org/project/pyflakes/
 .. _pydeps: https://pypi.org/project/pydeps/
-.. _snakefood: https://pypi.org/project/snakefood/
 
 
 Misc
