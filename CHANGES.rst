@@ -2,10 +2,13 @@ Changes
 =======
 
 
-2.2.1 (unreleased)
+2.3.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Rewrote command-line parsing to use argparse.  Options that select an action
+  (``--imports``/``--dot``/``--names``/``--unused``) now conflict instead of
+  all but the last one being ignored.  See `pull request #20
+  <https://github.com/mgedmin/findimports/pull/20>`_.
 
 
 2.2.0 (2021-12-16)
