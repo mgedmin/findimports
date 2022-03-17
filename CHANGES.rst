@@ -10,11 +10,14 @@ Changes
   all but the last one being ignored.  See `pull request #20
   <https://github.com/mgedmin/findimports/pull/20>`_.
 
+- Drop support for Python 3.6.
+
 
 2.2.0 (2021-12-16)
 ------------------
 
 - Add support for Python 3.10.
+
 - Add ``--ignore-stdlib`` flag to ignore modules from the Python standard
   library.
 
@@ -31,7 +34,7 @@ Changes
 
 - Add support for Python 3.9.
 
-- Drop support for Python 3.5 and 2.7
+- Drop support for Python 3.5 and 2.7.
 
 - Fix a bug where the encoding of Python files was not determined in the
   same way as by Python itself.  See `issue 15
@@ -151,5 +154,5 @@ Changes
 ------------------
 
 - Is able to find modules inside zip files (e.g. eggs).
-- Fixed deprecation warning on Python 2.6.
 
+- Fixed deprecation warning on Python 2.6.
