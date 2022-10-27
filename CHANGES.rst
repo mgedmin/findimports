@@ -10,6 +10,8 @@ Changes
   all but the last one being ignored.  See `pull request #20
   <https://github.com/mgedmin/findimports/pull/20>`_.
 
+- Add support for Python 3.11.
+
 - Drop support for Python 3.6.
 
 
