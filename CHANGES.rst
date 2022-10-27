@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.3.0 (unreleased)
+2.3.0 (2022-10-27)
 ------------------
 
 - Rewrote command-line parsing to use argparse.  Options that select an action
