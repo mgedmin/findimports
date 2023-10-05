@@ -5,7 +5,7 @@ Changes
 2.3.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Python 3.12.
 
 
 2.3.0 (2022-10-27)
