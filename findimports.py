@@ -30,6 +30,8 @@ options:
                         --duplicate)
   -N, --noext           omit external dependencies
   -p, --packages        convert the module graph to a package graph
+  -pE, --package-externals
+                        convert external modules to a packages.
   -l PACKAGELEVEL, --level PACKAGELEVEL
                         collapse subpackages to the topmost Nth levels. Only
                         used if --packages is given. Default: no limit
@@ -97,7 +99,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '2.3.1.dev0'
+__version__ = '2.3.0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
@@ -746,17 +748,26 @@ class ModuleGraph(object):
         modules.sort()
         return [module for name, module in modules]
 
-    def packageGraph(self, packagelevel=None):
+    def packageGraph(self, packagelevel=None, externals_only=False):
         """Convert a module graph to a package graph."""
         packages = {}
-        for module in self.listModules():
-            package_name = self.packageOf(module.modname, packagelevel)
-            if package_name not in packages:
-                dirname = os.path.dirname(module.filename)
-                packages[package_name] = Module(package_name, dirname)
-            package = packages[package_name]
+        modules = self.listModules()
+        internal_names = {m.modname for m in modules}
+        for module in modules:
+            if externals_only:
+                package = Module(module.modname, module.filename)
+                packages[module.modname] = package
+            else:
+                package_name = self.packageOf(module.modname, packagelevel)
+                if package_name not in packages:
+                    dirname = os.path.dirname(module.filename)
+                    packages[package_name] = Module(package_name, dirname)
+                package = packages[package_name]
             for name in module.imports:
-                package_name = self.packageOf(name, packagelevel)
+                if externals_only and name in internal_names:
+                    package_name = name
+                else:
+                    package_name = self.packageOf(name, packagelevel)
                 if package_name != package.modname:  # no loops
                     package.imports.add(package_name)
         graph = ModuleGraph()
@@ -981,6 +992,9 @@ def main(argv=None):
     options.add_argument('-p', '--packages', action='store_true',
                          dest='condense_to_packages',
                          help='convert the module graph to a package graph')
+    options.add_argument('-pE', '--package-externals', action='store_true',
+                         dest='condense_to_packages_externals',
+                         help='convert external modules to a packages.')
     options.add_argument('-l', '--level', type=int,
                          dest='packagelevel',
                          help='collapse subpackages to the topmost Nth levels.'
@@ -1005,6 +1019,8 @@ def main(argv=None):
         args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:
         return e.code
+    if args.condense_to_packages and args.condense_to_packages_externals:
+        raise argparse.ArgumentError('only one of -p and -pE can be provided')
 
     g = ModuleGraph()
     g.all_unused = args.all_unused
@@ -1017,8 +1033,12 @@ def main(argv=None):
                         ignore_stdlib_modules=args.ignore_stdlib)
     if args.write_cache:
         g.writeCache(args.write_cache)
+
     if args.condense_to_packages:
-        g = g.packageGraph(args.packagelevel)
+        g = g.packageGraph(args.packagelevel, False)
+    elif args.condense_to_packages_externals:
+        g = g.packageGraph(args.packagelevel, True)
+
     if args.collapse_tests:
         g = g.collapseTests()
     if args.collapse_cycles:
