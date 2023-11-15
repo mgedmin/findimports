@@ -99,7 +99,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '2.3.0'
+__version__ = '2.3.1.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'GPL v2 or v3'  # or ask me for MIT
 __url__ = 'https://github.com/mgedmin/findimports'
@@ -1020,7 +1020,8 @@ def main(argv=None):
     except SystemExit as e:
         return e.code
     if args.condense_to_packages and args.condense_to_packages_externals:
-        raise argparse.ArgumentError('only one of -p and -pE can be provided')
+        raise argparse.ArgumentError(
+            None, 'only one of -p and -pE can be provided')
 
     g = ModuleGraph()
     g.all_unused = args.all_unused
@@ -1035,9 +1036,9 @@ def main(argv=None):
         g.writeCache(args.write_cache)
 
     if args.condense_to_packages:
-        g = g.packageGraph(args.packagelevel, False)
+        g = g.packageGraph(args.packagelevel, external_only=False)
     elif args.condense_to_packages_externals:
-        g = g.packageGraph(args.packagelevel, True)
+        g = g.packageGraph(args.packagelevel, external_only=True)
 
     if args.collapse_tests:
         g = g.collapseTests()
