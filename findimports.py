@@ -1036,9 +1036,9 @@ def main(argv=None):
         g.writeCache(args.write_cache)
 
     if args.condense_to_packages:
-        g = g.packageGraph(args.packagelevel, external_only=False)
+        g = g.packageGraph(args.packagelevel, externals_only=False)
     elif args.condense_to_packages_externals:
-        g = g.packageGraph(args.packagelevel, external_only=True)
+        g = g.packageGraph(args.packagelevel, externals_only=True)
 
     if args.collapse_tests:
         g = g.collapseTests()
