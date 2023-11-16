@@ -914,7 +914,8 @@ class ModuleGraph(object):
         for n, module in enumerate(self.listModules()):
             module._dot_name = f"mod{n}"
             nameDict[module.modname] = module._dot_name
-            lines.append(f"  {module._dot_name}[label=\"{quote(module.label)}\"];")
+            line = f"  {module._dot_name}[label=\"{quote(module.label)}\"];"
+            lines.append(line)
             allNames |= module.imports
         lines.append("  node[style=dotted];")
         if self.external_dependencies:

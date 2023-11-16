@@ -45,14 +45,14 @@ Duplicate imports
 You can also ask for warnings about duplicate imports
 
     >>> exitcode = main(['findimports', '-u', 'sample-tree', '--duplicate'])
-    sample-tree/apple.py:4: sys imported again
+    sample-tree/apple.py:5: sys imported again
     sample-tree/box/cat.py:1: gc not used
 
 or with extra verbosity
 
     >>> exitcode = main(['findimports', '-u', '--duplicate', '-v',
     ...                  'sample-tree'])
-    sample-tree/apple.py:4: sys imported again
-    sample-tree/apple.py:2:   (location of previous import)
+    sample-tree/apple.py:5: sys imported again
+    sample-tree/apple.py:3:   (location of previous import)
     sample-tree/box/cat.py:1: gc not used
 
