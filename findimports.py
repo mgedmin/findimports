@@ -45,7 +45,10 @@ options:
   -I FILE, --ignore FILE
                         ignore a file or directory; this option can be used
                         multiple times. Default: ['venv']
-
+  -R PREFIX [PREFIX ...], --rmprefix PREFIX [PREFIX ...]
+                        remove PREFIX from displayed node names. This
+                        operation is applied last. Names that collapses to
+                        nothing are removed.
 
 FindImports requires Python 3.6 or later.
 
@@ -774,6 +777,30 @@ class ModuleGraph(object):
         graph.modules = packages
         return graph
 
+    @staticmethod
+    def rmStrPrefix(string, prefixes):
+        """Remove prefix from a string and strip any leading dots"""
+        for prefix in prefixes:
+            if string.startswith(prefix):
+                return string[len(prefix):].lstrip('.')
+        return string
+
+    def removePrefixes(self, prefixes):
+        """Remove prefixes. Only applies 1st hit."""
+        packages = {}
+        for module in self.listModules():
+            new_modname = self.rmStrPrefix(module.modname, prefixes)
+            if new_modname:
+                packages[new_modname] = Module(new_modname, module.filename)
+                for name in module.imports:
+                    new_name = self.rmStrPrefix(name, prefixes)
+                    if new_name and new_name != new_modname:  # no loops
+                        packages[new_modname].imports.add(new_name)
+        graph = ModuleGraph()
+        packages = dict(sorted(packages.items(), key=lambda x: x[0]))
+        graph.modules = packages
+        return graph
+
     def collapseTests(self, pkgnames=['tests', 'ftests']):
         """Collapse test packages with parent packages.
 
@@ -1022,6 +1049,11 @@ def main(argv=None):
                          help="ignore a file or directory;"
                               " this option can be used multiple times."
                               " Default: ['venv']")
+    options.add_argument('-R', '--rmprefix', metavar="PREFIX", nargs="+",
+                         help="remove PREFIX from displayed node names. "
+                              "This operation is applied last. "
+                              "Names that collapses to nothing are removed.")
+
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
     except SystemExit as e:
@@ -1051,6 +1083,8 @@ def main(argv=None):
         g = g.collapseTests()
     if args.collapse_cycles:
         g = g.collapseCycles()
+    if args.rmprefix is not None:
+        g = g.removePrefixes(args.rmprefix)
     g.external_dependencies = not args.noext
     getattr(g, args.action)()
     return 0

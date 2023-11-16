@@ -59,3 +59,20 @@ Or we can high-level for external packages, but leave modules in standard view:
     <BLANKLINE>
     orange:
       gc
+
+There is also option to remove prefixes in the final output:
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', sample_tree, '-R', 'box', 'os'])
+    __init__:
+    <BLANKLINE>
+    apple:
+      path
+      sys
+    cat:
+      gc
+      yarn
+    orange:
+      gc
+    yarn:
+    <BLANKLINE>
