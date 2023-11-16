@@ -904,33 +904,39 @@ class ModuleGraph(object):
                         continue
                 print(f"{module.filename}:{lineno}: {name} not used")
 
-    def printDot(self):
+    def constructDot(self):
         """Produce a dependency graph in dot format."""
-        print("digraph ModuleDependencies {")
-        print("  node[shape=box];")
+        lines = list()
+        lines.append("digraph ModuleDependencies {")
+        lines.append("  node[shape=box];")
         allNames = set()
         nameDict = {}
         for n, module in enumerate(self.listModules()):
             module._dot_name = f"mod{n}"
             nameDict[module.modname] = module._dot_name
-            print(f"  {module._dot_name}[label=\"{quote(module.label)}\"];")
+            lines.append(f"  {module._dot_name}[label=\"{quote(module.label)}\"];")
             allNames |= module.imports
-        print("  node[style=dotted];")
+        lines.append("  node[style=dotted];")
         if self.external_dependencies:
             myNames = set(self.modules)
             extNames = list(allNames - myNames)
             extNames.sort()
             for n, name in enumerate(extNames):
                 nameDict[name] = id = f"extmod{n}"
-                print(f"  {id}[label=\"{name}\"];")
+                lines.append(f"  {id}[label=\"{name}\"];")
         for modname, module in sorted(self.modules.items()):
             for other in sorted(module.imports):
                 if other in nameDict:
-                    print("  {0} -> {1};".format(
+                    lines.append("  {0} -> {1};".format(
                         nameDict[module.modname],
                         nameDict[other]
                     ))
-        print("}")
+        lines.append("}")
+        return '\n'.join(lines)
+
+    def printDot(self):
+        """Print a dependency graph in dot format."""
+        print(self.constructDot())
 
 
 def quote(s):
