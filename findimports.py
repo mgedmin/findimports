@@ -734,6 +734,17 @@ class ModuleGraph(object):
             dotted_name = '.'.join(dotted_name.split('.')[:packagelevel])
         return dotted_name
 
+    def isExternal(self, modname):
+        """Package is external if not present in modules"""
+        return modname not in self.modules
+
+    def maybePackageOf(self, dotted_name,
+                       packagelevel=None, externals_only=False):
+        """Provides a flag to not convert internal modules to packages"""
+        if externals_only and not self.isExternal(dotted_name):
+            return dotted_name
+        return self.packageOf(dotted_name, packagelevel)
+
     def removeTestPackage(self, dotted_name, pkgnames=['tests', 'ftests']):
         """Remove tests subpackages from dotted_name."""
         result = []
@@ -754,23 +765,16 @@ class ModuleGraph(object):
     def packageGraph(self, packagelevel=None, externals_only=False):
         """Convert a module graph to a package graph."""
         packages = {}
-        modules = self.listModules()
-        internal_names = {m.modname for m in modules}
-        for module in modules:
-            if externals_only:
-                package = Module(module.modname, module.filename)
-                packages[module.modname] = package
-            else:
-                package_name = self.packageOf(module.modname, packagelevel)
-                if package_name not in packages:
-                    dirname = os.path.dirname(module.filename)
-                    packages[package_name] = Module(package_name, dirname)
-                package = packages[package_name]
+        for module in self.listModules():
+            package_name = self.maybePackageOf(
+                module.modname, packagelevel, externals_only)
+            if package_name not in packages:
+                dirname = os.path.dirname(module.filename)
+                packages[package_name] = Module(package_name, dirname)
+            package = packages[package_name]
             for name in module.imports:
-                if externals_only and name in internal_names:
-                    package_name = name
-                else:
-                    package_name = self.packageOf(name, packagelevel)
+                package_name = self.maybePackageOf(
+                    name, packagelevel, externals_only)
                 if package_name != package.modname:  # no loops
                     package.imports.add(package_name)
         graph = ModuleGraph()
