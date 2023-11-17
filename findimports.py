@@ -1060,11 +1060,10 @@ def main(argv=None):
 
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
+        if args.condense_to_packages and args.condense_to_packages_externals:
+            parser.error('only one of -p and -pE can be provided')
     except SystemExit as e:
         return e.code
-    if args.condense_to_packages and args.condense_to_packages_externals:
-        raise argparse.ArgumentError(
-            None, 'only one of -p and -pE can be provided')
 
     g = ModuleGraph()
     g.all_unused = args.all_unused
