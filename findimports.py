@@ -600,16 +600,22 @@ class ModuleGraph(object):
                                              self.verbose)
             )
         else:
-            module.imported_names = find_imports(filename)
+            try:
+                module.imported_names = find_imports(filename)
+            except:
+                print(filename)
+                raise
             module.unused_names = None
         dir = os.path.dirname(filename)
+
+        if ignore_stdlib_modules:
+            module.imported_names = [
+                info for info in module.imported_names
+                if info.name.split('.')[0] not in STDLIB_MODNAMES_SET
+            ]
         module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
-        if ignore_stdlib_modules:
-            module.imported_names = [info for info in module.imported_names
-                                     if info.name not in STDLIB_MODNAMES_SET]
-            module.imports -= STDLIB_MODNAMES_SET
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
