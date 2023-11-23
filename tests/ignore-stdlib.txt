@@ -6,7 +6,7 @@ findimports can produce a detailed list of all imported names
     >>> from findimports import main
     >>> exitcode = main(['findimports', '--names', '--ignore-stdlib', sample_tree])
     apple:
-      os.path
+    <BLANKLINE>
     box.__init__:
     <BLANKLINE>
     box.cat:
