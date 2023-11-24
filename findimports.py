@@ -600,11 +600,7 @@ class ModuleGraph(object):
                                              self.verbose)
             )
         else:
-            try:
-                module.imported_names = find_imports(filename)
-            except:
-                print(filename)
-                raise
+            module.imported_names = find_imports(filename)
             module.unused_names = None
         dir = os.path.dirname(filename)
 
