@@ -7,6 +7,9 @@ Changes
 
 - Add support for Python 3.12.
 
+- Change license from GPL to MIT.  See `issue 27
+  <https://github.com/mgedmin/findimports/issues/27>`_.
+
 
 2.3.0 (2022-10-27)
 ------------------
