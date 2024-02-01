@@ -11,12 +11,23 @@ An invalid argument causes a short error message
     >>> exitcode
     2
 
+Fails if both --packages and -pE, --package-externals are provided
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '-p', '-pE'])
+    usage: findimports [action] [options] [filename|dirname ...]
+    findimports: error: only one of -p and -pE can be provided
+
+    >>> exitcode
+    2
+
+
 You can ask for a help message
 
     >>> exitcode = main(['findimports', '--help'])  # doctest: +ELLIPSIS
     usage: findimports [action] [options] [filename|dirname ...]
     <BLANKLINE>
-    FindImports is a script that processes Python module dependencies...
+    FindImports is a script that processes Python module...
     ...
 
 The default pathname is '.'

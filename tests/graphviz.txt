@@ -16,9 +16,11 @@ graphviz
       node[style=dotted];
       extmod0[label="gc"];
       extmod1[label="os"];
-      extmod2[label="sys"];
+      extmod2[label="os.path"];
+      extmod3[label="sys"];
       mod0 -> extmod1;
       mod0 -> extmod2;
+      mod0 -> extmod3;
       mod2 -> mod3;
       mod2 -> extmod0;
       mod4 -> extmod0;

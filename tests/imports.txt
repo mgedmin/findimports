@@ -7,6 +7,7 @@ findimports prints a simple import report by default:
     >>> exitcode = main(['findimports', sample_tree])
     apple:
       os
+      os.path
       sys
     box.__init__:
     <BLANKLINE>
@@ -43,3 +44,36 @@ We can look at a higher-level overview (packages only):
     orange:
       gc
 
+Or we can high-level for external packages, but leave modules in standard view:
+
+    >>> exitcode = main(['findimports', '-pE', sample_tree])
+    apple:
+      os
+      sys
+    box.__init__:
+    <BLANKLINE>
+    box.cat:
+      box.yarn
+      gc
+    box.yarn:
+    <BLANKLINE>
+    orange:
+      gc
+
+There is also option to remove prefixes in the final output:
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', sample_tree, '-R', 'box', 'os'])
+    __init__:
+    <BLANKLINE>
+    apple:
+      os
+      path
+      sys
+    cat:
+      gc
+      yarn
+    orange:
+      gc
+    yarn:
+    <BLANKLINE>
