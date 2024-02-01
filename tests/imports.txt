@@ -67,6 +67,7 @@ There is also option to remove prefixes in the final output:
     __init__:
     <BLANKLINE>
     apple:
+      os
       path
       sys
     cat:

@@ -813,23 +813,16 @@ class ModuleGraph(object):
         graph.modules = packages
         return graph
 
-    @staticmethod
-    def rmStrPrefix(string, prefixes):
-        """Remove prefix from a string and strip any leading dots"""
-        for prefix in prefixes:
-            if string.startswith(prefix):
-                return string[len(prefix):].lstrip('.')
-        return string
-
     def removePrefixes(self, prefixes):
         """Remove prefixes. Only applies 1st hit."""
+        reg_cmp = re.compile(r'^(({})\.)?'.format('|'.join(prefixes)))
         packages = {}
         for module in self.listModules():
-            new_modname = self.rmStrPrefix(module.modname, prefixes)
+            new_modname = reg_cmp.sub('', module.modname)
             if new_modname:
                 packages[new_modname] = Module(new_modname, module.filename)
                 for name in module.imports:
-                    new_name = self.rmStrPrefix(name, prefixes)
+                    new_name = reg_cmp.sub('', name)
                     if new_name and new_name != new_modname:  # no loops
                         packages[new_modname].imports.add(new_name)
         graph = ModuleGraph()
