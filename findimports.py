@@ -816,7 +816,8 @@ class ModuleGraph(object):
 
     def removePrefixes(self, prefixes):
         """Remove prefixes. Only applies 1st hit."""
-        reg_cmp = re.compile(r'^(({})\.)?'.format('|'.join(prefixes)))
+        prfx_union = '|'.join(map(re.escape, prefixes))
+        reg_cmp = re.compile(r'^(({})\.)?'.format(prfx_union))
         packages = {}
         for module in self.listModules():
             new_modname = reg_cmp.sub('', module.modname)
