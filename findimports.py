@@ -640,6 +640,7 @@ class ModuleGraph(object):
         module.imports = {
             self.findModuleOfName(imp.name, imp.level, filename, dir)
             for imp in module.imported_names}
+        # NOTE: Remove when certain that this is 100% dealt with above
         if ignore_stdlib_modules:
             module.imports -= STDLIB_MODNAMES_SET
 
