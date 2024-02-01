@@ -247,7 +247,29 @@ class ImportInfo(object):
         )
 
 
-class ImportFinder(ast.NodeVisitor):
+class DepthVisitor:
+    def __init__(self, max_depth=None):
+        self.max_depth = max_depth
+
+    def visit(self, node, depth=0):
+        """Visit a node."""
+        method = f'visit_{node.__class__.__name__}'
+        visitor = getattr(self, method, self.generic_visit)
+        return visitor(node, depth)
+
+    def generic_visit(self, node, depth):
+        """Called if no explicit visitor function exists for a node."""
+        if self.max_depth is None or depth < self.max_depth:
+            for field, value in ast.iter_fields(node):
+                if isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, ast.AST):
+                            self.visit(item, depth + 1)
+                elif isinstance(value, ast.AST):
+                    self.visit(value, depth + 1)
+
+
+class ImportFinder(DepthVisitor):
     """AST visitor that collects all imported names in its imports attribute.
 
     For example, the following import statements in the AST tree
@@ -270,9 +292,10 @@ class ImportFinder(ast.NodeVisitor):
 
     lineno_offset = 0       # needed when recursively parsing docstrings
 
-    def __init__(self, filename):
+    def __init__(self, filename, max_depth=None):
         self.imports = []
         self.filename = filename
+        super().__init__(max_depth)
 
     def processImport(self, name, imported_as, full_name, level, node):
         lineno = adjust_lineno(self.filename,
@@ -281,12 +304,12 @@ class ImportFinder(ast.NodeVisitor):
         info = ImportInfo(full_name, self.filename, lineno, level)
         self.imports.append(info)
 
-    def visit_Import(self, node):
+    def visit_Import(self, node, depth):
         for alias in node.names:
             self.processImport(alias.name, alias.asname, alias.name, None,
                                node)
 
-    def visit_ImportFrom(self, node):
+    def visit_ImportFrom(self, node, depth):
         if node.module == '__future__':
             return
 
@@ -296,17 +319,18 @@ class ImportFinder(ast.NodeVisitor):
             fullname = f"{node.module}.{name}" if node.module else name
             self.processImport(name, imported_as, fullname, node.level, node)
 
-    def visitSomethingWithADocstring(self, node):
+    def visitSomethingWithADocstring(self, node, depth):
         # ClassDef and FunctionDef have a 'lineno' attribute, Module doesn't.
         lineno = getattr(node, 'lineno', None)
-        self.processDocstring(ast.get_docstring(node, clean=False), lineno)
-        self.generic_visit(node)
+        docstring = ast.get_docstring(node, clean=False)
+        self.processDocstring(docstring, lineno, depth)
+        self.generic_visit(node, depth)
 
     visit_Module = visitSomethingWithADocstring
     visit_ClassDef = visitSomethingWithADocstring
     visit_FunctionDef = visitSomethingWithADocstring
 
-    def processDocstring(self, docstring, lineno):
+    def processDocstring(self, docstring, lineno, depth):
         if not docstring:
             return
         if lineno is None:
@@ -330,7 +354,7 @@ class ImportFinder(ast.NodeVisitor):
                     filename=self.filename, lineno=lineno), file=sys.stderr)
             else:
                 self.lineno_offset += lineno + example.lineno
-                self.visit(node)
+                self.visit(node, depth)
                 self.lineno_offset -= lineno + example.lineno
 
 
@@ -372,8 +396,8 @@ class ImportFinderAndNameTracker(ImportFinder):
     warn_about_duplicates = False
     verbose = False
 
-    def __init__(self, filename):
-        ImportFinder.__init__(self, filename)
+    def __init__(self, filename, max_depth=None):
+        ImportFinder.__init__(self, filename, max_depth)
         self.scope = self.top_level = Scope(name=filename)
         self.scope_stack = []
         self.unused_names = []
@@ -393,14 +417,14 @@ class ImportFinderAndNameTracker(ImportFinder):
         self.unused_names += self.scope.unused_names.values()
         self.unused_names.sort(key=attrgetter('lineno'))
 
-    def processDocstring(self, docstring, lineno):
+    def processDocstring(self, docstring, lineno, depth):
         self.newScope(self.top_level, 'docstring')
-        ImportFinder.processDocstring(self, docstring, lineno)
+        ImportFinder.processDocstring(self, docstring, lineno, depth)
         self.leaveScope()
 
-    def visit_FunctionDef(self, node):
+    def visit_FunctionDef(self, node, depth):
         self.newScope(self.scope, f"function {node.name}")
-        ImportFinder.visit_FunctionDef(self, node)
+        ImportFinder.visit_FunctionDef(self, node, depth)
         self.leaveScope()
 
     def processImport(self, name, imported_as, full_name, level, node):
@@ -425,10 +449,10 @@ class ImportFinderAndNameTracker(ImportFinder):
             else:
                 self.scope.addImport(imported_as, self.filename, level, lineno)
 
-    def visit_Name(self, node):
+    def visit_Name(self, node, depth):
         self.scope.useName(node.id)
 
-    def visit_Attribute(self, node):
+    def visit_Attribute(self, node, depth):
         full_name = [node.attr]
         parent = node.value
         while isinstance(parent, ast.Attribute):
@@ -444,30 +468,30 @@ class ImportFinderAndNameTracker(ImportFinder):
                 else:
                     name += part
                 self.scope.useName(name)
-        self.generic_visit(node)
+        self.generic_visit(node, depth)
 
 
-def find_imports(filename):
+def find_imports(filename, max_depth=None):
     """Find all imported names in a given file.
 
     Returns a list of ImportInfo objects.
     """
     with tokenize.open(filename) as f:
         root = ast.parse(f.read(), filename)
-    visitor = ImportFinder(filename)
+    visitor = ImportFinder(filename, max_depth=max_depth)
     visitor.visit(root)
     return visitor.imports
 
 
 def find_imports_and_track_names(filename, warn_about_duplicates=False,
-                                 verbose=False):
+                                 verbose=False, max_depth=None):
     """Find all imported names in a given file.
 
     Returns ``(imports, unused)``.  Both are lists of ImportInfo objects.
     """
     with tokenize.open(filename) as f:
         root = ast.parse(f.read(), filename)
-    visitor = ImportFinderAndNameTracker(filename)
+    visitor = ImportFinderAndNameTracker(filename, max_depth)
     visitor.warn_about_duplicates = warn_about_duplicates
     visitor.verbose = verbose
     visitor.visit(root)
@@ -522,6 +546,7 @@ class ModuleGraph(object):
     warn_about_duplicates = False
     verbose = False
     external_dependencies = True
+    max_depth = None
 
     # some builtin modules do not exist as separate .so files on disk
     builtin_modules = sys.builtin_module_names
@@ -597,10 +622,11 @@ class ModuleGraph(object):
             module.imported_names, module.unused_names = (
                 find_imports_and_track_names(filename,
                                              self.warn_about_duplicates,
-                                             self.verbose)
+                                             self.verbose,
+                                             self.max_depth)
             )
         else:
-            module.imported_names = find_imports(filename)
+            module.imported_names = find_imports(filename, self.max_depth)
             module.unused_names = None
         dir = os.path.dirname(filename)
 
@@ -1061,7 +1087,9 @@ def main(argv=None):
                          help="remove PREFIX from displayed node names. "
                               "This operation is applied last. "
                               "Names that collapses to nothing are removed.")
-
+    options.add_argument('-D', '--depth', type=int,
+                         dest='max_depth',
+                         help='import depth in ast tree. Default: no limit')
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
         if args.condense_to_packages and args.condense_to_packages_externals:
@@ -1070,6 +1098,7 @@ def main(argv=None):
         return e.code
 
     g = ModuleGraph()
+    g.max_depth = args.max_depth
     g.all_unused = args.all_unused
     g.warn_about_duplicates = args.warn_about_duplicates
     g.verbose = args.verbose
