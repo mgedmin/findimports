@@ -106,7 +106,7 @@ from operator import attrgetter
 
 __version__ = '2.3.1.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
-__licence__ = 'GPL v2 or v3'  # or ask me for MIT
+__licence__ = 'MIT'
 __url__ = 'https://github.com/mgedmin/findimports'
 
 
