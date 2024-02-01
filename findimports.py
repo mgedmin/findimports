@@ -49,6 +49,8 @@ options:
                         remove PREFIX from displayed node names. This
                         operation is applied last. Names that collapses to
                         nothing are removed.
+  -D MAX_DEPTH, --depth MAX_DEPTH
+                        import depth in ast tree. Default: no limit
 
 FindImports requires Python 3.6 or later.
 
