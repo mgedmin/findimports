@@ -2,13 +2,21 @@ Changes
 =======
 
 
-2.3.1 (unreleased)
+2.4.0 (unreleased)
 ------------------
 
 - Add support for Python 3.12.
 
 - Change license from GPL to MIT.  See `issue 27
   <https://github.com/mgedmin/findimports/issues/27>`_.
+
+- Add ``--package-externals``/``-pE`` to simplify the module graph.
+
+- Add ``--rmprefix PREFIX``/``-R PREFIX`` to remove a package prefix from
+  displayed names.
+
+- Add ``--depth N``/``-D N`` to ignore import statements nested too deep in the
+  syntax tree (e.g. in functions or if statements).
 
 
 2.3.0 (2022-10-27)
