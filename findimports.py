@@ -962,10 +962,12 @@ class ModuleGraph(object):
                         continue
                 print(f"{module.filename}:{lineno}: {name} not used")
 
-    def constructDot(self):
+    def constructDot(self, attributes=()):
         """Produce a dependency graph in dot format."""
         lines = list()
         lines.append("digraph ModuleDependencies {")
+        for k, v in dict(attributes).items():
+            lines.append("  {}={}".format(k, v))
         lines.append("  node[shape=box];")
         allNames = set()
         nameDict = {}
