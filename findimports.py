@@ -51,6 +51,8 @@ options:
                         nothing are removed.
   -D MAX_DEPTH, --depth MAX_DEPTH
                         import depth in ast tree. Default: no limit
+  --attrs ATTRIBUTES    Add custom attributes to dot graph.
+                        Specified as json string.
 
 FindImports requires Python 3.6 or later.
 
@@ -1095,7 +1097,7 @@ def main(argv=None):
                          help='import depth in ast tree. Default: no limit')
     options.add_argument('--attrs', dest='attributes',
                          help='Add custom attributes to dot graph.'
-                         ' Specified as json string')
+                         ' Specified as json string.')
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
         if args.condense_to_packages and args.condense_to_packages_externals:
