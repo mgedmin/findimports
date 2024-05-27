@@ -94,6 +94,7 @@ Ave, Cambridge, MA 02139, USA.
 import argparse
 import ast
 import doctest
+import json
 import linecache
 import os
 import pickle
@@ -998,9 +999,9 @@ class ModuleGraph(object):
         lines.append("}")
         return '\n'.join(lines)
 
-    def printDot(self):
+    def printDot(self, attributes=()):
         """Print a dependency graph in dot format."""
-        print(self.constructDot())
+        print(self.constructDot(attributes=attributes))
 
 
 def quote(s):
@@ -1092,6 +1093,9 @@ def main(argv=None):
     options.add_argument('-D', '--depth', type=int,
                          dest='max_depth',
                          help='import depth in ast tree. Default: no limit')
+    options.add_argument('--attrs', dest='attributes',
+                         help='Add custom attributes to dot graph.'
+                         ' Specified as json string')
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
         if args.condense_to_packages and args.condense_to_packages_externals:
@@ -1124,7 +1128,10 @@ def main(argv=None):
     if args.rmprefix is not None:
         g = g.removePrefixes(args.rmprefix)
     g.external_dependencies = not args.noext
-    getattr(g, args.action)()
+    kwds = {}
+    if args.action == 'printDot' and args.attributes is not None:
+        kwds['attributes'] = json.loads(args.attributes)
+    getattr(g, args.action)(**kwds)
     return 0
 
 
