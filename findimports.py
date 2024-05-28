@@ -51,6 +51,9 @@ options:
                         nothing are removed.
   -D MAX_DEPTH, --depth MAX_DEPTH
                         import depth in ast tree. Default: no limit
+  -A ATTRIBUTES, --attr ATTRIBUTES
+                        Add dot graph attributes. E.g.
+                        "rankdir=TB"
 
 FindImports requires Python 3.6 or later.
 
@@ -966,8 +969,8 @@ class ModuleGraph(object):
         """Produce a dependency graph in dot format."""
         lines = list()
         lines.append("digraph ModuleDependencies {")
-        if attributes:
-            lines.extend(map("  {}".format, attributes))
+        for a in attributes:
+            lines.append("  {};".format(a.rstrip(';')))
         lines.append("  node[shape=box];")
         allNames = set()
         nameDict = {}
@@ -1089,7 +1092,8 @@ def main(argv=None):
     options.add_argument('-D', '--depth', type=int,
                          dest='max_depth',
                          help='import depth in ast tree. Default: no limit')
-    options.add_argument('--attr', type=str, nargs='*', dest='attributes',
+    options.add_argument('-A', '--attr', type=str, dest='attributes',
+                         action='append',
                          help='Add dot graph attributes. E.g. "rankdir=TB"')
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
