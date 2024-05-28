@@ -102,6 +102,7 @@ import os
 import pickle
 import re
 import sys
+import sysconfig
 import tokenize
 import zipfile
 from operator import attrgetter
@@ -562,13 +563,8 @@ class ModuleGraph(object):
         self._module_cache = {}
         self._warned_about = set()
         self._stderr = sys.stderr
-        self._exts = ('.py', '.so', '.dll')
-        if hasattr(sys, '_multiarch'):  # pragma: nocover
-            # Ubuntu 14.04 LTS renames
-            # /usr/lib/python2.7/lib-dynload/datetime.so to
-            # /usr/lib/python2.7/lib-dynload/datetime.x86_64-linux-gnu.so
-            # (https://github.com/mgedmin/findimports/issues/3)
-            self._exts += f".{sys._multiarch}.so"
+        self._exts = ['.py', '.so', '.dll']
+        self._exts.append(sysconfig.get_config_var('EXT_SUFFIX'))
 
     def warn(self, about, message, *args):
         if about in self._warned_about:

@@ -5,7 +5,8 @@ Changes
 2.4.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Fixed extension module detection that never worked on Python 3.  See `pull
+  request 29 <https://github.com/mgedmin/findimports/pull/29>`_.
 
 
 2.4.0 (2024-02-01)
