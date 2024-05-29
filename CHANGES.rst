@@ -2,11 +2,14 @@ Changes
 =======
 
 
-2.4.1 (unreleased)
+2.5.0 (unreleased)
 ------------------
 
 - Fixed extension module detection that never worked on Python 3.  See `pull
   request 29 <https://github.com/mgedmin/findimports/pull/29>`_.
+
+- Add ``--attr``/``-A`` to add arbitrary graphviz `graph attributes
+  <https://graphviz.org/docs/graph/>`_ to the output.
 
 
 2.4.0 (2024-02-01)
