@@ -965,8 +965,8 @@ class ModuleGraph(object):
         """Produce a dependency graph in dot format."""
         lines = list()
         lines.append("digraph ModuleDependencies {")
-        for a in attributes:
-            lines.append("  {};".format(a.rstrip(';')))
+        if attributes:
+            lines.extend(map("  {}".format, attributes))
         lines.append("  node[shape=box];")
         allNames = set()
         nameDict = {}
