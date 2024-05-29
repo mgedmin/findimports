@@ -51,6 +51,9 @@ options:
                         nothing are removed.
   -D MAX_DEPTH, --depth MAX_DEPTH
                         import depth in ast tree. Default: no limit
+  -A ATTRIBUTES, --attr ATTRIBUTES
+                        Add dot graph attributes. E.g.
+                        "rankdir=TB"
 
 FindImports requires Python 3.6 or later.
 
@@ -958,10 +961,12 @@ class ModuleGraph(object):
                         continue
                 print(f"{module.filename}:{lineno}: {name} not used")
 
-    def constructDot(self):
+    def constructDot(self, attributes=()):
         """Produce a dependency graph in dot format."""
         lines = list()
         lines.append("digraph ModuleDependencies {")
+        if attributes:
+            lines.extend(map("  {}".format, attributes))
         lines.append("  node[shape=box];")
         allNames = set()
         nameDict = {}
@@ -989,9 +994,9 @@ class ModuleGraph(object):
         lines.append("}")
         return '\n'.join(lines)
 
-    def printDot(self):
+    def printDot(self, attributes=()):
         """Print a dependency graph in dot format."""
-        print(self.constructDot())
+        print(self.constructDot(attributes=attributes))
 
 
 def quote(s):
@@ -1083,6 +1088,9 @@ def main(argv=None):
     options.add_argument('-D', '--depth', type=int,
                          dest='max_depth',
                          help='import depth in ast tree. Default: no limit')
+    options.add_argument('-A', '--attr', type=str, dest='attributes',
+                         action='append',
+                         help='Add dot graph attributes. E.g. "rankdir=TB"')
     try:
         args = parser.parse_args(args=argv[1:] if argv else None)
         if args.condense_to_packages and args.condense_to_packages_externals:
@@ -1115,7 +1123,10 @@ def main(argv=None):
     if args.rmprefix is not None:
         g = g.removePrefixes(args.rmprefix)
     g.external_dependencies = not args.noext
-    getattr(g, args.action)()
+    kwds = {}
+    if args.action == 'printDot' and args.attributes is not None:
+        kwds['attributes'] = args.attributes
+    getattr(g, args.action)(**kwds)
     return 0
 
 
