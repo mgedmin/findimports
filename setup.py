@@ -57,7 +57,6 @@ setup(
     python_requires='>=3.7',
 
     py_modules=['findimports'],
-    test_suite='testsuite',
     zip_safe=False,
     entry_points="""
     [console_scripts]
