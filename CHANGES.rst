@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.5.2 (unreleased)
+2.5.2 (2024-11-27)
 ------------------
 
 - Bugfix: findimports was treating all imports as relative, just like in the
