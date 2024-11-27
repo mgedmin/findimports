@@ -1,8 +1,6 @@
 Test handling of relative imports
 =================================
 
-    >>> from testsuite import create_tree
-
     >>> create_tree('''
     ... -- foo/__init__.py --
     ...
