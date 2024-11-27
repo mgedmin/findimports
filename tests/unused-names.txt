@@ -36,6 +36,7 @@ If you want to see that warning, pass '-a' in addition to '-u'
 
     >>> exitcode = main(['findimports', '-u', '-a', 'sample-tree'])
     sample-tree/box/cat.py:1: gc not used
+    sample-tree/box/cat.py:3: decoy not used
     sample-tree/unused.py:2: re not used
 
 

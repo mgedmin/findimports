@@ -108,3 +108,9 @@ class TestModuleGraph(unittest.TestCase):
         self.assertEqual(mg.packageOf('pkg.subpkg'), 'pkg.subpkg')
         self.assertEqual(mg.packageOf('pkg.subpkg.mod'), 'pkg.subpkg')
         self.assertEqual(mg.packageOf('pkg.subpkg.mod', 1), 'pkg')
+
+    def test_rootOfPackage(self):
+        cat_box = os.path.join(here, 'tests', 'sample-tree', 'box', 'cat.py')
+        box_root = os.path.join(here, 'tests', 'sample-tree')
+        mg = findimports.ModuleGraph()
+        self.assertEqual(mg.rootOfPackage(cat_box), box_root)

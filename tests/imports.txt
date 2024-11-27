@@ -13,8 +13,13 @@ findimports prints a simple import report by default:
     <BLANKLINE>
     box.cat:
       box.yarn
+      decoy
       gc
+    box.decoy:
+    <BLANKLINE>
     box.yarn:
+    <BLANKLINE>
+    decoy:
     <BLANKLINE>
     orange:
       gc
@@ -28,7 +33,12 @@ We can suppress external dependencies (such as standard library modules)
     <BLANKLINE>
     box.cat:
       box.yarn
+      decoy
+    box.decoy:
+    <BLANKLINE>
     box.yarn:
+    <BLANKLINE>
+    decoy:
     <BLANKLINE>
     orange:
     <BLANKLINE>
@@ -40,7 +50,10 @@ We can look at a higher-level overview (packages only):
       os
       sys
     box:
+      decoy
       gc
+    decoy:
+    <BLANKLINE>
     orange:
       gc
 
@@ -54,8 +67,13 @@ Or we can high-level for external packages, but leave modules in standard view:
     <BLANKLINE>
     box.cat:
       box.yarn
+      decoy
       gc
+    box.decoy:
+    <BLANKLINE>
     box.yarn:
+    <BLANKLINE>
+    decoy:
     <BLANKLINE>
     orange:
       gc
@@ -71,8 +89,11 @@ There is also option to remove prefixes in the final output:
       path
       sys
     cat:
+      decoy
       gc
       yarn
+    decoy:
+    <BLANKLINE>
     orange:
       gc
     yarn:

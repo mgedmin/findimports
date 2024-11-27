@@ -10,8 +10,13 @@ findimports can produce a detailed list of all imported names
     box.__init__:
     <BLANKLINE>
     box.cat:
-      yarn
+      box.yarn
+      decoy
+    box.decoy:
+    <BLANKLINE>
     box.yarn:
+    <BLANKLINE>
+    decoy:
     <BLANKLINE>
     orange:
     <BLANKLINE>

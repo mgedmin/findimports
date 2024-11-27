@@ -626,7 +626,7 @@ class ModuleGraph(object):
         else:
             module.imported_names = find_imports(filename, self.max_depth)
             module.unused_names = None
-        dir = os.path.dirname(filename)
+        dir = self.rootOfPackage(filename)
 
         if ignore_stdlib_modules:
             module.imported_names = [
@@ -641,6 +641,19 @@ class ModuleGraph(object):
         # NOTE: Remove when certain that this is 100% dealt with above
         if ignore_stdlib_modules:
             module.imports -= STDLIB_MODNAMES_SET
+
+    def rootOfPackage(self, filename):
+        """Find the nearest outer directory without a __init__.py"""
+        filename = os.path.abspath(filename)
+        elements = filename.split(os.path.sep)
+        modname = []
+        while elements:
+            modname.append(elements.pop())
+            if not os.path.exists(
+                os.path.sep.join(elements + ['__init__.py'])
+            ):
+                break
+        return os.path.sep.join(elements)
 
     def filenameToModname(self, filename):
         """Convert a filename to a module name."""
@@ -671,24 +684,25 @@ class ModuleGraph(object):
             return dotted_name[:-2]
         name = dotted_name
 
-        # extrapath is None only in a couple of test cases; in real life it's
-        # always present
-        if level and level > 1 and extrapath:
+        if level and level > 0:
+            # this is a relative import, so instead of looking at the package
+            # root we start in the same directory
+            extrapath = os.path.dirname(filename)
             # strip trailing path bits for each extra level to account for
             # relative imports
             # level 1: from . import X
             # - nothing is stripped
-            #   (the level > 1 check accounts for this case)
             # level 2: from .. import X
             # - one trailing path component must go
             # level 3: from ... import X
             # - two trailing path components must go
             # levels 4 through infinity:
             # - you get the pattern
-            extrapath = extrapath.split(os.path.sep)
-            level -= 1
-            extrapath = extrapath[0:-level]
-            extrapath = os.path.sep.join(extrapath)
+            if level > 1:
+                level -= 1
+                extrapath = extrapath.split(os.path.sep)
+                extrapath = extrapath[0:-level]
+                extrapath = os.path.sep.join(extrapath)
 
         while name:
             candidate = self.isModule(name, extrapath)

@@ -42,6 +42,8 @@ This is hooked up to the --write-cache command-line argument:
     apple:
     <BLANKLINE>
     box:
+      decoy
+    decoy:
     <BLANKLINE>
     orange:
     <BLANKLINE>
@@ -51,7 +53,10 @@ This is hooked up to the --write-cache command-line argument:
       os
       sys
     box:
+      decoy
       gc
+    decoy:
+    <BLANKLINE>
     orange:
       gc
 

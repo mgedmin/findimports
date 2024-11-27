@@ -1,4 +1,5 @@
 import gc
-import yarn
+from box import yarn
+import decoy  # ha!  3rd-party module
 
 yarn.play()

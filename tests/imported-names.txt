@@ -14,8 +14,13 @@ findimports can produce a detailed list of all imported names
     <BLANKLINE>
     box.cat:
       gc
-      yarn
+      box.yarn
+      decoy
+    box.decoy:
+    <BLANKLINE>
     box.yarn:
+    <BLANKLINE>
+    decoy:
     <BLANKLINE>
     orange:
       gc

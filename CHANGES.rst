@@ -5,7 +5,12 @@ Changes
 2.5.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Bugfix: findimports was treating all imports as relative, just like in the
+  good old Python 2 days.  Oops.
+
+- When reporting that it couldn't find the source for an imported module,
+  findimports will now mention the line number that contained the import
+  statement.
 
 
 2.5.1 (2024-10-09)

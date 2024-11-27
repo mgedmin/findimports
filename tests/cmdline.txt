@@ -39,7 +39,10 @@ The default pathname is '.'
       os
       sys
     box:
+      decoy
       gc
+    decoy:
+    <BLANKLINE>
     orange:
       gc
 

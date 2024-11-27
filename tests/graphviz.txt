@@ -14,8 +14,10 @@ graphviz
       mod0[label="apple"];
       mod1[label="box.__init__"];
       mod2[label="box.cat"];
-      mod3[label="box.yarn"];
-      mod4[label="orange"];
+      mod3[label="box.decoy"];
+      mod4[label="box.yarn"];
+      mod5[label="decoy"];
+      mod6[label="orange"];
       node[style=dotted];
       extmod0[label="gc"];
       extmod1[label="os"];
@@ -24,8 +26,9 @@ graphviz
       mod0 -> extmod1;
       mod0 -> extmod2;
       mod0 -> extmod3;
-      mod2 -> mod3;
+      mod2 -> mod4;
+      mod2 -> mod5;
       mod2 -> extmod0;
-      mod4 -> extmod0;
+      mod6 -> extmod0;
     }
 
