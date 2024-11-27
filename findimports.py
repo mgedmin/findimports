@@ -64,7 +64,7 @@ Notes:
     findimports.py -u will not complain about import statements that have
     a comment on the same line, e.g.:
 
-        from somewhereelse import somename # reexport
+        from somewhereelse import somename  # reexport
 
     findimports.py -u -a will ignore comments and print these statements also.
 
@@ -352,8 +352,6 @@ class ImportFinder(DepthVisitor):
         for example in examples:
             try:
                 source = example.source
-                if not isinstance(source, str):
-                    source = source.encode('UTF-8')  # pragma: PY2
                 node = ast.parse(source, filename='<docstring>')
             except SyntaxError:
                 print("{filename}:{lineno}: syntax error in doctest".format(
@@ -403,7 +401,7 @@ class ImportFinderAndNameTracker(ImportFinder):
     verbose = False
 
     def __init__(self, filename, max_depth=None):
-        ImportFinder.__init__(self, filename, max_depth)
+        super().__init__(filename, max_depth)
         self.scope = self.top_level = Scope(name=filename)
         self.scope_stack = []
         self.unused_names = []
@@ -425,17 +423,16 @@ class ImportFinderAndNameTracker(ImportFinder):
 
     def processDocstring(self, docstring, lineno, depth):
         self.newScope(self.top_level, 'docstring')
-        ImportFinder.processDocstring(self, docstring, lineno, depth)
+        super().processDocstring(docstring, lineno, depth)
         self.leaveScope()
 
     def visit_FunctionDef(self, node, depth):
         self.newScope(self.scope, f"function {node.name}")
-        ImportFinder.visit_FunctionDef(self, node, depth)
+        super().visit_FunctionDef(node, depth)
         self.leaveScope()
 
     def processImport(self, name, imported_as, full_name, level, node):
-        ImportFinder.processImport(
-            self, name, imported_as, full_name, level, node)
+        super().processImport(name, imported_as, full_name, level, node)
         if not imported_as:
             imported_as = name
         if imported_as != "*":
@@ -472,7 +469,7 @@ class ImportFinderAndNameTracker(ImportFinder):
                 if name:
                     name = f"{name}.{part}"
                 else:
-                    name += part
+                    name = part
                 self.scope.useName(name)
         self.generic_visit(node, depth)
 
