@@ -26,5 +26,5 @@ We print warnings when we cannot find a module/package
     >>> graph = ModuleGraph()
     >>> graph.path.append('.')
     >>> graph.parseFile('marmalade.py', ignore_stdlib_modules=False)
-    marmalade.py: could not find foobar
-    marmalade.py: could not find imaginary.package
+    marmalade.py:5: could not find foobar
+    marmalade.py:12: could not find imaginary.package

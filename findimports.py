@@ -634,7 +634,9 @@ class ModuleGraph(object):
                 if info.name.split('.')[0] not in STDLIB_MODNAMES_SET
             ]
         module.imports = {
-            self.findModuleOfName(imp.name, imp.level, filename, dir)
+            self.findModuleOfName(
+                imp.name, imp.level, filename, lineno=imp.lineno, extrapath=dir
+            )
             for imp in module.imported_names}
         # NOTE: Remove when certain that this is 100% dealt with above
         if ignore_stdlib_modules:
@@ -661,7 +663,9 @@ class ModuleGraph(object):
         modname = ".".join(modname)
         return modname
 
-    def findModuleOfName(self, dotted_name, level, filename, extrapath=None):
+    def findModuleOfName(
+        self, dotted_name, level, filename, *, lineno=None, extrapath=None
+    ):
         """Given a fully qualified name, find what module contains it."""
         if dotted_name.endswith('.*'):
             return dotted_name[:-2]
@@ -694,7 +698,10 @@ class ModuleGraph(object):
             if candidate:
                 return candidate
             name = name.rpartition('.')[0]
-        self.warn(dotted_name, '%s: could not find %s', filename, dotted_name)
+        where = filename
+        if lineno is not None:
+            where += ':%d' % lineno
+        self.warn(dotted_name, '%s: could not find %s', where, dotted_name)
         return dotted_name
 
     def isModule(self, dotted_name, extrapath=None):
