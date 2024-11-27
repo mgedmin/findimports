@@ -46,7 +46,7 @@ def create_tree(files):
 def doctest_setup(doctest_namespace, tmp_path, monkeypatch):
     doctest_namespace['create_tree'] = create_tree
     doctest_namespace['sample_tree'] = str(sample_tree)
-    monkeypatch.syspath_prepend(sample_tree.joinpath('zippedmodules.zip'))
+    monkeypatch.syspath_prepend(str(sample_tree.joinpath('zippedmodules.zip')))
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(sys, 'stderr', RedirectToStdout())
     yield
