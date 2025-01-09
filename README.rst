@@ -28,7 +28,7 @@ Licence: MIT (https://mit-license.org/)
 
 |buildstatus|_ |appveyor|_ |coverage|_
 
-.. |buildstatus| image:: https://github.com/mgedmin/findimports/workflows/build/badge.svg?branch=master
+.. |buildstatus| image:: https://github.com/mgedmin/findimports/actions/workflows/build.yml/badge.svg?branch=master
 .. _buildstatus: https://github.com/mgedmin/findimports/actions
 
 .. |appveyor| image:: https://ci.appveyor.com/api/projects/status/github/mgedmin/findimports?branch=master&svg=true
