@@ -1,8 +1,6 @@
 Test collapsing to packages
 ===========================
 
-    >>> from testsuite import create_tree
-
     >>> create_tree('''
     ... -- foo/__init__.py --
     ...

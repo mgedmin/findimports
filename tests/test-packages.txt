@@ -12,8 +12,6 @@ Test handling of test packages
     >>> g.removeTestPackage('tests')
     'tests'
 
-    >>> from testsuite import create_tree
-
     >>> create_tree('''
     ... -- foo/__init__.py --
     ...
