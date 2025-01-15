@@ -2,10 +2,10 @@ Changes
 =======
 
 
-2.5.3 (unreleased)
+2.6.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Drop support for Python 3.7.
 
 
 2.5.2 (2024-11-27)
