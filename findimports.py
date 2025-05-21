@@ -38,6 +38,8 @@ options:
   -c, --collapse        collapse dependency cycles
   -T, --tests           collapse packages named 'tests' and 'ftests' with
                         parent packages
+  -s MODULE, --search-import MODULE
+                        only show imports matching module or package name
   -w FILE, --write-cache FILE
                         write a pickle cache of parsed imports; provide the
                         cache filename as the only non-option argument to load
@@ -571,7 +573,8 @@ class ModuleGraph(object):
         print(message, file=self._stderr)
         self._warned_about.add(about)
 
-    def parsePathname(self, pathname, ignores=[], ignore_stdlib_modules=False):
+    def parsePathname(self, pathname, ignores=[], ignore_stdlib_modules=False,
+                      import_to_search_for=None):
         """Parse one or more source files.
 
         ``pathname`` may be a file name or a directory name.
@@ -588,11 +591,13 @@ class ModuleGraph(object):
                     # ignore emacsish junk
                     if fn.endswith('.py') and not fn.startswith('.#'):
                         self.parseFile(os.path.join(root, fn),
-                                       ignore_stdlib_modules)
+                                       ignore_stdlib_modules,
+                                       import_to_search_for)
         elif pathname.endswith('.importcache'):
             self.readCache(pathname)
         else:
-            self.parseFile(pathname, ignore_stdlib_modules)
+            self.parseFile(
+                pathname, ignore_stdlib_modules, import_to_search_for)
 
     def filterIgnores(self, dirs, files, ignores):
         for ignore in ignores:
@@ -611,7 +616,7 @@ class ModuleGraph(object):
         with open(filename, 'rb') as f:
             self.modules = pickle.load(f)
 
-    def parseFile(self, filename, ignore_stdlib_modules):
+    def parseFile(self, filename, ignore_stdlib_modules, import_to_search_for):
         """Parse a single file."""
         modname = self.filenameToModname(filename)
         module = Module(modname, filename)
@@ -632,6 +637,11 @@ class ModuleGraph(object):
             module.imported_names = [
                 info for info in module.imported_names
                 if info.name.split('.')[0] not in STDLIB_MODNAMES_SET
+            ]
+        if import_to_search_for:
+            module.imported_names = [
+                info for info in module.imported_names
+                if import_to_search_for in info.name
             ]
         module.imports = {
             self.findModuleOfName(
@@ -1091,6 +1101,10 @@ def main(argv=None):
                          dest='collapse_tests',
                          help="collapse packages named 'tests' and 'ftests'"
                               " with parent packages")
+    options.add_argument('-s', '--search-import', metavar='MODULE',
+                         dest='import_to_search_for',
+                         help="only show imports matching module or package "
+                              "name")
     options.add_argument('-w', '--write-cache', metavar='FILE',
                          help="write a pickle cache of parsed imports; provide"
                               " the cache filename as the only non-option"
@@ -1125,7 +1139,8 @@ def main(argv=None):
     for fn in args.filenames:
         g.parsePathname(fn,
                         ignores=args.ignore or ["venv"],
-                        ignore_stdlib_modules=args.ignore_stdlib)
+                        ignore_stdlib_modules=args.ignore_stdlib,
+                        import_to_search_for=args.import_to_search_for)
     if args.write_cache:
         g.writeCache(args.write_cache)
 
