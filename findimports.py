@@ -19,6 +19,7 @@ actions:
   -d, --dot             print dependency graph in dot (graphviz) format
   -n, --names           print dependency graph with all imported names
   -u, --unused          print unused imports
+  -t, --table           print imports and module name in a CSV table
 
 options:
   -a, --all             don't ignore unused imports when there's a comment on
@@ -953,6 +954,12 @@ class ModuleGraph(object):
             print("  " + "\n  ".join(
                 imp.name for imp in module.imported_names))
 
+    def printCsv(self):
+        """Produce a report in csv format."""
+        for module in self.listModules():
+            for imp in module.imported_names:
+                print(f"{module.modname};{imp.name}")
+
     def printImports(self):
         """Produce a report of dependencies."""
         for module in self.listModules():
@@ -1055,6 +1062,9 @@ def main(argv=None):
     actions.add_argument('-u', '--unused', action='store_const',
                          dest='action', const='printUnusedImports',
                          help='print unused imports')
+    actions.add_argument('-t', '--table', action='store_const',
+                         dest='action', const='printCsv',
+                         help='print imports and module name in a CSV table')
 
     options = parser.add_argument_group('options')
     options.add_argument('-a', '--all', action='store_true',
