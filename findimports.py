@@ -19,7 +19,7 @@ actions:
   -d, --dot             print dependency graph in dot (graphviz) format
   -n, --names           print dependency graph with all imported names
   -u, --unused          print unused imports
-  -t, --tabular         print imports and module name in a CSV table
+  -C, --csv             print imports and module name in a CSV table
 
 options:
   -a, --all             don't ignore unused imports when there's a comment on
@@ -1062,7 +1062,7 @@ def main(argv=None):
     actions.add_argument('-u', '--unused', action='store_const',
                          dest='action', const='printUnusedImports',
                          help='print unused imports')
-    actions.add_argument('-t', '--tabular', action='store_const',
+    actions.add_argument('-C', '--csv', action='store_const',
                          dest='action', const='printCsv',
                          help='print imports and module name in a CSV table')
 

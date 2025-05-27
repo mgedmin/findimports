@@ -4,7 +4,7 @@ Producing import graphs listing all imported names
 findimports can produce a detailed list of all imported names
 
     >>> from findimports import main
-    >>> exitcode = main(['findimports', '--tabular', sample_tree])
+    >>> exitcode = main(['findimports', '--csv', sample_tree])
     apple,os
     apple,os.path
     apple,sys
