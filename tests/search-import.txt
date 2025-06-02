@@ -1,0 +1,40 @@
+Producing import graphs listing all imported names matching search
+=========================================================================
+
+findimports can produce a detailed list of all imported names
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '--search-import', 'box', sample_tree])
+    apple:
+    <BLANKLINE>
+    box.__init__:
+    <BLANKLINE>
+    box.cat:
+      box.yarn
+    box.decoy:
+    <BLANKLINE>
+    box.yarn:
+    <BLANKLINE>
+    decoy:
+    <BLANKLINE>
+    orange:
+    <BLANKLINE>
+
+findimports can produce a detailed list of all imported names
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '--search-import', 'box.yarn', sample_tree])
+    apple:
+    <BLANKLINE>
+    box.__init__:
+    <BLANKLINE>
+    box.cat:
+      box.yarn
+    box.decoy:
+    <BLANKLINE>
+    box.yarn:
+    <BLANKLINE>
+    decoy:
+    <BLANKLINE>
+    orange:
+    <BLANKLINE>
