@@ -7,6 +7,13 @@ Changes
 
 - Drop support for Python 3.7.
 
+- Add ``--csv``/``-C`` output format: `pull 32
+  <https://github.com/mgedmin/findimports/pull/32
+ >`_.
+
+- Add ``--search-import``/``-s`` command-line option to filter imports by
+  substring: `pull 33 <https://github.com/mgedmin/findimports/pull/33>`_.
+
 
 2.5.2 (2024-11-27)
 ------------------
