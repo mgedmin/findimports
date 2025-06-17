@@ -8,7 +8,7 @@ We print warnings when we cannot find a module/package
     >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import sys
     ... import os.path
-    ... import email.Message as EM
+    ... import email.message as EM
     ... from . import foobar
     ... from io import StringIO
     ... from pickle import dumps as D
@@ -17,6 +17,7 @@ We print warnings when we cannot find a module/package
     ...                  exit)
     ... from email import *
     ... import imaginary.package
+    ... import curses.panel
     ... ''')
 
     >>> with open('foo.py', 'w') as f: _ = f.write('''
