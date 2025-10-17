@@ -5,7 +5,7 @@ Changes
 2.6.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Python 3.14.
 
 
 2.6.0 (2025-06-02)
