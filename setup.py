@@ -38,8 +38,6 @@ setup(
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
@@ -54,7 +52,7 @@ setup(
             if licence.startswith('MIT') else
         'License :: uhh, dunno',
     ],
-    python_requires='>=3.8',
+    python_requires='>=3.10',
 
     py_modules=['findimports'],
     zip_safe=False,

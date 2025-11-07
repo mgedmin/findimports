@@ -7,6 +7,8 @@ Changes
 
 - Add support for Python 3.14.
 
+- Drop support for Python 3.8 and 3.9.
+
 
 2.6.0 (2025-06-02)
 ------------------
