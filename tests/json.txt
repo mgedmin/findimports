@@ -1,0 +1,60 @@
+Exporting to JSON
+=================
+
+findimports can produce JSON
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '-j', sample_tree])
+    {
+      "apple": [
+        "os",
+        "os.path",
+        "sys"
+      ],
+      "box.__init__": [],
+      "box.cat": [
+        "box.yarn",
+        "decoy",
+        "gc"
+      ],
+      "box.decoy": [],
+      "box.yarn": [],
+      "decoy": [],
+      "orange": [
+        "gc"
+      ]
+    }
+
+We can suppress external dependencies (such as standard library modules)
+
+    >>> exitcode = main(['findimports', '--noext', '--json', sample_tree])
+    {
+      "apple": [],
+      "box.__init__": [],
+      "box.cat": [
+        "box.yarn",
+        "decoy"
+      ],
+      "box.decoy": [],
+      "box.yarn": [],
+      "decoy": [],
+      "orange": []
+    }
+
+Other combinations also work
+
+    >>> exitcode = main(['findimports', '-p', '-j', sample_tree])
+    {
+      "apple": [
+        "os",
+        "sys"
+      ],
+      "box": [
+        "decoy",
+        "gc"
+      ],
+      "decoy": [],
+      "orange": [
+        "gc"
+      ]
+    }

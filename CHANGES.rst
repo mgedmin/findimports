@@ -11,6 +11,8 @@ Changes
 
 - Add ``--quiet``/``-q`` to suppress "could not find some.module" warnings.
 
+- Add ``--json``/``-j`` to produce JSON output.
+
 
 2.6.0 (2025-06-02)
 ------------------

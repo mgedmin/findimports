@@ -101,6 +101,7 @@ Ave, Cambridge, MA 02139, USA.
 import argparse
 import ast
 import doctest
+import json
 import linecache
 import os
 import pickle
@@ -1035,6 +1036,34 @@ class ModuleGraph(object):
         """Print a dependency graph in dot format."""
         print(self.constructDot(attributes=attributes))
 
+    def asJSON(self):
+        """Prepare dependency list as a JSON dictionary"""
+        if self.external_dependencies:
+            return {
+                module.label: sorted(module.imports)
+                for module in self.listModules()
+            }
+        else:
+            return {
+                module.label: sorted(
+                    modname
+                    for modname in module.imports
+                    if modname in self.modules
+                )
+                for module in self.listModules()
+            }
+
+    def printJSON(self):
+        """Print a dependency graph in JSON format."""
+        json.dump(
+            self.asJSON(),
+            sys.stdout,
+            sort_keys=True,
+            indent=2,
+            separators=(',', ': '),
+        )
+        print()  # json.dump() doesn't emit a newline
+
 
 def quote(s):
     """Quote a string for graphviz.
@@ -1068,6 +1097,9 @@ def main(argv=None):
                          dest='action', const='printDot',
                          help='print dependency graph in dot (graphviz)'
                               ' format')
+    actions.add_argument('-j', '--json', action='store_const',
+                         dest='action', const='printJSON',
+                         help='print dependency graph in JSON format')
     actions.add_argument('-n', '--names', action='store_const',
                          dest='action', const='printImportedNames',
                          help='print dependency graph with all imported names')
