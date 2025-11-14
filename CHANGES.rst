@@ -13,6 +13,14 @@ Changes
 
 - Add ``--json``/``-j`` to produce JSON output.
 
+- Support glob patterns in ``--ignore``/``-I``.  Make the default ignore
+  pattern ``.*``.
+
+Backwards incompatible changes: ``venv`` is no longer ignored by default.  The
+Python community has settled on ``.venv`` as the default directory name for a
+project-local virtual environment, which is now ignored by the new default
+ignore pattern.
+
 
 2.6.0 (2025-06-02)
 ------------------

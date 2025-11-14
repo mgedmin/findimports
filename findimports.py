@@ -48,7 +48,7 @@ options:
                         it back
   -I FILE, --ignore FILE
                         ignore a file or directory; this option can be used
-                        multiple times. Default: ['venv']
+                        multiple times. Default: ['.*']
   -R PREFIX [PREFIX ...], --rmprefix PREFIX [PREFIX ...]
                         remove PREFIX from displayed node names. This
                         operation is applied last. Names that collapses to
@@ -101,6 +101,7 @@ Ave, Cambridge, MA 02139, USA.
 import argparse
 import ast
 import doctest
+import fnmatch
 import json
 import linecache
 import os
@@ -604,11 +605,12 @@ class ModuleGraph(object):
                 pathname, ignore_stdlib_modules, import_to_search_for)
 
     def filterIgnores(self, dirs, files, ignores):
-        for ignore in ignores:
-            if ignore in dirs:
-                dirs.remove(ignore)
-            if ignore in files:
-                files.remove(ignore)
+        dirs[:] = [
+            n for n in dirs if not any(fnmatch.fnmatch(n, p) for p in ignores)
+        ]
+        files[:] = [
+            n for n in files if not any(fnmatch.fnmatch(n, p) for p in ignores)
+        ]
 
     def writeCache(self, filename):
         """Write the graph to a cache file."""
@@ -1159,7 +1161,7 @@ def main(argv=None):
     options.add_argument('-I', '--ignore', metavar='FILE', action="append",
                          help="ignore a file or directory;"
                               " this option can be used multiple times."
-                              " Default: ['venv']")
+                              " Default: ['.*']")
     options.add_argument('-R', '--rmprefix', metavar="PREFIX", nargs="+",
                          help="remove PREFIX from displayed node names."
                               " This operation is applied last."
@@ -1188,7 +1190,7 @@ def main(argv=None):
     g.trackUnusedNames = (args.action == 'printUnusedImports')
     for fn in args.filenames:
         g.parsePathname(fn,
-                        ignores=args.ignore or ["venv"],
+                        ignores=args.ignore or [".*"],
                         ignore_stdlib_modules=args.ignore_stdlib,
                         import_to_search_for=args.import_to_search_for)
     if args.write_cache:

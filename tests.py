@@ -1,13 +1,8 @@
 import os
 import unittest
+from io import StringIO
 
 import findimports
-
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from io import StringIO
 
 
 here = os.path.dirname(__file__)
@@ -50,10 +45,10 @@ class TestModuleGraph(unittest.TestCase):
         self.assertTrue('unittest' in mg.modules[__name__].imports)
 
     def test_filterIgnores(self):
-        dirs = ['venv', 'submodule']
-        files = ['code.py', 'README.txt']
+        dirs = ['venv', 'submodule', '.tox']
+        files = ['code.py', 'README.txt', '.#emacsjunk.py']
         mg = findimports.ModuleGraph()
-        mg.filterIgnores(dirs, files, ignores=['venv', 'README.txt'])
+        mg.filterIgnores(dirs, files, ignores=['venv', 'README.txt', '.*'])
         self.assertEqual(dirs, ['submodule'])
         self.assertEqual(files, ['code.py'])
 
