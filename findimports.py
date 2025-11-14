@@ -1174,6 +1174,8 @@ def main(argv=None):
         args = parser.parse_args(args=argv[1:] if argv else None)
         if args.condense_to_packages and args.condense_to_packages_externals:
             parser.error('only one of -p and -pE can be provided')
+        if args.collapse_cycles and (args.action == 'printImportedNames'):
+            parser.error('only one of -c and -n can be provided')
     except SystemExit as e:
         return e.code
 

@@ -24,3 +24,12 @@ findimports can produce a detailed list of all imported names
     <BLANKLINE>
     orange:
       gc
+
+This is incompatible with --collapse and probably some of the other graph
+simplicitation options.
+
+    >>> from findimports import main
+    >>> exitcode = main(['findimports', '-n', '-c', sample_tree])
+    usage: findimports [action] [options] [filename|dirname ...]
+    findimports: error: only one of -c and -n can be provided
+
