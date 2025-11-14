@@ -1161,9 +1161,9 @@ def main(argv=None):
                               " this option can be used multiple times."
                               " Default: ['venv']")
     options.add_argument('-R', '--rmprefix', metavar="PREFIX", nargs="+",
-                         help="remove PREFIX from displayed node names. "
-                              "This operation is applied last. "
-                              "Names that collapses to nothing are removed.")
+                         help="remove PREFIX from displayed node names."
+                              " This operation is applied last."
+                              " Names that collapse to nothing are removed.")
     options.add_argument('-D', '--depth', type=int,
                          dest='max_depth',
                          help='import depth in ast tree. Default: no limit')
