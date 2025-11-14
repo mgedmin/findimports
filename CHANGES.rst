@@ -2,12 +2,14 @@ Changes
 =======
 
 
-2.6.1 (unreleased)
+2.7.0 (unreleased)
 ------------------
 
 - Add support for Python 3.14.
 
 - Drop support for Python 3.8 and 3.9.
+
+- Add ``--quiet``/``-q`` to suppress "could not find some.module" warnings.
 
 
 2.6.0 (2025-06-02)

@@ -27,6 +27,7 @@ options:
   --duplicate           warn about duplicate imports
   --ignore-stdlib       ignore the imports of modules from the Python standard
                         library
+  -q, --quiet           suppress warnings
   -v, --verbose         print more information (currently only affects
                         --duplicate)
   -N, --noext           omit external dependencies
@@ -111,7 +112,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '2.6.1.dev0'
+__version__ = '2.7.0.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'MIT'
 __url__ = 'https://github.com/mgedmin/findimports'
@@ -551,6 +552,7 @@ class ModuleGraph(object):
     all_unused = False
     warn_about_duplicates = False
     verbose = False
+    quiet = False
     external_dependencies = True
     max_depth = None
 
@@ -567,7 +569,7 @@ class ModuleGraph(object):
         self._exts.append(sysconfig.get_config_var('EXT_SUFFIX'))
 
     def warn(self, about, message, *args):
-        if about in self._warned_about:
+        if self.quiet or about in self._warned_about:
             return
         if args:
             message = message % args
@@ -1088,6 +1090,9 @@ def main(argv=None):
                          dest='ignore_stdlib',
                          help="ignore the imports of modules from the Python"
                               " standard library")
+    options.add_argument('-q', '--quiet', action='store_true',
+                         help='suppress warnings'
+                              ' (does not affect -u or --duplicate)')
     options.add_argument('-v', '--verbose', action='store_true',
                          help='print more information (currently only affects'
                               ' --duplicate)')
@@ -1145,6 +1150,7 @@ def main(argv=None):
     g.all_unused = args.all_unused
     g.warn_about_duplicates = args.warn_about_duplicates
     g.verbose = args.verbose
+    g.quiet = args.quiet
     g.trackUnusedNames = (args.action == 'printUnusedImports')
     for fn in args.filenames:
         g.parsePathname(fn,
