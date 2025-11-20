@@ -1,5 +1,4 @@
 import linecache
-import os
 import pathlib
 import sys
 
@@ -26,20 +25,6 @@ class RedirectToStdout(object):
         sys.stdout.write(msg)
 
 
-class RewriteBackslashes(object):
-    """A file-like object that normalizes path separators.
-
-    pytest doesn't allow custom doctest checkers, so I have to do terrible
-    crimes like this class.
-    """
-
-    def __init__(self):
-        self.real_stdout = sys.stdout
-
-    def write(self, msg):
-        self.real_stdout.write(msg.replace(os.path.sep, '/'))
-
-
 def create_tree(files):
     f = None
     try:
@@ -64,6 +49,5 @@ def doctest_setup(doctest_namespace, tmp_path, monkeypatch):
     monkeypatch.syspath_prepend(str(sample_tree.joinpath('zippedmodules.zip')))
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr(sys, 'stderr', RedirectToStdout())
-    monkeypatch.setattr(sys, 'stdout', RewriteBackslashes())
     yield
     linecache.clearcache()
