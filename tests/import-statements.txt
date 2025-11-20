@@ -8,10 +8,10 @@ All kinds of import statements are handled
     >>> with open('marmalade.py', 'w') as f: _ = f.write('''
     ... import sys
     ... import os.path
-    ... import email.Message as EM
+    ... import email.message as EM
     ... from . import foobar
-    ... from cStringIO import StringIO
-    ... from cPickle import dumps as D
+    ... from io import StringIO
+    ... from pickle import dumps as D
     ... from sys import (argv,
     ...                  exc_info as EI,  # complexity is fun
     ...                  exit)
@@ -23,10 +23,10 @@ All kinds of import statements are handled
     ...     print(imp)
     ImportInfo('sys', 'marmalade.py', 2, None)
     ImportInfo('os.path', 'marmalade.py', 3, None)
-    ImportInfo('email.Message', 'marmalade.py', 4, None)
+    ImportInfo('email.message', 'marmalade.py', 4, None)
     ImportInfo('foobar', 'marmalade.py', 5, 1)
-    ImportInfo('cStringIO.StringIO', 'marmalade.py', 6, 0)
-    ImportInfo('cPickle.dumps', 'marmalade.py', 7, 0)
+    ImportInfo('io.StringIO', 'marmalade.py', 6, 0)
+    ImportInfo('pickle.dumps', 'marmalade.py', 7, 0)
     ImportInfo('sys.argv', 'marmalade.py', 8, 0)
     ImportInfo('sys.exc_info', 'marmalade.py', 9, 0)
     ImportInfo('sys.exit', 'marmalade.py', 10, 0)
