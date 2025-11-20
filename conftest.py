@@ -1,5 +1,8 @@
+import doctest
 import linecache
+import os
 import pathlib
+import re
 import sys
 
 import pytest
@@ -25,6 +28,18 @@ class RedirectToStdout(object):
         sys.stdout.write(msg)
 
 
+class Checker(doctest.OutputChecker):
+    """Doctest output checker for normalizing Windows pathname differences."""
+
+    def check_output(self, want, got, optionflags):
+        want = re.sub(
+            "sample-tree/[^:]*",
+            lambda m: m.group(0).replace("/", os.path.sep),
+            want,
+        )
+        return super().check_output(want, got, optionflags)
+
+
 def create_tree(files):
     f = None
     try:
@@ -42,8 +57,19 @@ def create_tree(files):
             f.close()
 
 
+@pytest.fixture(autouse=True, scope='session')
+def doctest_session_setup(request):
+    checker = Checker()
+    session = request.node
+    for item in session.items:
+        if isinstance(item, pytest.DoctestItem):
+            # This is fragile, but currently there's no better way:
+            # https://github.com/pytest-dev/pytest/issues/13003
+            item.runner._checker = checker
+
+
 @pytest.fixture(autouse=True)
-def doctest_setup(doctest_namespace, tmp_path, monkeypatch):
+def doctest_setup(request, doctest_namespace, tmp_path, monkeypatch):
     doctest_namespace['create_tree'] = create_tree
     doctest_namespace['sample_tree'] = str(sample_tree)
     monkeypatch.syspath_prepend(str(sample_tree.joinpath('zippedmodules.zip')))
