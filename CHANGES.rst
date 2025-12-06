@@ -2,10 +2,11 @@ Changes
 =======
 
 
-2.7.1 (unreleased)
+2.8.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- ``-l``/``--levels`` now works even without using ``-p``.  This lets you
+  collapse subpackages while still seeing modules inside the top-level package.
 
 
 2.7.0 (2025-11-14)

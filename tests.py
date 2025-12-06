@@ -94,6 +94,12 @@ class TestModuleGraph(unittest.TestCase):
         mg.isModule('nosuchmodule')
         self.assertEqual(self.warnings, [])
 
+    def test_collapseName(self):
+        mg = findimports.ModuleGraph()
+        self.assertEqual(mg.collapseName('foo', 2), 'foo')
+        self.assertEqual(mg.collapseName('pkg.foo', 2), 'pkg.foo')
+        self.assertEqual(mg.collapseName('pkg.subpkg.foo', 2), 'pkg.subpkg')
+
     def test_packageOf(self):
         mg = findimports.ModuleGraph()
         mg.isPackage = lambda x: x in ['pkg', 'pkg.subpkg']

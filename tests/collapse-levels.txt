@@ -1,0 +1,68 @@
+Test collapsing to a given level
+================================
+
+Suppose you have a package with subpackages
+
+    >>> create_tree('''
+    ... -- foo/__init__.py --
+    ...
+    ... -- foo/bar.py --
+    ... from .quux import a
+    ...
+    ... -- foo/baz.py --
+    ... import os
+    ...
+    ... -- foo/quux/__init__.py --
+    ... import sys
+    ...
+    ... -- foo/quux/a.py --
+    ... from foo import baz
+    ... ''')
+
+You can produce an import graph for it
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.path.append('.')
+    >>> g.parsePathname('foo')
+    >>> g.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.quux.a
+    foo.baz:
+      os
+    foo.quux.__init__:
+      sys
+    foo.quux.a:
+      foo.baz
+
+Suppose you're not interested in subpackages and would like to collapse them,
+but you don't want to collapse modules directly in the package
+
+    >>> g = g.collapseLevels(2)
+    >>> g.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.quux
+    foo.baz:
+      os
+    foo.quux:
+      foo.baz
+      sys
+
+You can ask for this from the command line:
+
+    >>> from findimports import main
+    >>> main(['findimports', '-l2', 'foo'])
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.quux
+    foo.baz:
+      os
+    foo.quux:
+      foo.baz
+      sys
+    0

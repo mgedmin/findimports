@@ -34,9 +34,8 @@ options:
   -p, --packages        convert the module graph to a package graph
   -pE, --package-externals
                         convert external modules to a packages.
-  -l PACKAGELEVEL, --level PACKAGELEVEL
-                        collapse subpackages to the topmost Nth levels. Only
-                        used if --packages is given. Default: no limit
+  -l LEVEL, --level LEVEL
+                        collapse modules/packages to the topmost Nth levels.
   -c, --collapse        collapse dependency cycles
   -T, --tests           collapse packages named 'tests' and 'ftests' with
                         parent packages
@@ -82,7 +81,7 @@ Caching:
         findimports.py foo.importcache -d -N -c -p -l 2 > graph2.dot
 
 
-Copyright (c) 2003--2019 Marius Gedminas <marius@pov.lt>
+Copyright (c) 2003--2025 Marius Gedminas <marius@gedmin.as>
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -114,7 +113,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '2.7.1.dev0'
+__version__ = '2.8.0.dev0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'MIT'
 __url__ = 'https://github.com/mgedmin/findimports'
@@ -790,6 +789,9 @@ class ModuleGraph(object):
             candidate = candidate[:-len(".__init__")]
         return candidate
 
+    def collapseName(self, dotted_name, level):
+        return '.'.join(dotted_name.split('.')[:level])
+
     def packageOf(self, dotted_name, packagelevel=None):
         """Determine the package that contains ``dotted_name``."""
         if '.' not in dotted_name:
@@ -797,7 +799,7 @@ class ModuleGraph(object):
         if not self.isPackage(dotted_name):
             dotted_name = '.'.join(dotted_name.split('.')[:-1])
         if packagelevel:
-            dotted_name = '.'.join(dotted_name.split('.')[:packagelevel])
+            dotted_name = self.collapseName(dotted_name, packagelevel)
         return dotted_name
 
     def isExternal(self, modname):
@@ -827,6 +829,27 @@ class ModuleGraph(object):
         modules = list(self.modules.items())
         modules.sort()
         return [module for name, module in modules]
+
+    def collapseLevels(self, level):
+        """Collapse submodules/subpackages to a given level.
+
+        E.g. with levels=2, leaves "mod" and "pkg.mod", but merges
+        "pkg.subpkg.mod1" and "pkg.subpkg.mod2" into a single "pkg.subpkg"
+        node.
+        """
+        collapsed = {}
+        for module in self.listModules():
+            name = self.collapseName(module.modname, level)
+            if name not in collapsed:
+                filename = module.filename if name == module.modname else None
+                collapsed[name] = Module(name, filename)
+            for import_name in module.imports:
+                import_name = self.collapseName(import_name, level)
+                if import_name != name:
+                    collapsed[name].imports.add(import_name)
+        graph = ModuleGraph()
+        graph.modules = collapsed
+        return graph
 
     def packageGraph(self, packagelevel=None, externals_only=False):
         """Convert a module graph to a package graph."""
@@ -1139,10 +1162,9 @@ def main(argv=None):
                          dest='condense_to_packages_externals',
                          help='convert external modules to a packages.')
     options.add_argument('-l', '--level', type=int,
-                         dest='packagelevel',
-                         help='collapse subpackages to the topmost Nth levels.'
-                              ' Only used if --packages is given.'
-                              ' Default: no limit')
+                         dest='level',
+                         help='collapse packages/modules to the topmost Nth'
+                              ' levels.')
     options.add_argument('-c', '--collapse', action='store_true',
                          dest='collapse_cycles',
                          help='collapse dependency cycles')
@@ -1197,9 +1219,11 @@ def main(argv=None):
         g.writeCache(args.write_cache)
 
     if args.condense_to_packages:
-        g = g.packageGraph(args.packagelevel, externals_only=False)
+        g = g.packageGraph(args.level, externals_only=False)
     elif args.condense_to_packages_externals:
-        g = g.packageGraph(args.packagelevel, externals_only=True)
+        g = g.packageGraph(args.level, externals_only=True)
+    elif args.level:
+        g = g.collapseLevels(args.level)
 
     if args.collapse_tests:
         g = g.collapseTests()
