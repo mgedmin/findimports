@@ -86,6 +86,7 @@ Copyright (c) 2003--2025 Marius Gedminas <marius@gedmin.as> and contributors.
 
 import argparse
 import ast
+import copy
 import doctest
 import fnmatch
 import json
@@ -972,6 +973,45 @@ class ModuleGraph(object):
         graph.modules = components
         return graph
 
+    def transitiveClosure(self):
+        """Compute a transitive closure of the graph."""
+        mods_reachable_from = {}
+
+        def visit(modname):
+            reachable = mods_reachable_from.get(modname)
+            if reachable is None:
+                reachable = mods_reachable_from[modname] = {modname}
+                module = self.modules.get(modname)
+                if module:
+                    for impname in module.imports:
+                        reachable.update(visit(impname))
+            return reachable
+
+        for modname in self.modules:
+            visit(modname)
+
+        return mods_reachable_from
+
+    def transitiveReduction(self):
+        """Compute a transitive reduction of the graph."""
+        mods_reachable_from = self.transitiveClosure()
+        modules = {}
+        for module in self.listModules():
+            reduced = copy.copy(module)
+            reduced.imports = set()
+            remaining = list(module.imports)
+            while remaining:
+                impname = remaining.pop()
+                for other in list(reduced.imports) + remaining:
+                    if impname in mods_reachable_from.get(other, ()):
+                        break
+                else:
+                    reduced.imports.add(impname)
+            modules[reduced.modname] = reduced
+        graph = ModuleGraph()
+        graph.modules = modules
+        return graph
+
     def printImportedNames(self):
         """Produce a report of imported names."""
         for module in self.listModules():
@@ -1155,6 +1195,10 @@ def main(argv=None):
     options.add_argument('-c', '--collapse', action='store_true',
                          dest='collapse_cycles',
                          help='collapse dependency cycles')
+    options.add_argument('-t', '--tred', action='store_true',
+                         dest='tred',
+                         help="compute the transitive reduction, i.e."
+                              " remove edges that are implied by other edges")
     options.add_argument('-T', '--tests', action='store_true',
                          dest='collapse_tests',
                          help="collapse packages named 'tests' and 'ftests'"
@@ -1216,6 +1260,10 @@ def main(argv=None):
         g = g.collapseTests()
     if args.collapse_cycles:
         g = g.collapseCycles()
+
+    if args.tred:
+        g = g.transitiveReduction()
+
     if args.rmprefix is not None:
         g = g.removePrefixes(args.rmprefix)
     g.external_dependencies = not args.noext

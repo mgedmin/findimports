@@ -1,0 +1,65 @@
+Test transitive reduction
+=========================
+
+Suppose you have a complicated import graph
+
+    >>> create_tree('''
+    ... -- foo/__init__.py --
+    ...
+    ... -- foo/bar.py --
+    ... from .quux import a
+    ... from .baz import b
+    ...
+    ... -- foo/baz.py --
+    ... from .quux import c
+    ...
+    ... -- foo/quux.py --
+    ... import os
+    ... ''')
+
+You can produce an import graph for it
+
+    >>> from findimports import ModuleGraph
+    >>> g = ModuleGraph()
+    >>> g.path.append('.')
+    >>> g.parsePathname('foo')
+    >>> g.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.baz
+      foo.quux
+    foo.baz:
+      foo.quux
+    foo.quux:
+      os
+
+Suppose the graph is too noisy and produces an unreadable tangle when plotted
+by graphviz, any you're merely interested in general layering of the modules
+to help you avoid import cycles.  You might want to ask for a transitive
+reduction of the grapj:
+
+    >>> g = g.transitiveReduction()
+    >>> g.printImports()
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.baz
+    foo.baz:
+      foo.quux
+    foo.quux:
+      os
+
+You can ask for this from the command line:
+
+    >>> from findimports import main
+    >>> main(['findimports', '-t', 'foo'])
+    foo.__init__:
+    <BLANKLINE>
+    foo.bar:
+      foo.baz
+    foo.baz:
+      foo.quux
+    foo.quux:
+      os
+    0

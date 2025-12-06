@@ -2,10 +2,11 @@ Changes
 =======
 
 
-2.8.1 (unreleased)
+2.9.0 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- ``-t``/``--tred`` to compute a transitive reduction of the import graph.
+  Somewhat experimental.
 
 
 2.8.0 (2025-12-06)
