@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.8.0 (unreleased)
+2.8.0 (2025-12-06)
 ------------------
 
 - ``-l``/``--levels`` now works even without using ``-p``.  This lets you
