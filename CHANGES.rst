@@ -2,7 +2,7 @@ Changes
 =======
 
 
-2.9.0 (unreleased)
+3.0.0 (unreleased)
 ------------------
 
 - ``-t``/``--tred`` to compute a transitive reduction of the import graph.
