@@ -1,3 +1,4 @@
+import itertools
 import os
 import unittest
 from io import StringIO
@@ -115,3 +116,55 @@ class TestModuleGraph(unittest.TestCase):
         box_root = os.path.join(here, 'tests', 'sample-tree')
         mg = findimports.ModuleGraph()
         self.assertEqual(mg.rootOfPackage(cat_box), box_root)
+
+
+def make_graph(edges: str) -> findimports.ModuleGraph:
+    """Define a module graph using graphviz-like notation."""
+    g = findimports.ModuleGraph()
+    chains = edges.split(';')
+    for chain in chains:
+        if not chain.strip():
+            continue
+        nodes = [s.strip() for s in chain.split('->')]
+        for n in nodes:
+            if n not in g.modules:
+                g.modules[n] = findimports.Module(n, f'{n}.py')
+        for u, v in itertools.pairwise(nodes):
+            g.modules[u].imports.add(v)
+    return g
+
+
+def test_transitive_closure() -> None:
+    mg = make_graph('''
+      a -> b -> c;
+      b -> d;
+      a -> e;
+      x -> y;
+    ''')
+    tr = mg.transitiveClosure()
+    assert set(tr) == {'a', 'b', 'c', 'd', 'e', 'x', 'y'}
+    assert tr['a'] == {'a', 'b', 'c', 'd', 'e'}
+    assert tr['b'] == {'b', 'c', 'd'}
+    assert tr['c'] == {'c'}
+    assert tr['d'] == {'d'}
+    assert tr['x'] == {'x', 'y'}
+    assert tr['y'] == {'y'}
+
+
+def test_transitive_closure_handles_loops() -> None:
+    mg = make_graph('''
+      a -> b;
+      b -> c -> d -> b;
+      b -> x;
+      c -> y;
+      d -> z;
+    ''')
+    tr = mg.transitiveClosure()
+    assert set(tr) == {'a', 'b', 'c', 'd', 'x', 'y', 'z'}
+    assert tr['a'] == {'a', 'b', 'c', 'd', 'x', 'y', 'z'}
+    assert tr['b'] == {'b', 'c', 'd', 'x', 'y', 'z'}
+    assert tr['c'] == {'b', 'c', 'd', 'x', 'y', 'z'}
+    assert tr['d'] == {'b', 'c', 'd', 'x', 'y', 'z'}
+    assert tr['x'] == {'x'}
+    assert tr['y'] == {'y'}
+    assert tr['z'] == {'z'}

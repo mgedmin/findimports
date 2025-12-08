@@ -977,20 +977,22 @@ class ModuleGraph(object):
 
     def transitiveClosure(self):
         """Compute a transitive closure of the graph."""
-        mods_reachable_from = {}
+        reachable = set()
 
         def visit(modname):
-            reachable = mods_reachable_from.get(modname)
-            if reachable is None:
-                reachable = mods_reachable_from[modname] = {modname}
-                module = self.modules.get(modname)
-                if module:
-                    for impname in module.imports:
-                        reachable.update(visit(impname))
-            return reachable
+            reachable.add(modname)
+            module = self.modules.get(modname)
+            if module:
+                for impname in module.imports:
+                    if impname not in reachable:
+                        reachable.add(impname)
+                        visit(impname)
 
+        mods_reachable_from = {}
         for modname in self.modules:
             visit(modname)
+            mods_reachable_from[modname] = reachable
+            reachable = set()
 
         return mods_reachable_from
 
