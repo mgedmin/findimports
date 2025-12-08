@@ -17,11 +17,11 @@ Test handling of relative imports
     >>> g = ModuleGraph()
     >>> g.parsePathname('foo')
     >>> g.printImports()
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.baz
     foo.baz:
     <BLANKLINE>
-    foo.qux.__init__:
+    foo.qux:
       foo.bar

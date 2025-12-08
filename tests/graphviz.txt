@@ -12,7 +12,7 @@ graphviz
       label=Graph
       node[shape=box];
       mod0[label="apple"];
-      mod1[label="box.__init__"];
+      mod1[label="box"];
       mod2[label="box.cat"];
       mod3[label="box.decoy"];
       mod4[label="box.yarn"];

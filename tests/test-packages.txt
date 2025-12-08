@@ -43,16 +43,16 @@ Test handling of test packages
     >>> g.parsePathname('bar')
 
     >>> g.printImports()
-    bar.__init__:
+    bar:
       foo
     bar.qux:
       foo
-    bar.tests.__init__:
+    bar.tests:
       sys
     bar.tests.test_qux:
       bar.qux
       unittest
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       os

@@ -11,7 +11,7 @@ findimports can produce JSON
         "os.path",
         "sys"
       ],
-      "box.__init__": [],
+      "box": [],
       "box.cat": [
         "box.yarn",
         "decoy",
@@ -30,7 +30,7 @@ We can suppress external dependencies (such as standard library modules)
     >>> exitcode = main(['findimports', '--noext', '--json', sample_tree])
     {
       "apple": [],
-      "box.__init__": [],
+      "box": [],
       "box.cat": [
         "box.yarn",
         "decoy"

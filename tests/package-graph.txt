@@ -23,11 +23,11 @@ Test collapsing to packages
     >>> g.parsePathname('foo')
     >>> g.parsePathname('bar')
     >>> g.printImports()
-    bar.__init__:
+    bar:
       sys
     bar.a:
       foo.baz
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       bar.a

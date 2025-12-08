@@ -7,7 +7,7 @@ findimports can produce a detailed list of all imported names
     >>> exitcode = main(['findimports', '--search-import', 'box', sample_tree])
     apple:
     <BLANKLINE>
-    box.__init__:
+    box:
     <BLANKLINE>
     box.cat:
       box.yarn
@@ -26,7 +26,7 @@ findimports can produce a detailed list of all imported names
     >>> exitcode = main(['findimports', '--search-import', 'box.yarn', sample_tree])
     apple:
     <BLANKLINE>
-    box.__init__:
+    box:
     <BLANKLINE>
     box.cat:
       box.yarn

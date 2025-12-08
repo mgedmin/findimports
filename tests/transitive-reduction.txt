@@ -24,7 +24,7 @@ You can produce an import graph for it
     >>> g.path.append('.')
     >>> g.parsePathname('foo')
     >>> g.printImports()
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.baz
@@ -41,7 +41,7 @@ reduction of the grapj:
 
     >>> g = g.transitiveReduction()
     >>> g.printImports()
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.baz
@@ -54,7 +54,7 @@ You can ask for this from the command line:
 
     >>> from findimports import main
     >>> main(['findimports', '-t', 'foo'])
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.baz

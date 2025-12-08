@@ -26,13 +26,13 @@ You can produce an import graph for it
     >>> g.path.append('.')
     >>> g.parsePathname('foo')
     >>> g.printImports()
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.quux.a
     foo.baz:
       os
-    foo.quux.__init__:
+    foo.quux:
       sys
     foo.quux.a:
       foo.baz
@@ -42,7 +42,7 @@ but you don't want to collapse modules directly in the package
 
     >>> g = g.collapseLevels(2)
     >>> g.printImports()
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.quux
@@ -56,7 +56,7 @@ You can ask for this from the command line:
 
     >>> from findimports import main
     >>> main(['findimports', '-l2', 'foo'])
-    foo.__init__:
+    foo:
     <BLANKLINE>
     foo.bar:
       foo.quux

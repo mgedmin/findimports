@@ -9,7 +9,7 @@ findimports prints a simple import report by default:
       os
       os.path
       sys
-    box.__init__:
+    box:
     <BLANKLINE>
     box.cat:
       box.yarn
@@ -29,7 +29,7 @@ We can suppress external dependencies (such as standard library modules)
     >>> exitcode = main(['findimports', '--noext', sample_tree])
     apple:
     <BLANKLINE>
-    box.__init__:
+    box:
     <BLANKLINE>
     box.cat:
       box.yarn
@@ -63,7 +63,7 @@ Or we can high-level for external packages, but leave modules in standard view:
     apple:
       os
       sys
-    box.__init__:
+    box:
     <BLANKLINE>
     box.cat:
       box.yarn
@@ -82,12 +82,12 @@ There is also option to remove prefixes in the final output:
 
     >>> from findimports import main
     >>> exitcode = main(['findimports', sample_tree, '-R', 'box', 'os'])
-    __init__:
-    <BLANKLINE>
     apple:
       os
       path
       sys
+    box:
+    <BLANKLINE>
     cat:
       decoy
       gc
@@ -98,3 +98,7 @@ There is also option to remove prefixes in the final output:
       gc
     yarn:
     <BLANKLINE>
+
+which is somewhat confusing (the ``box`` package itself, representing
+``box/__init__.py`` remains unchanged, as removing the prefix would leave us
+with an empty string), so I don't recommend this option.

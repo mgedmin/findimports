@@ -8,6 +8,15 @@ Changes
 - ``-t``/``--tred`` to compute a transitive reduction of the import graph.
   Somewhat experimental.
 
+- Bugfix: names getting imported from a package's ``foo/__init__.py``` were not
+  being correctly tracked; they instead were treated as imports from an
+  external package 'foo', while 'foo.__init__' was shown to be with no incoming
+  edges.
+
+Backwards incompatible changes: modules named ``__init__`` are now treated
+as packages, so instead of ``foo.__init__`` in the output you'll see just
+``foo``.
+
 
 2.8.0 (2025-12-06)
 ------------------

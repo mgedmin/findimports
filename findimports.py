@@ -58,7 +58,7 @@ options:
                         Add dot graph attributes. E.g.
                         "rankdir=TB"
 
-FindImports requires Python 3.6 or later.
+FindImports requires Python 3.10 or later.
 
 Notes:
 
@@ -668,6 +668,8 @@ class ModuleGraph(object):
             self.warn(filename, '%s: unknown file name extension', filename)
         filename = os.path.abspath(filename)
         elements = filename.split(os.path.sep)
+        if elements[-1] == '__init__':
+            elements.pop()
         modname = []
         while elements:
             modname.append(elements.pop())
@@ -774,7 +776,7 @@ class ModuleGraph(object):
         """Is ``dotted_name`` the name of a package?"""
         candidate = self.isModule(dotted_name + '.__init__', extrapath)
         if candidate:
-            candidate = candidate[:-len(".__init__")]
+            candidate = candidate.removesuffix(".__init__")
         return candidate
 
     def collapseName(self, dotted_name, level):

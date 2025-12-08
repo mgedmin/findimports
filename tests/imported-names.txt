@@ -10,7 +10,7 @@ findimports can produce a detailed list of all imported names
       os.path
       sys
       sys
-    box.__init__:
+    box:
     <BLANKLINE>
     box.cat:
       gc
