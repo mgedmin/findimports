@@ -101,7 +101,7 @@ import zipfile
 from operator import attrgetter
 
 
-__version__ = '3.0.0.dev0'
+__version__ = '3.0.0'
 __author__ = 'Marius Gedminas <marius@gedmin.as>'
 __licence__ = 'MIT'
 __url__ = 'https://github.com/mgedmin/findimports'
