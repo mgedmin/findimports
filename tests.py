@@ -168,3 +168,34 @@ def test_transitive_closure_handles_loops() -> None:
     assert tr['x'] == {'x'}
     assert tr['y'] == {'y'}
     assert tr['z'] == {'z'}
+
+
+def test_transitive_reduction() -> None:
+    mg = make_graph('''
+      a -> b -> c;
+      a -> c;
+      x -> y;
+    ''')
+    tr = mg.transitiveReduction()
+    assert set(tr.modules) == {'a', 'b', 'c', 'x', 'y'}
+    assert tr.modules['a'].imports == {'b'}
+    assert tr.modules['b'].imports == {'c'}
+    assert tr.modules['c'].imports == set()
+    assert tr.modules['x'].imports == {'y'}
+    assert tr.modules['y'].imports == set()
+
+
+def test_transitive_reduction_handles_loops() -> None:
+    mg = make_graph('''
+      a -> b;
+      b -> c -> d -> b;
+      c -> x;
+      a -> x;
+    ''')
+    tr = mg.transitiveReduction()
+    assert set(tr.modules) == {'a', 'b', 'c', 'd', 'x'}
+    assert tr.modules['a'].imports == {'b'}
+    assert tr.modules['b'].imports == {'c'}
+    assert tr.modules['c'].imports == {'d'}
+    assert tr.modules['d'].imports == {'b'}
+    assert tr.modules['x'].imports == set()
