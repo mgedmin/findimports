@@ -12,3 +12,6 @@ include tests.py
 include tests/*.txt
 include tests/sample-tree/snake.egg-info
 recursive-include tests/sample-tree *.py *.zip
+
+# added by check-manifest
+include *.toml
