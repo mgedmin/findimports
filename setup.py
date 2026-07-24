@@ -13,7 +13,7 @@ def read(filename):
 
 
 metadata = {
-    (k, ast.literal_eval(v)) for k, v in
+    k: ast.literal_eval(v) for k, v in
     re.findall('^(__version__|__author__|__url__|__licence__) = (.*)$',
                read('findimports.py'), flags=re.MULTILINE)
 }
