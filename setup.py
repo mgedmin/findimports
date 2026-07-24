@@ -12,11 +12,11 @@ def read(filename):
         return f.read()
 
 
-metadata = dict(
+metadata = {
     (k, ast.literal_eval(v)) for k, v in
     re.findall('^(__version__|__author__|__url__|__licence__) = (.*)$',
                read('findimports.py'), flags=re.MULTILINE)
-)
+}
 version = metadata['__version__']
 author, author_email = email.utils.parseaddr(metadata['__author__'])
 url = metadata['__url__']

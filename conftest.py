@@ -12,7 +12,7 @@ here = pathlib.Path(__file__).resolve().parent
 sample_tree = pathlib.Path(here, 'tests/sample-tree')
 
 
-class RedirectToStdout(object):
+class RedirectToStdout:
     """A file-like object that prints to sys.stdout
 
     A reason to use sys.stderr = RedirectToStdout() instead of assigning

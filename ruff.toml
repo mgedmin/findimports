@@ -1,0 +1,12 @@
+[lint]
+# ruff is not wrong, per se, but I have no time right now to fix code that's not
+# broken (it was written a long time ago and still works perfectly well)
+ignore = [
+  "B006",  # mutable-argument-default
+  "UP030", # format-literals
+  "UP031", # printf-string-formatting
+  "UP032", # f-string
+]
+
+[lint.isort]
+lines-after-imports = 2

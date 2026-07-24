@@ -125,7 +125,7 @@ def adjust_lineno(filename, lineno, name):
     return lineno
 
 
-class ImportInfo(object):
+class ImportInfo:
     """A record of a name and the location of the import statement."""
 
     def __init__(self, name, filename, lineno, level):
@@ -253,7 +253,7 @@ class ImportFinder(DepthVisitor):
                 self.lineno_offset -= lineno + example.lineno
 
 
-class Scope(object):
+class Scope:
     """A namespace."""
 
     def __init__(self, parent=None, name=None):
@@ -393,7 +393,7 @@ def find_imports_and_track_names(filename, warn_about_duplicates=False,
     return visitor.imports, visitor.unused_names
 
 
-class Module(object):
+class Module:
     """Node in a module dependency graph.
 
     Packages may also be represented as Module objects.
@@ -419,7 +419,7 @@ class Module(object):
         return f"<{self.__class__.__name__}: {self.modname}>"
 
 
-class ModuleCycle(object):
+class ModuleCycle:
     """Node in a condenced module dependency graph.
 
     A strongly-connected component of one or more modules/packages.
@@ -432,7 +432,7 @@ class ModuleCycle(object):
         self.imports = set()
 
 
-class ModuleGraph(object):
+class ModuleGraph:
     """Module graph."""
 
     trackUnusedNames = False
@@ -955,7 +955,7 @@ class ModuleGraph(object):
 
     def constructDot(self, attributes=()):
         """Produce a dependency graph in dot format."""
-        lines = list()
+        lines = []
         lines.append("digraph ModuleDependencies {")
         if attributes:
             lines.extend(map("  {}".format, attributes))
