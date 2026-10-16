@@ -5,7 +5,7 @@ Changes
 3.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Add support for Python 3.15.
 
 
 3.0.0 (2025-12-08)
@@ -19,7 +19,7 @@ Changes
   external package 'foo', while 'foo.__init__' was shown to be with no incoming
   edges.
 
-Backwards incompatible changes: modules named ``__init__`` are now treated
+**Backwards incompatible changes**: modules named ``__init__`` are now treated
 as packages, so instead of ``foo.__init__`` in the output you'll see just
 ``foo``.
 
