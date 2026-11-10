@@ -1,5 +1,6 @@
 import itertools
 import os
+import sys
 import unittest
 from io import StringIO
 
@@ -132,6 +133,13 @@ def make_graph(edges: str) -> findimports.ModuleGraph:
         for u, v in itertools.pairwise(nodes):
             g.modules[u].imports.add(v)
     return g
+
+
+def test_main_reports_missing_path(monkeypatch) -> None:
+    buf = StringIO()
+    monkeypatch.setattr(sys, 'stderr', buf)
+    assert findimports.main(['findimports', 'no-such-file-xyz.py']) == 2
+    assert 'path not found: no-such-file-xyz.py' in buf.getvalue()
 
 
 def test_transitive_closure() -> None:

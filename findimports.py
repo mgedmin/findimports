@@ -1133,6 +1133,9 @@ def main(argv=None):
             parser.error('only one of -p and -pE can be provided')
         if args.collapse_cycles and (args.action == 'printImportedNames'):
             parser.error('only one of -c and -n can be provided')
+        for fn in args.filenames:
+            if not os.path.exists(fn):
+                parser.error(f'path not found: {fn}')
     except SystemExit as e:
         return e.code
 
